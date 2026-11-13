@@ -1,14 +1,18 @@
 package com.pccheck.agent;
 
+import com.pccheck.agent.collector.SystemCollector;
+import com.pccheck.agent.model.SystemSnapshot;
+import oshi.SystemInfo;
+
 /**
  * Ponto de entrada do agente local do PCCheck.
  *
- * V0.1: apenas inicia e informa a versão e o ambiente Java em uso.
- * Nenhuma coleta de hardware é feita nesta versão (começa na V0.2).
+ * V0.2: coleta sistema operacional, CPU e memoria do computador local (via OSHI)
+ * e imprime o resultado. Os dados sao lidos do sistema, nunca simulados.
  */
 public final class PcCheckAgent {
 
-    public static final String VERSION = "0.1.0";
+    public static final String VERSION = "0.2.0";
 
     private PcCheckAgent() {
     }
@@ -17,6 +21,17 @@ public final class PcCheckAgent {
         System.out.println("PCCheck Agent v" + VERSION);
         System.out.println("Java: " + System.getProperty("java.version")
                 + " (" + System.getProperty("java.vendor") + ")");
-        System.out.println("Agente iniciado. Coleta de hardware ainda nao implementada (V0.2).");
+
+        SystemInfo systemInfo;
+        try {
+            systemInfo = new SystemInfo();
+        } catch (RuntimeException | LinkageError e) {
+            System.err.println("Falha ao inicializar a biblioteca de coleta (OSHI): " + e);
+            System.exit(1);
+            return;
+        }
+
+        SystemSnapshot snapshot = new SystemCollector(systemInfo).collect();
+        System.out.print(SnapshotPrinter.format(snapshot));
     }
 }
