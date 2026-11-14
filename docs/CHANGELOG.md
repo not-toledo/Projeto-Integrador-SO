@@ -1,5 +1,15 @@
 # Histórico de versões
 
+## V0.6 — Módulo B: interface
+- Página `HealthCheckPage` consumindo `GET /api/health-check`: resumo de saúde (severidade geral e contagem por nível) e lista de alertas, do mais grave para o menos grave.
+- Níveis visuais consistentes (Informação, Atenção, Crítico): cor da borda + selo com texto, para não depender só da cor; suporte a tema escuro.
+- Cada alerta mostra componente, título, descrição, valor observado (ou "Sem leitura"), limite e natureza (normal, preventivo ou dado indisponível), deixando claro que não comprova defeito.
+- Estados: carregando, erro de comunicação (com "Reavaliar"), última avaliação mantida se a atualização falhar, e trava contra requisições simultâneas.
+- Navegação entre Hardware Overview e Health Check (`App.tsx`), sem nova dependência.
+- Serviço `healthService` com validação do formato; módulo `modules/health/` (tipos, rótulos, hook, componentes).
+- Testes (Vitest): cenários normal, atenção, crítico e sensor ausente, estados da página, serviço, rótulos e navegação.
+- Backend e agente permanecem na versão 0.5.0 (sem alterações). Frontend 0.6.0.
+
 ## V0.5 — Módulo B: diagnósticos
 - Pacote `diagnostic` no backend: `Severity` (Informação, Atenção, Crítico), `AlertKind` (normal, preventivo, indisponível), `Alert`, `HealthThresholds`, `HealthReport` e `HealthEvaluator`.
 - Diagnósticos independentes: `TemperatureDiagnostic`, `DiskSpaceDiagnostic`, `MemoryDiagnostic`, `SmartDiagnostic` e `CollectionDiagnostic` (coleta incompleta). A falha de um não impede os demais.

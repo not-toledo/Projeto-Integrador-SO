@@ -3,7 +3,7 @@
 Aplicação local de identificação, diagnóstico básico e monitoramento de hardware.
 Projeto Integrador de Sistemas Operacionais.
 
-**Versão atual: V0.5 — Módulo B: diagnósticos** (API de Health Check com alertas explicáveis de temperatura, espaço em disco, RAM e SMART; a interface do Módulo B vem na V0.6). O dashboard do Módulo A (V0.4) continua funcionando.
+**Versão atual: V0.6 — Módulo B: interface** (aba Health Check com resumo de saúde e lista de alertas, sobre a API de diagnósticos da V0.5). O dashboard do Módulo A (V0.4) continua disponível na aba Hardware Overview.
 
 ## Objetivo e problema
 
@@ -40,7 +40,7 @@ Dados indisponíveis são tratados como "não disponível": o sistema nunca simu
 | Armazenamento e sistema de arquivos | Unidades físicas e volumes montados, com capacidade, espaço livre e percentual de uso (consulta ao sistema de arquivos do SO). |
 | Shell Script e automação | `scripts/run-agent.sh/.bat` e `run-backend.sh/.bat` compilam e executam o agente e o backend; `tests/verificar-agente.sh` e `tests/verificar-api.sh` conferem a saída. |
 
-Previstos nas próximas versões: interface do Health Check (V0.6) e coleta periódica em segundo plano (V0.7).
+Previstos nas próximas versões: coleta periódica em segundo plano (V0.7).
 
 ## Funcionalidades implementadas (V0.3)
 
@@ -64,13 +64,17 @@ Previstos nas próximas versões: interface do Health Check (V0.6) e coleta peri
 - **Limites**: padrões genéricos do projeto (não do fabricante), configuráveis em `application.properties` (`pccheck.health.*`).
 - O módulo só informa: não altera configurações, não faz reparos nem testes de estresse.
 
+### Interface do Health Check (V0.6)
+
+Na interface, use a aba **Health Check**: resumo de saúde (Informação, Atenção ou Crítico, com contagem) e a lista de alertas, do mais grave para o menos grave. Cada alerta mostra valor observado, limite e se é normal, preventivo ou dado indisponível (nenhum deles comprova defeito). O botão **Reavaliar** faz uma nova coleta.
+
 ## Estrutura do repositório
 
 ```
 pccheck/
 ├── agent/      # Agente local (Java 21 + OSHI): collector/, model/ e testes unitários
 ├── backend/    # API Spring Boot (escuta só em 127.0.0.1:8080): controller/, service/, dto/, diagnostic/ (Módulo B), config/
-├── frontend/   # React + TypeScript (Vite): components/, modules/hardware/, pages/, services/
+├── frontend/   # React + TypeScript (Vite): components/, modules/hardware/, modules/health/, pages/, services/
 ├── scripts/    # Automação: run-agent e run-backend (.sh / .bat)
 ├── tests/      # Verificação ponta a ponta: verificar-agente.sh, verificar-api.sh e verificar-saude.sh
 ├── docs/       # Documentação e histórico (CHANGELOG)
@@ -127,7 +131,7 @@ Execute a partir de qualquer pasta; os scripts entram na raiz do projeto sozinho
 2. **Verificação ponta a ponta** (executa o agente real e confere as seções da saída):
    `mvn -pl agent package` e depois `tests/verificar-agente.sh` (Linux/macOS/Git Bash).
 3. **Verificação da API** (com o backend em execução): `tests/verificar-api.sh` confere que cada componente do inventário tem estado próprio.
-4. **Testes do frontend** (formatação de valores, serviço de API e estados da interface: carregando, erro, indisponível, falha parcial e atualização): `cd frontend && npm test`. Verificação de tipos e build: `npm run build`.
+4. **Testes do frontend** (formatação de valores, serviço de API e estados da interface: carregando, erro, indisponível, falha parcial e atualização; no Health Check, os cenários normal, atenção, crítico e sensor ausente): `cd frontend && npm test`. Verificação de tipos e build: `npm run build`.
 5. **Testes das regras do Health Check** (limites, severidades, valores ausentes, isolamento de falhas): `mvn -pl backend -am test`. Com o backend em execução, `tests/verificar-saude.sh` confere a estrutura da resposta de `/api/health-check`.
 6. **Conferência manual**: compare os valores do agente com o Gerenciador de Tarefas e o Gerenciador de Dispositivos (Windows) ou `lscpu`, `free -h` e `df -h` (Linux).
    Memória total, núcleos, modelo da CPU/GPU e capacidade dos volumes devem coincidir com o que o dashboard exibe.
@@ -142,6 +146,6 @@ Execute a partir de qualquer pasta; os scripts entram na raiz do projeto sozinho
 - Temperatura: depende de o sistema expor um sensor via OSHI; em muitos computadores (especialmente Windows sem driver específico) fica "não disponível". A leitura de temperatura **não foi testada em hardware real** nesta versão (apenas testes automatizados com valores de exemplo).
 - SMART não é suportado (o OSHI não o expõe); exigiria ferramenta externa e privilégios elevados.
 - Os limites do Health Check são genéricos, não oficiais do fabricante; ajuste-os conforme seu equipamento.
-- O Health Check ainda não tem interface (V0.6); consulte-o pela API.
+- A interface do Health Check atualiza apenas manualmente (botão **Reavaliar**); atualização periódica é do Módulo C. Os cenários normal, atenção, crítico e sensor ausente foram validados com dados de exemplo nos testes, não com sensores reais.
 - A interface atualiza apenas manualmente (botão **Atualizar**); atualização periódica e gráficos vêm no Módulo C (V0.7/V0.8).
 - O dashboard foi verificado por testes automatizados e pelo proxy de desenvolvimento; a aparência em navegador com dados reais depende de teste na sua máquina.

@@ -189,3 +189,166 @@ dd {
   text-align: center;
   color: var(--muted);
 }
+
+/* Navegação entre módulos */
+.nav {
+  display: flex;
+  gap: 0.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0.75rem 1rem 0;
+}
+
+.nav-item {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.nav-item-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* Health Check: níveis visuais consistentes. O texto do selo sempre acompanha a cor. */
+:root {
+  --ok-bg: #e8f5ec;
+  --ok-border: #8fc9a0;
+  --ok-text: #1b5e32;
+  --warn-bg: #fff6df;
+  --warn-border: #e2c15f;
+  --warn-text: #6b4e00;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ok-bg: #1b2e22;
+    --ok-border: #3f7a52;
+    --ok-text: #a8e3bb;
+    --warn-bg: #36301a;
+    --warn-border: #8a7430;
+    --warn-text: #f1d98a;
+  }
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge-info {
+  background: var(--ok-bg);
+  border-color: var(--ok-border);
+  color: var(--ok-text);
+}
+
+.badge-warning {
+  background: var(--warn-bg);
+  border-color: var(--warn-border);
+  color: var(--warn-text);
+}
+
+.badge-critical {
+  background: var(--error-bg);
+  border-color: var(--error-border);
+  color: var(--error-text);
+}
+
+.summary {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left-width: 6px;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.summary-info {
+  border-left-color: var(--ok-border);
+}
+
+.summary-warning {
+  border-left-color: var(--warn-border);
+}
+
+.summary-critical {
+  border-left-color: var(--error-border);
+}
+
+.summary-status {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0 0 0.75rem;
+}
+
+.summary-counts {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  color: var(--muted);
+}
+
+.summary-counts strong {
+  color: var(--text);
+  font-size: 1.25rem;
+  margin-right: 0.25rem;
+}
+
+.alert-list {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.alert {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left-width: 6px;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+
+.alert-info {
+  border-left-color: var(--ok-border);
+}
+
+.alert-warning {
+  border-left-color: var(--warn-border);
+}
+
+.alert-critical {
+  border-left-color: var(--error-border);
+}
+
+.alert-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.alert-component {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.alert-title {
+  margin: 0.5rem 0 0.25rem;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.alert-description {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+}
