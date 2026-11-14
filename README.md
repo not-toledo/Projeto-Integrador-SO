@@ -3,7 +3,7 @@
 Aplicação local de identificação, diagnóstico básico e monitoramento de hardware.
 Projeto Integrador de Sistemas Operacionais.
 
-**Versão atual: V0.7 — Módulo C: coleta periódica** (o backend coleta CPU, RAM, discos e sensores em segundo plano e mantém um histórico limitado, consultável em `/api/live`; os gráficos vêm na V0.8). A interface dos Módulos A e B continua disponível.
+**Versão atual: V0.8 — Módulo C: interface** (aba **Live Monitor** com indicadores atuais, gráficos temporais e estado da conexão, alimentada pela coleta periódica do backend em `/api/live`). A interface dos Módulos A e B continua disponível.
 
 ## Objetivo e problema
 
@@ -40,7 +40,7 @@ Dados indisponíveis são tratados como "não disponível": o sistema nunca simu
 | Armazenamento e sistema de arquivos | Unidades físicas e volumes montados, com capacidade, espaço livre e percentual de uso (consulta ao sistema de arquivos do SO). |
 | Shell Script e automação | `scripts/run-agent.sh/.bat` e `run-backend.sh/.bat` compilam e executam o agente e o backend; `tests/verificar-agente.sh` e `tests/verificar-api.sh` conferem a saída. |
 
-Previstos nas próximas versões: gráficos do Live Monitor (V0.8).
+Previstos nas próximas versões: integração e estabilização (V0.9) e versão estável (V1.0).
 
 ## Funcionalidades implementadas (V0.3)
 
@@ -64,7 +64,7 @@ Previstos nas próximas versões: gráficos do Live Monitor (V0.8).
 - **Limites**: padrões genéricos do projeto (não do fabricante), configuráveis em `application.properties` (`pccheck.health.*`).
 - O módulo só informa: não altera configurações, não faz reparos nem testes de estresse.
 
-## Live Monitor (V0.7, Módulo C — coleta)
+## Live Monitor (V0.7 coleta + V0.8 interface, Módulo C)
 
 O backend coleta métricas a cada 2 s (configurável) em uma thread de segundo plano, uma coleta por vez, e guarda as últimas 300 amostras em memória. `GET /api/live` devolve a amostra mais recente e o estado da coleta; `GET /api/live/history?limit=N`, o histórico. Detalhes em [docs/api-live.md](docs/api-live.md).
 
@@ -72,6 +72,10 @@ O backend coleta métricas a cada 2 s (configurável) em uma thread de segundo p
 - **GPU**: não suportada (o OSHI não fornece telemetria); aparece como indisponível, nunca inventada.
 - Sem acúmulo de tarefas, exceções tratadas, histórico limitado; métricas ausentes viram "sem leitura".
 - Configuração: `pccheck.monitor.interval-ms` e `pccheck.monitor.history-size` em `application.properties`.
+
+### Interface do Live Monitor (V0.8)
+
+Na interface, use a aba **Live Monitor**: indicadores atuais e gráficos de CPU (total e por núcleo), RAM, temperatura da CPU, ventoinhas e discos (leitura, escrita, tempo ocupado e espaço dos volumes), com unidades explícitas, horário da última leitura e o **estado da conexão** (Conectado, Aguardando a primeira coleta, Sem amostras novas, Coleta com problemas ou Sem conexão com o backend). Métricas sem leitura aparecem como lacunas no gráfico ou como "Sem leitura"; a GPU aparece como "Não suportado". A tela consulta o backend a cada 1–10 s (seguindo o intervalo de coleta), nunca empilha consultas e retoma sozinha após uma queda do backend. Para mudar o intervalo de coleta, ajuste `pccheck.monitor.interval-ms` no backend.
 
 ### Interface do Health Check (V0.6)
 
@@ -83,7 +87,7 @@ Na interface, use a aba **Health Check**: resumo de saúde (Informação, Atenç
 pccheck/
 ├── agent/      # Agente local (Java 21 + OSHI): collector/, model/ e testes unitários
 ├── backend/    # API Spring Boot (escuta só em 127.0.0.1:8080): controller/, service/, dto/, diagnostic/ (Módulo B), config/
-├── frontend/   # React + TypeScript (Vite): components/, modules/hardware/, modules/health/, pages/, services/
+├── frontend/   # React + TypeScript (Vite): components/, modules/hardware/, modules/health/, modules/live/, pages/, services/
 ├── scripts/    # Automação: run-agent e run-backend (.sh / .bat)
 ├── tests/      # Verificação ponta a ponta: verificar-agente.sh, verificar-api.sh, verificar-saude.sh e verificar-live.sh
 ├── docs/       # Documentação e histórico (CHANGELOG)
@@ -140,7 +144,7 @@ Execute a partir de qualquer pasta; os scripts entram na raiz do projeto sozinho
 2. **Verificação ponta a ponta** (executa o agente real e confere as seções da saída):
    `mvn -pl agent package` e depois `tests/verificar-agente.sh` (Linux/macOS/Git Bash).
 3. **Verificação da API** (com o backend em execução): `tests/verificar-api.sh` confere que cada componente do inventário tem estado próprio.
-4. **Testes do frontend** (formatação de valores, serviço de API e estados da interface: carregando, erro, indisponível, falha parcial e atualização; no Health Check, os cenários normal, atenção, crítico e sensor ausente): `cd frontend && npm test`. Verificação de tipos e build: `npm run build`.
+4. **Testes do frontend** (formatação de valores, serviço de API e estados da interface: carregando, erro, indisponível, falha parcial e atualização; no Health Check, os cenários normal, atenção, crítico e sensor ausente): `cd frontend && npm test`. Verificação de tipos e build: `npm run build`. No Live Monitor, os testes cobrem histórico limitado, lacunas em métricas ausentes, estado da conexão, consulta sem acúmulo e perda/retomada de conexão.
 5. **Testes das regras do Health Check** (limites, severidades, valores ausentes, isolamento de falhas): `mvn -pl backend -am test`. Com o backend em execução, `tests/verificar-saude.sh` confere a estrutura da resposta de `/api/health-check`.
 6. **Testes do Live Monitor** (histórico limitado, uma coleta por vez, exceções, taxas de disco): `mvn -pl backend -am test`. Com o backend em execução, `tests/verificar-live.sh` aguarda algumas coletas e confere a estrutura de `/api/live`.
 7. **Conferência manual**: compare os valores do agente com o Gerenciador de Tarefas e o Gerenciador de Dispositivos (Windows) ou `lscpu`, `free -h` e `df -h` (Linux).

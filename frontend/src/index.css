@@ -352,3 +352,145 @@ dd {
   margin: 0 0 0.5rem;
   font-size: 0.9rem;
 }
+
+/* ---- Módulo C: Live Monitor (V0.8) ---- */
+
+:root {
+  --chart-0: #2563eb;
+  --chart-1: #c2410c;
+  --live-ok: #1f7a3d;
+  --live-warn: #9a6a00;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --chart-0: #6ea0ff;
+    --chart-1: #ffa066;
+    --live-ok: #6fd08c;
+    --live-warn: #f1d98a;
+  }
+}
+
+.grid-live {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr));
+}
+
+.connection {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.connection-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.connection-connected .connection-dot {
+  background: var(--live-ok);
+}
+
+.connection-waiting .connection-dot,
+.connection-connecting .connection-dot,
+.connection-stale .connection-dot,
+.connection-degraded .connection-dot {
+  background: var(--live-warn);
+}
+
+.connection-disconnected .connection-dot {
+  background: var(--error-text);
+}
+
+.chart {
+  margin: 0.75rem 0 0;
+}
+
+.chart figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.chart-legend {
+  display: inline-flex;
+  gap: 0.75rem;
+  color: var(--muted);
+}
+
+.chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.chart-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.chart-grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.chart-axis {
+  fill: var(--muted);
+  font-size: 11px;
+}
+
+.chart-empty {
+  fill: var(--muted);
+  font-size: 14px;
+}
+
+.chart-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.chart-line-0 {
+  stroke: var(--chart-0);
+}
+
+.chart-line-1 {
+  stroke: var(--chart-1);
+}
+
+.cores,
+.volumes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.cores {
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+}
+
+.drive + .drive {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--border);
+}
+
+.drive-now {
+  margin: 0;
+  font-size: 0.9rem;
+}

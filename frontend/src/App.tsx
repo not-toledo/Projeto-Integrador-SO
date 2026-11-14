@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { HardwareOverviewPage } from './pages/HardwareOverviewPage'
 import { HealthCheckPage } from './pages/HealthCheckPage'
+import { LiveMonitorPage } from './pages/LiveMonitorPage'
 
-type View = 'hardware' | 'health'
+type View = 'hardware' | 'health' | 'live'
 
 const VIEWS: { id: View; label: string }[] = [
   { id: 'hardware', label: 'Hardware Overview' },
   { id: 'health', label: 'Health Check' },
+  { id: 'live', label: 'Live Monitor' },
 ]
 
 function App() {
@@ -27,7 +29,9 @@ function App() {
           </button>
         ))}
       </nav>
-      {view === 'hardware' ? <HardwareOverviewPage /> : <HealthCheckPage />}
+      {view === 'hardware' && <HardwareOverviewPage />}
+      {view === 'health' && <HealthCheckPage />}
+      {view === 'live' && <LiveMonitorPage />}
     </>
   )
 }

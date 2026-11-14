@@ -1,5 +1,15 @@
 # Histórico de versões
 
+## V0.8 — Módulo C: interface
+- Nova aba **Live Monitor** (`LiveMonitorPage`) no frontend, consumindo `GET /api/live/history` (carga inicial) e `GET /api/live` (consultas seguintes), sem alterar o backend nem o agente.
+- Indicadores atuais e gráficos temporais em SVG, **sem nova dependência**: CPU (total e por processador lógico), RAM, temperatura da CPU, ventoinhas, leitura/escrita e tempo ocupado por unidade, ocupação dos volumes. Eixos com unidade explícita (%, °C, MiB/s) e horário inicial/final.
+- Métricas indisponíveis: valor ausente gera **lacuna** no gráfico (nunca zero nem interpolação); grupos sem dado mostram "Sem leitura"; a GPU aparece como "Não suportado"; falha de coleta de um grupo (ERROR) não afeta os demais cartões.
+- Horário da última leitura, intervalo de coleta, quantidade de amostras e duração da última coleta. **Estado da conexão/coleta**: Conectando, Aguardando a primeira coleta, Conectado, Sem amostras novas, Coleta com problemas e Sem conexão com o backend (a última amostra recebida continua visível e a conexão é retomada sozinha).
+- Consulta periódica sem acúmulo: o hook `useLiveMonitor` agenda a próxima consulta só depois que a anterior termina (setTimeout encadeado), segue o intervalo de coleta do backend (1 a 10 s), recua após falhas (2 s, 4 s, 8 s… até 10 s) e interrompe tudo ao sair da aba. Histórico limitado a 300 amostras no navegador; amostra repetida é ignorada e histórico recomeça se o backend for reiniciado.
+- Lógica pura em `modules/live/series.ts` (histórico, extração de séries, geometria dos gráficos, estado da conexão) e `format.ts`; serviço `liveService` com validação do formato da resposta.
+- Testes (Vitest): `series.test.ts`, `format.test.ts`, `liveService.test.ts`, `LiveMonitorPage.test.tsx` e navegação em `App.test.tsx`.
+- Frontend 0.8.0; agente e backend permanecem na 0.7.0.
+
 ## V0.7 — Módulo C: coleta periódica
 - Agente: `LiveSampler` coleta, a cada amostra, CPU (total e por processador lógico), RAM, discos (leitura/escrita/ocupação por unidade e espaço livre dos volumes) e sensores (temperatura e ventoinhas), cada grupo isolado por `CollectorRunner`. Usa a diferença entre contadores da amostra anterior, sem bloquear.
 - GPU: sempre "não suportado" (o OSHI não fornece utilização nem memória de vídeo em uso); nenhum valor é inventado.
