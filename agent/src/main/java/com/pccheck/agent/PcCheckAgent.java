@@ -12,7 +12,7 @@ import oshi.SystemInfo;
  */
 public final class PcCheckAgent {
 
-    public static final String VERSION = "0.7.0";
+    public static final String VERSION = "0.8.0";
 
     private PcCheckAgent() {
     }

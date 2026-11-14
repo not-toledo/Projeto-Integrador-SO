@@ -3,15 +3,13 @@
 Aplicação local de identificação, diagnóstico básico e monitoramento de hardware.
 Projeto Integrador de Sistemas Operacionais.
 
-**Versão atual: V0.8 — Módulo C: interface** (aba **Live Monitor** com indicadores atuais, gráficos temporais e estado da conexão, alimentada pela coleta periódica do backend em `/api/live`). A interface dos Módulos A e B continua disponível.
+**Versão atual: V0.8.** O Módulo C (Live Monitor) está completo na interface, com indicadores atuais, gráficos temporais e estado da conexão, alimentado pela coleta periódica do backend em `/api/live`. Os Módulos A e B continuam disponíveis.
 
 ## Objetivo e problema
 
-Um usuário comum não tem uma forma simples de saber qual hardware o computador possui, se há algo preocupante
-(temperatura, disco cheio, RAM saturada) e como o equipamento se comporta ao longo do tempo. O PCCheck coleta
-essas informações **reais** do próprio computador e as apresenta de forma compreensível.
+Um usuário comum não tem uma forma simples de saber qual hardware o computador possui, se há algo preocupante (temperatura, disco cheio, RAM saturada) e como o equipamento se comporta ao longo do tempo. O PCCheck coleta essas informações **reais** do próprio computador e as apresenta de forma compreensível.
 
-Módulos previstos (escopo fechado):
+Módulos do projeto:
 
 - **A — Hardware Overview**: identifica os componentes e suas propriedades.
 - **B — Health Check**: avalia indicadores disponíveis e gera alertas explicáveis.
@@ -26,8 +24,8 @@ Dados indisponíveis são tratados como "não disponível": o sistema nunca simu
 ## Tecnologias
 
 - Java 21 e [OSHI](https://github.com/oshi/oshi) 6.6.5 (agente de coleta)
-- Spring Boot 3.3.5 (API local com o inventário de hardware em `/api/inventory`)
-- React + TypeScript com Vite, Vitest e Testing Library (interface do Módulo A)
+- Spring Boot 3.3.5 (API local com inventário em `/api/inventory`, diagnósticos em `/api/health-check` e monitoramento em `/api/live`)
+- React + TypeScript com Vite, Vitest e Testing Library (interface dos módulos A, B e C)
 - Maven, JUnit 5, Git/GitHub, Shell Script
 
 ## Conceitos de Sistemas Operacionais aplicados
@@ -42,7 +40,7 @@ Dados indisponíveis são tratados como "não disponível": o sistema nunca simu
 
 Previstos nas próximas versões: integração e estabilização (V0.9) e versão estável (V1.0).
 
-## Funcionalidades implementadas (V0.3)
+## Módulo A — Hardware Overview
 
 - Coleta de sistema operacional, CPU, memória, GPU, placa-mãe e armazenamento (unidades e volumes) do computador local.
 - Isolamento de falhas: se um coletor falhar, os demais continuam funcionando; cada resultado informa `OK`, `Não disponível` ou `ERRO`.
@@ -52,7 +50,7 @@ Previstos nas próximas versões: integração e estabilização (V0.9) e versã
 - Dashboard do Módulo A (frontend): um cartão por componente (sistema operacional, CPU, RAM, GPU, placa-mãe e armazenamento), com barras de utilização, horário e origem da última coleta e botão **Atualizar** (coleta manual).
 - Estados da interface: carregando; erro de comunicação com o backend (com "Tentar novamente"); componente indisponível ("Não disponível") e componente com falha de coleta, sem afetar os demais cartões. Se uma atualização falhar, a última coleta bem-sucedida continua visível com um aviso.
 
-## Health Check (V0.5, Módulo B)
+## Módulo B — Health Check
 
 `GET /api/health-check` avalia indicadores **realmente disponíveis** e devolve alertas explicáveis (id, componente, severidade, título, descrição, valor observado, limite e horário). Detalhes em [docs/api-saude.md](docs/api-saude.md).
 
@@ -64,7 +62,11 @@ Previstos nas próximas versões: integração e estabilização (V0.9) e versã
 - **Limites**: padrões genéricos do projeto (não do fabricante), configuráveis em `application.properties` (`pccheck.health.*`).
 - O módulo só informa: não altera configurações, não faz reparos nem testes de estresse.
 
-## Live Monitor (V0.7 coleta + V0.8 interface, Módulo C)
+### Interface do Health Check
+
+Na interface, use a aba **Health Check**: resumo de saúde (Informação, Atenção ou Crítico, com contagem) e a lista de alertas, do mais grave para o menos grave. Cada alerta mostra valor observado, limite e se é normal, preventivo ou dado indisponível (nenhum deles comprova defeito). O botão **Reavaliar** faz uma nova coleta.
+
+## Módulo C — Live Monitor
 
 O backend coleta métricas a cada 2 s (configurável) em uma thread de segundo plano, uma coleta por vez, e guarda as últimas 300 amostras em memória. `GET /api/live` devolve a amostra mais recente e o estado da coleta; `GET /api/live/history?limit=N`, o histórico. Detalhes em [docs/api-live.md](docs/api-live.md).
 
@@ -73,20 +75,18 @@ O backend coleta métricas a cada 2 s (configurável) em uma thread de segundo p
 - Sem acúmulo de tarefas, exceções tratadas, histórico limitado; métricas ausentes viram "sem leitura".
 - Configuração: `pccheck.monitor.interval-ms` e `pccheck.monitor.history-size` em `application.properties`.
 
-### Interface do Live Monitor (V0.8)
+### Interface do Live Monitor
 
-Na interface, use a aba **Live Monitor**: indicadores atuais e gráficos de CPU (total e por núcleo), RAM, temperatura da CPU, ventoinhas e discos (leitura, escrita, tempo ocupado e espaço dos volumes), com unidades explícitas, horário da última leitura e o **estado da conexão** (Conectado, Aguardando a primeira coleta, Sem amostras novas, Coleta com problemas ou Sem conexão com o backend). Métricas sem leitura aparecem como lacunas no gráfico ou como "Sem leitura"; a GPU aparece como "Não suportado". A tela consulta o backend a cada 1–10 s (seguindo o intervalo de coleta), nunca empilha consultas e retoma sozinha após uma queda do backend. Para mudar o intervalo de coleta, ajuste `pccheck.monitor.interval-ms` no backend.
+Na aba **Live Monitor**, a tela mostra indicadores atuais e gráficos de CPU (total e por núcleo), RAM, temperatura da CPU, ventoinhas e discos (leitura, escrita, tempo ocupado e espaço dos volumes), com unidades explícitas, horário da última leitura e o **estado da conexão** (Conectado, Aguardando a primeira coleta, Sem amostras novas, Coleta com problemas ou Sem conexão com o backend). Métricas sem leitura aparecem como lacunas no gráfico ou como "Sem leitura"; a GPU aparece como "Não suportado".
 
-### Interface do Health Check (V0.6)
-
-Na interface, use a aba **Health Check**: resumo de saúde (Informação, Atenção ou Crítico, com contagem) e a lista de alertas, do mais grave para o menos grave. Cada alerta mostra valor observado, limite e se é normal, preventivo ou dado indisponível (nenhum deles comprova defeito). O botão **Reavaliar** faz uma nova coleta.
+A tela **atualiza sozinha**: consulta o backend a cada 1–10 s (seguindo o intervalo de coleta), nunca empilha consultas e retoma após uma queda do backend. Para mudar o intervalo de coleta, ajuste `pccheck.monitor.interval-ms` no backend.
 
 ## Estrutura do repositório
 
 ```
 pccheck/
 ├── agent/      # Agente local (Java 21 + OSHI): collector/, model/ e testes unitários
-├── backend/    # API Spring Boot (escuta só em 127.0.0.1:8080): controller/, service/, dto/, diagnostic/ (Módulo B), config/
+├── backend/    # API Spring Boot (escuta só em 127.0.0.1:8080): controller/, service/, dto/, diagnostic/ (Módulo B), monitor/ (Módulo C), config/
 ├── frontend/   # React + TypeScript (Vite): components/, modules/hardware/, modules/health/, modules/live/, pages/, services/
 ├── scripts/    # Automação: run-agent e run-backend (.sh / .bat)
 ├── tests/      # Verificação ponta a ponta: verificar-agente.sh, verificar-api.sh, verificar-saude.sh e verificar-live.sh
@@ -103,19 +103,20 @@ Requisitos: **JDK 21**, **Maven 3.9+** (e Node.js 20+ para o frontend). Funciona
 
 ```
 mvn -pl agent package
-java -jar agent/target/pccheck-agent-0.7.0-all.jar
+java -jar agent/target/pccheck-agent-0.8.0-all.jar
 ```
 
 ### Backend
 
-O backend usa os coletores do agente no mesmo processo; por isso o agente precisa estar instalado no repositório Maven local antes:
+O backend usa os coletores do agente no mesmo processo; por isso o agente precisa estar instalado no repositório Maven local antes. Os scripts já fazem isso:
 
 ```
+mvn -N install
 mvn -pl agent install
 mvn -f backend/pom.xml spring-boot:run
 ```
 
-Teste: abrir `http://127.0.0.1:8080/api/inventory` (inventário) ou `http://127.0.0.1:8080/api/ping` → `{"status":"UP","app":"PCCheck","version":"0.7.0"}`.
+Teste: abrir `http://127.0.0.1:8080/api/inventory` (inventário) ou `http://127.0.0.1:8080/api/ping` → `{"status":"UP","app":"PCCheck","version":"0.8.0"}`.
 
 ### Frontend
 
@@ -127,8 +128,7 @@ npm install
 npm run dev
 ```
 
-Abra o endereço exibido pelo Vite (normalmente `http://localhost:5173`). Em desenvolvimento, o Vite encaminha `/api` para
-`http://127.0.0.1:8080`, então não há configuração de CORS. Para outro endereço de API, defina `VITE_API_BASE`.
+Abra o endereço exibido pelo Vite (normalmente `http://localhost:5173`). Em desenvolvimento, o Vite encaminha `/api` para `http://127.0.0.1:8080`, então não há configuração de CORS. Para outro endereço de API, defina `VITE_API_BASE`.
 
 ## Script de automação
 
@@ -139,16 +139,13 @@ Execute a partir de qualquer pasta; os scripts entram na raiz do projeto sozinho
 
 ## Como testar e verificar
 
-1. **Testes unitários** (conversões, percentuais, tratamento de valores inválidos, isolamento de falhas e formatação):
-   `mvn -pl agent test`
-2. **Verificação ponta a ponta** (executa o agente real e confere as seções da saída):
-   `mvn -pl agent package` e depois `tests/verificar-agente.sh` (Linux/macOS/Git Bash).
+1. **Testes unitários do agente** (conversões, percentuais, tratamento de valores inválidos, isolamento de falhas e formatação): `mvn -pl agent test`.
+2. **Verificação ponta a ponta** (executa o agente real e confere as seções da saída): `mvn -pl agent package` e depois `tests/verificar-agente.sh` (Linux/macOS/Git Bash).
 3. **Verificação da API** (com o backend em execução): `tests/verificar-api.sh` confere que cada componente do inventário tem estado próprio.
-4. **Testes do frontend** (formatação de valores, serviço de API e estados da interface: carregando, erro, indisponível, falha parcial e atualização; no Health Check, os cenários normal, atenção, crítico e sensor ausente): `cd frontend && npm test`. Verificação de tipos e build: `npm run build`. No Live Monitor, os testes cobrem histórico limitado, lacunas em métricas ausentes, estado da conexão, consulta sem acúmulo e perda/retomada de conexão.
-5. **Testes das regras do Health Check** (limites, severidades, valores ausentes, isolamento de falhas): `mvn -pl backend -am test`. Com o backend em execução, `tests/verificar-saude.sh` confere a estrutura da resposta de `/api/health-check`.
-6. **Testes do Live Monitor** (histórico limitado, uma coleta por vez, exceções, taxas de disco): `mvn -pl backend -am test`. Com o backend em execução, `tests/verificar-live.sh` aguarda algumas coletas e confere a estrutura de `/api/live`.
-7. **Conferência manual**: compare os valores do agente com o Gerenciador de Tarefas e o Gerenciador de Dispositivos (Windows) ou `lscpu`, `free -h` e `df -h` (Linux).
-   Memória total, núcleos, modelo da CPU/GPU e capacidade dos volumes devem coincidir com o que o dashboard exibe.
+4. **Testes do backend** (regras do Health Check, Live Monitor, histórico, motor de coleta e DTOs): `mvn -pl backend -am test`.
+5. **Verificação do Health Check e do Live Monitor** (com o backend em execução): `tests/verificar-saude.sh` confere a estrutura de `/api/health-check`; `tests/verificar-live.sh` aguarda algumas coletas e confere a estrutura de `/api/live`.
+6. **Testes do frontend** (formatação, serviços de API, estados da interface, navegação, Health Check e Live Monitor): `cd frontend && npm test`. Verificação de tipos e build: `npm run build`.
+7. **Conferência manual**: compare os valores do agente com o Gerenciador de Tarefas e o Gerenciador de Dispositivos (Windows) ou `lscpu`, `free -h` e `df -h` (Linux). Memória total, núcleos, modelo da CPU/GPU e capacidade dos volumes devem coincidir com o que o dashboard exibe.
 
 ## Limitações conhecidas
 
@@ -156,11 +153,11 @@ Execute a partir de qualquer pasta; os scripts entram na raiz do projeto sozinho
 - O uso de CPU é uma média em 500 ms e varia a cada execução.
 - GPU: apenas identificação e VRAM informada pelo sistema (o OSHI não distingue VRAM dedicada de compartilhada); a utilização da GPU não é suportada (ver Live Monitor).
 - Armazenamento: o tipo (SSD/HDD) não é informado, pois não há evidência confiável via OSHI; o espaço livre é o disponível ao usuário.
-- Placa-mãe: textos genéricos como "To be filled by O.E.M." são descartados e aparecem como "Não disponível".
+- Placa-mãe: textos genéricos como "To be filled by O.E.M." e versões em forma de placeholder (como `x.x`) são descartados e aparecem como "Não disponível".
 - Temperatura: depende de o sistema expor um sensor via OSHI; em muitos computadores (especialmente Windows sem driver específico) fica "não disponível". A leitura de temperatura **não foi testada em hardware real** nesta versão (apenas testes automatizados com valores de exemplo).
 - SMART não é suportado (o OSHI não o expõe); exigiria ferramenta externa e privilégios elevados.
-- Live Monitor: a GPU não tem telemetria; temperatura/ventoinhas dependem do sistema; a primeira amostra de cada disco não tem taxa (precisa de duas leituras). O histórico fica só em memória e a coleta roda continuamente enquanto o backend estiver ativo (aumente o intervalo para reduzir o consumo). O comportamento com OSHI real e sensores **não foi testado em hardware** nesta versão.
+- Live Monitor: a GPU não tem telemetria; temperatura e ventoinhas dependem do sistema; a primeira amostra de cada disco não tem taxa (precisa de duas leituras). O histórico fica só em memória e a coleta roda continuamente enquanto o backend estiver ativo (aumente o intervalo para reduzir o consumo). O comportamento com OSHI real e sensores **não foi testado em hardware** nesta versão.
 - Os limites do Health Check são genéricos, não oficiais do fabricante; ajuste-os conforme seu equipamento.
-- A interface do Health Check atualiza apenas manualmente (botão **Reavaliar**); atualização periódica é do Módulo C. Os cenários normal, atenção, crítico e sensor ausente foram validados com dados de exemplo nos testes, não com sensores reais.
-- A interface atualiza apenas manualmente (botão **Atualizar**); a coleta periódica já existe no backend (V0.7) e os gráficos na interface vêm na V0.8.
+- A interface do Hardware Overview atualiza apenas pelo botão **Atualizar**, e a do Health Check apenas pelo botão **Reavaliar**. Só o Live Monitor atualiza sozinho.
+- Os cenários normal, atenção, crítico e sensor ausente do Health Check foram validados com dados de exemplo nos testes, não com sensores reais.
 - O dashboard foi verificado por testes automatizados e pelo proxy de desenvolvimento; a aparência em navegador com dados reais depende de teste na sua máquina.

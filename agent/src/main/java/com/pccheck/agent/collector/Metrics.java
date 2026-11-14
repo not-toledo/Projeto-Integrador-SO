@@ -2,6 +2,7 @@ package com.pccheck.agent.collector;
 
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Conversões e validações puras (sem dependência do OSHI), para tratar valores
@@ -14,6 +15,9 @@ public final class Metrics {
             "to be filled by o.e.m.", "default string", "not specified", "not applicable", "n/a", "none",
             "o.e.m.", "system serial number", "system product name", "system manufacturer",
             "system version", "base board serial number");
+
+    /** Placeholders numéricos de versão, como "x.x" ou "X.XX": só letras x e pontuação, com ao menos um x. */
+    private static final Pattern OEM_PLACEHOLDER_PATTERN = Pattern.compile("^[xX.\\- ]*[xX][xX.\\- ]*$");
 
     private Metrics() {
     }
@@ -58,7 +62,9 @@ public final class Metrics {
     /** Como cleanText, mas também descarta textos genéricos de fabricantes (ex.: "To be filled by O.E.M."). */
     public static String cleanOemText(String text) {
         String cleaned = cleanText(text);
-        if (cleaned == null || OEM_PLACEHOLDERS.contains(cleaned.toLowerCase(Locale.ROOT))) {
+        if (cleaned == null
+                || OEM_PLACEHOLDERS.contains(cleaned.toLowerCase(Locale.ROOT))
+                || OEM_PLACEHOLDER_PATTERN.matcher(cleaned).matches()) {
             return null;
         }
         return cleaned;

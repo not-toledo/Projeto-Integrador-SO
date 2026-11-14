@@ -57,6 +57,16 @@ class HardwareCollectorsTest {
     }
 
     @Test
+    void placaMaeDescartaVersaoPlaceholderComoXPonto() {
+        MotherboardInfo mb = MotherboardCollector.build("Gigabyte Technology Co., Ltd.", "H81M-S1", "x.x",
+                null, null, null);
+        assertEquals("Gigabyte Technology Co., Ltd.", mb.manufacturer());
+        assertEquals("H81M-S1", mb.model());
+        assertNull(mb.version());
+        assertNull(MotherboardCollector.build(null, null, "X.XX", null, null, null));
+    }
+
+    @Test
     void discoConverteEDescartaInvalidos() {
         DiskInfo disk = DiskCollector.toDisk("\\\\.\\PHYSICALDRIVE0", "Modelo D", 500_107_862_016L);
         assertEquals("Modelo D", disk.model());

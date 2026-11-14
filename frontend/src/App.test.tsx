@@ -52,6 +52,6 @@ describe('App', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Hardware Overview' }))
     expect(await screen.findByText('SO de teste')).toBeTruthy()
-    expect(screen.queryByLabelText('CPU')).toBeNull()
+    expect(screen.queryByRole('heading', { name: 'Por processador lógico' })).toBeNull()
   })
 })

@@ -1,5 +1,16 @@
 # Histórico de versões
 
+## V0.8.1 — Ajustes finais da interface e versão 0.8.0
+- Correção na coleta da placa-mãe: versões com placeholder numérico, como `x.x` ou `X.XX`, passam a ser descartadas e aparecem como "Não disponível". A regra fica em `Metrics.cleanOemText`, com teste em `HardwareCollectorsTest`.
+- Versão 0.8.0 em todos os módulos: POMs (raiz, agente e backend), `PcCheckAgent.VERSION`, `/api/ping`, scripts de execução e de verificação, e frontend.
+- Correção no `run-backend` (`.bat` e `.sh`): instala o pom pai (`mvn -N install`) antes do agente, evitando a falha de dependência `pccheck-parent:0.8.0` ao subir o backend a partir de um repositório Maven limpo.
+- Correção do teste `App.test.tsx`: a verificação de saída do Live Monitor passa a usar o título "Por processador lógico", já que a tela de Hardware Overview também tem um cartão "CPU".
+- Documentação: README revisado (títulos sem número de versão, limitação de atualização separada por tela, comandos de backend e de testes atualizados) e entrada da V0.8 no CHANGELOG ajustada para 0.8.0.
+- Validação automatizada: `mvn test` com BUILD SUCCESS (agente 29/29, backend 44/44); frontend `npm test` com 84/84.
+- Validação manual: Hardware Overview, Health Check e Live Monitor abertos no navegador com dados reais do computador; ping respondendo `"version":"0.8.0"`.
+- Limitações mantidas: temperatura da CPU sem leitura nesta máquina (WMI não expõe o sensor), GPU sem telemetria de uso e memória, SMART não suportado e sensores de ventoinha não testados em outro hardware.
+- Versionamento: commit `[hash e mensagem]`.
+
 ## V0.8 — Módulo C: interface
 - Nova aba **Live Monitor** (`LiveMonitorPage`) no frontend, consumindo `GET /api/live/history` (carga inicial) e `GET /api/live` (consultas seguintes), sem alterar o backend nem o agente.
 - Indicadores atuais e gráficos temporais em SVG, **sem nova dependência**: CPU (total e por processador lógico), RAM, temperatura da CPU, ventoinhas, leitura/escrita e tempo ocupado por unidade, ocupação dos volumes. Eixos com unidade explícita (%, °C, MiB/s) e horário inicial/final.
@@ -8,7 +19,7 @@
 - Consulta periódica sem acúmulo: o hook `useLiveMonitor` agenda a próxima consulta só depois que a anterior termina (setTimeout encadeado), segue o intervalo de coleta do backend (1 a 10 s), recua após falhas (2 s, 4 s, 8 s… até 10 s) e interrompe tudo ao sair da aba. Histórico limitado a 300 amostras no navegador; amostra repetida é ignorada e histórico recomeça se o backend for reiniciado.
 - Lógica pura em `modules/live/series.ts` (histórico, extração de séries, geometria dos gráficos, estado da conexão) e `format.ts`; serviço `liveService` com validação do formato da resposta.
 - Testes (Vitest): `series.test.ts`, `format.test.ts`, `liveService.test.ts`, `LiveMonitorPage.test.tsx` e navegação em `App.test.tsx`.
-- Frontend 0.8.0; agente e backend permanecem na 0.7.0.
+- Versão 0.8.0 em todos os módulos: POMs, agente (`PcCheckAgent.VERSION`), backend, `/api/ping`, scripts e frontend.
 
 ## V0.7 — Módulo C: coleta periódica
 - Agente: `LiveSampler` coleta, a cada amostra, CPU (total e por processador lógico), RAM, discos (leitura/escrita/ocupação por unidade e espaço livre dos volumes) e sensores (temperatura e ventoinhas), cada grupo isolado por `CollectorRunner`. Usa a diferença entre contadores da amostra anterior, sem bloquear.

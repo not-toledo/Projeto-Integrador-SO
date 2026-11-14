@@ -3,5 +3,6 @@
 # Requer JDK 21 e Maven.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+mvn -q -N install
 mvn -q -pl agent install
 mvn -f backend/pom.xml spring-boot:run
