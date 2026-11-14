@@ -71,4 +71,15 @@ public final class Metrics {
         }
         return total - free;
     }
+
+    /**
+     * Temperatura em °C. O OSHI devolve 0 (ou NaN) quando não há sensor; valores fora de uma faixa
+     * física plausível (acima de 0 °C e até 150 °C) não são medições válidas.
+     */
+    public static Double validTemperature(double celsius) {
+        if (Double.isNaN(celsius) || Double.isInfinite(celsius) || celsius <= 0.0 || celsius > 150.0) {
+            return null;
+        }
+        return celsius;
+    }
 }

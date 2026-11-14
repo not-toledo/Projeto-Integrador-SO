@@ -3,7 +3,7 @@
 Aplicação local de identificação, diagnóstico básico e monitoramento de hardware.
 Projeto Integrador de Sistemas Operacionais.
 
-**Versão atual: V0.4 — Módulo A: interface** (dashboard React com sistema operacional, CPU, memória, GPU, placa-mãe e armazenamento, alimentado pela API de inventário).
+**Versão atual: V0.5 — Módulo B: diagnósticos** (API de Health Check com alertas explicáveis de temperatura, espaço em disco, RAM e SMART; a interface do Módulo B vem na V0.6). O dashboard do Módulo A (V0.4) continua funcionando.
 
 ## Objetivo e problema
 
@@ -40,7 +40,7 @@ Dados indisponíveis são tratados como "não disponível": o sistema nunca simu
 | Armazenamento e sistema de arquivos | Unidades físicas e volumes montados, com capacidade, espaço livre e percentual de uso (consulta ao sistema de arquivos do SO). |
 | Shell Script e automação | `scripts/run-agent.sh/.bat` e `run-backend.sh/.bat` compilam e executam o agente e o backend; `tests/verificar-agente.sh` e `tests/verificar-api.sh` conferem a saída. |
 
-Previstos nas próximas versões: temperaturas, SMART e coleta periódica em segundo plano.
+Previstos nas próximas versões: interface do Health Check (V0.6) e coleta periódica em segundo plano (V0.7).
 
 ## Funcionalidades implementadas (V0.3)
 
@@ -52,15 +52,27 @@ Previstos nas próximas versões: temperaturas, SMART e coleta periódica em seg
 - Dashboard do Módulo A (frontend): um cartão por componente (sistema operacional, CPU, RAM, GPU, placa-mãe e armazenamento), com barras de utilização, horário e origem da última coleta e botão **Atualizar** (coleta manual).
 - Estados da interface: carregando; erro de comunicação com o backend (com "Tentar novamente"); componente indisponível ("Não disponível") e componente com falha de coleta, sem afetar os demais cartões. Se uma atualização falhar, a última coleta bem-sucedida continua visível com um aviso.
 
+## Health Check (V0.5, Módulo B)
+
+`GET /api/health-check` avalia indicadores **realmente disponíveis** e devolve alertas explicáveis (id, componente, severidade, título, descrição, valor observado, limite e horário). Detalhes em [docs/api-saude.md](docs/api-saude.md).
+
+- **Severidades**: Informação, Atenção e Crítico. Cada alerta também diz se é *normal*, *preventivo* ou *dado indisponível*.
+- **Temperatura da CPU**: compara a leitura real com limites configuráveis; sem sensor, informa indisponibilidade (nunca estima).
+- **Espaço em disco**: por volume, com espaço livre, total e percentual.
+- **RAM**: uso alto gera só aviso de uso elevado, jamais defeito.
+- **SMART**: não suportado nesta versão; o alerta diz que a saúde física dos discos não foi avaliada.
+- **Limites**: padrões genéricos do projeto (não do fabricante), configuráveis em `application.properties` (`pccheck.health.*`).
+- O módulo só informa: não altera configurações, não faz reparos nem testes de estresse.
+
 ## Estrutura do repositório
 
 ```
 pccheck/
 ├── agent/      # Agente local (Java 21 + OSHI): collector/, model/ e testes unitários
-├── backend/    # API Spring Boot (escuta só em 127.0.0.1:8080)
+├── backend/    # API Spring Boot (escuta só em 127.0.0.1:8080): controller/, service/, dto/, diagnostic/ (Módulo B), config/
 ├── frontend/   # React + TypeScript (Vite): components/, modules/hardware/, pages/, services/
 ├── scripts/    # Automação: run-agent e run-backend (.sh / .bat)
-├── tests/      # Verificação ponta a ponta: verificar-agente.sh e verificar-api.sh
+├── tests/      # Verificação ponta a ponta: verificar-agente.sh, verificar-api.sh e verificar-saude.sh
 ├── docs/       # Documentação e histórico (CHANGELOG)
 ├── .gitignore
 └── README.md
@@ -74,7 +86,7 @@ Requisitos: **JDK 21**, **Maven 3.9+** (e Node.js 20+ para o frontend). Funciona
 
 ```
 mvn -pl agent package
-java -jar agent/target/pccheck-agent-0.3.0-all.jar
+java -jar agent/target/pccheck-agent-0.5.0-all.jar
 ```
 
 ### Backend
@@ -86,7 +98,7 @@ mvn -pl agent install
 mvn -f backend/pom.xml spring-boot:run
 ```
 
-Teste: abrir `http://127.0.0.1:8080/api/inventory` (inventário) ou `http://127.0.0.1:8080/api/ping` → `{"status":"UP","app":"PCCheck","version":"0.3.0"}`.
+Teste: abrir `http://127.0.0.1:8080/api/inventory` (inventário) ou `http://127.0.0.1:8080/api/ping` → `{"status":"UP","app":"PCCheck","version":"0.5.0"}`.
 
 ### Frontend
 
@@ -116,7 +128,8 @@ Execute a partir de qualquer pasta; os scripts entram na raiz do projeto sozinho
    `mvn -pl agent package` e depois `tests/verificar-agente.sh` (Linux/macOS/Git Bash).
 3. **Verificação da API** (com o backend em execução): `tests/verificar-api.sh` confere que cada componente do inventário tem estado próprio.
 4. **Testes do frontend** (formatação de valores, serviço de API e estados da interface: carregando, erro, indisponível, falha parcial e atualização): `cd frontend && npm test`. Verificação de tipos e build: `npm run build`.
-5. **Conferência manual**: compare os valores do agente com o Gerenciador de Tarefas e o Gerenciador de Dispositivos (Windows) ou `lscpu`, `free -h` e `df -h` (Linux).
+5. **Testes das regras do Health Check** (limites, severidades, valores ausentes, isolamento de falhas): `mvn -pl backend -am test`. Com o backend em execução, `tests/verificar-saude.sh` confere a estrutura da resposta de `/api/health-check`.
+6. **Conferência manual**: compare os valores do agente com o Gerenciador de Tarefas e o Gerenciador de Dispositivos (Windows) ou `lscpu`, `free -h` e `df -h` (Linux).
    Memória total, núcleos, modelo da CPU/GPU e capacidade dos volumes devem coincidir com o que o dashboard exibe.
 
 ## Limitações conhecidas
@@ -126,6 +139,9 @@ Execute a partir de qualquer pasta; os scripts entram na raiz do projeto sozinho
 - GPU: apenas identificação e VRAM informada pelo sistema (o OSHI não distingue VRAM dedicada de compartilhada); utilização/telemetria fica para a V0.7.
 - Armazenamento: o tipo (SSD/HDD) não é informado, pois não há evidência confiável via OSHI; o espaço livre é o disponível ao usuário.
 - Placa-mãe: textos genéricos como "To be filled by O.E.M." são descartados e aparecem como "Não disponível".
-- Temperatura e SMART ainda não foram implementados (V0.5).
+- Temperatura: depende de o sistema expor um sensor via OSHI; em muitos computadores (especialmente Windows sem driver específico) fica "não disponível". A leitura de temperatura **não foi testada em hardware real** nesta versão (apenas testes automatizados com valores de exemplo).
+- SMART não é suportado (o OSHI não o expõe); exigiria ferramenta externa e privilégios elevados.
+- Os limites do Health Check são genéricos, não oficiais do fabricante; ajuste-os conforme seu equipamento.
+- O Health Check ainda não tem interface (V0.6); consulte-o pela API.
 - A interface atualiza apenas manualmente (botão **Atualizar**); atualização periódica e gráficos vêm no Módulo C (V0.7/V0.8).
 - O dashboard foi verificado por testes automatizados e pelo proxy de desenvolvimento; a aparência em navegador com dados reais depende de teste na sua máquina.

@@ -71,4 +71,14 @@ class MetricsTest {
         assertNull(Metrics.usedBytes(100L, -1L));
         assertNull(Metrics.usedBytes(100L, 101L));
     }
+
+    @Test
+    void validTemperatureDescartaSentinelasEValoresImplausiveis() {
+        assertEquals(55.5, Metrics.validTemperature(55.5), 0.0001);
+        assertNull(Metrics.validTemperature(0.0));
+        assertNull(Metrics.validTemperature(-5.0));
+        assertNull(Metrics.validTemperature(Double.NaN));
+        assertNull(Metrics.validTemperature(Double.POSITIVE_INFINITY));
+        assertNull(Metrics.validTemperature(200.0));
+    }
 }

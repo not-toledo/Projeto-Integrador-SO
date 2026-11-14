@@ -1,5 +1,16 @@
 # Histórico de versões
 
+## V0.5 — Módulo B: diagnósticos
+- Pacote `diagnostic` no backend: `Severity` (Informação, Atenção, Crítico), `AlertKind` (normal, preventivo, indisponível), `Alert`, `HealthThresholds`, `HealthReport` e `HealthEvaluator`.
+- Diagnósticos independentes: `TemperatureDiagnostic`, `DiskSpaceDiagnostic`, `MemoryDiagnostic`, `SmartDiagnostic` e `CollectionDiagnostic` (coleta incompleta). A falha de um não impede os demais.
+- Agente: `SensorCollector` e `SensorInfo` (temperatura da CPU via OSHI); `Metrics.validTemperature` descarta 0, NaN e valores implausíveis.
+- Endpoint `GET /api/health-check` (`HealthCheckController`/`HealthCheckService`); documentação em `docs/api-saude.md`.
+- Limites configuráveis em `application.properties` (`pccheck.health.*`), com a origem documentada (padrões genéricos do projeto, não do fabricante).
+- SMART: **não suportado** nesta versão (o OSHI não expõe SMART); o alerta informa que a saúde física não foi avaliada.
+- Uso alto de RAM gera só aviso (Atenção); ausência de sensor gera só Informação; nenhum alerta afirma defeito.
+- Testes: 29 novos no backend (regras, limites, isolamento de falhas) e 1 no agente; novo `tests/verificar-saude.sh`.
+- Versão 0.5.0 em POMs, agente, `/api/ping` e scripts. Frontend sem alterações (permanece 0.4.0; a interface do Módulo B é a V0.6).
+
 ## V0.4 — Módulo A: interface
 - Dashboard em React + TypeScript (`HardwareOverviewPage`) com cartões para sistema operacional, CPU, RAM, GPU, placa-mãe e armazenamento.
 - Estados de carregamento, erro de comunicação (com tentativa nova), indisponibilidade e falha de coleta por componente.

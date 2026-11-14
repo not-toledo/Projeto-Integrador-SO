@@ -3,4 +3,4 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 mvn -q -pl agent package
-java -jar agent/target/pccheck-agent-0.3.0-all.jar
+java -jar agent/target/pccheck-agent-0.5.0-all.jar
