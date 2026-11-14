@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.pccheck</groupId>
     <artifactId>pccheck-parent</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
   </parent>
 
   <artifactId>pccheck-agent</artifactId>
@@ -31,6 +31,8 @@
       <artifactId>slf4j-simple</artifactId>
       <version>${slf4j.version}</version>
       <scope>runtime</scope>
+      <!-- Opcional: não é herdada pelo backend (que usa o Logback do Spring Boot); entra apenas no jar executável. -->
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -55,6 +57,9 @@
             </goals>
             <configuration>
               <createDependencyReducedPom>false</createDependencyReducedPom>
+              <!-- Mantém o jar normal (usado pelo backend) e gera o executável com sufixo -all. -->
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>all</shadedClassifierName>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <mainClass>com.pccheck.agent.PcCheckAgent</mainClass>

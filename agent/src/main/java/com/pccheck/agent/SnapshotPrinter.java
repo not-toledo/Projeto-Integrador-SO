@@ -3,9 +3,15 @@ package com.pccheck.agent;
 import com.pccheck.agent.model.CollectorResult;
 import com.pccheck.agent.model.CollectorStatus;
 import com.pccheck.agent.model.CpuInfo;
+import com.pccheck.agent.model.DiskInfo;
+import com.pccheck.agent.model.GpuInfo;
 import com.pccheck.agent.model.MemoryInfo;
+import com.pccheck.agent.model.MotherboardInfo;
 import com.pccheck.agent.model.OsInfo;
+import com.pccheck.agent.model.StorageInfo;
 import com.pccheck.agent.model.SystemSnapshot;
+import com.pccheck.agent.model.VolumeInfo;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -54,7 +60,72 @@ public final class SnapshotPrinter {
             line(sb, "Disponivel", gib(mem.availableBytes()));
             line(sb, "Utilizacao", percent(mem.usedPercent()));
         }
+
+        section(sb, "Placa de video", snapshot.gpu());
+        List<GpuInfo> gpus = snapshot.gpu().data();
+        if (gpus != null) {
+            int i = 1;
+            for (GpuInfo gpu : gpus) {
+                sb.append("  Placa ").append(i++).append(":").append(System.lineSeparator());
+                line(sb, "  Nome", gpu.name());
+                line(sb, "  Fabricante", gpu.vendor());
+                line(sb, "  ID do dispositivo", gpu.deviceId());
+                line(sb, "  VRAM informada", gib(gpu.vramBytes()));
+            }
+        }
+
+        section(sb, "Placa-mae", snapshot.motherboard());
+        MotherboardInfo board = snapshot.motherboard().data();
+        if (board != null) {
+            line(sb, "Fabricante", board.manufacturer());
+            line(sb, "Modelo", board.model());
+            line(sb, "Versao", board.version());
+            line(sb, "Numero de serie", board.serialNumber());
+            line(sb, "Computador (fabricante)", board.systemManufacturer());
+            line(sb, "Computador (modelo)", board.systemModel());
+        }
+
+        section(sb, "Armazenamento", snapshot.storage());
+        StorageInfo storage = snapshot.storage().data();
+        if (storage != null) {
+            appendDrives(sb, storage.drives());
+            appendVolumes(sb, storage.volumes());
+        }
         return sb.toString();
+    }
+
+    private static void appendDrives(StringBuilder sb, List<DiskInfo> drives) {
+        if (drives == null) {
+            line(sb, "Unidades fisicas", null);
+            return;
+        }
+        sb.append("  Unidades fisicas:").append(System.lineSeparator());
+        int i = 1;
+        for (DiskInfo d : drives) {
+            sb.append("    Unidade ").append(i++).append(":").append(System.lineSeparator());
+            line(sb, "    Nome", d.name());
+            line(sb, "    Modelo", d.model());
+            line(sb, "    Capacidade", gib(d.sizeBytes()));
+        }
+    }
+
+    private static void appendVolumes(StringBuilder sb, List<VolumeInfo> volumes) {
+        if (volumes == null) {
+            line(sb, "Volumes", null);
+            return;
+        }
+        sb.append("  Volumes:").append(System.lineSeparator());
+        int i = 1;
+        for (VolumeInfo v : volumes) {
+            sb.append("    Volume ").append(i++).append(":").append(System.lineSeparator());
+            line(sb, "    Ponto de montagem", v.mountPoint());
+            line(sb, "    Rotulo", v.label());
+            line(sb, "    Sistema de arquivos", v.fileSystem());
+            line(sb, "    Capacidade", gib(v.totalBytes()));
+            line(sb, "    Livre", gib(v.freeBytes()));
+            line(sb, "    Usado", gib(v.usedBytes()));
+            line(sb, "    Utilizacao", percent(v.usedPercent()));
+        }
     }
 
     private static void section(StringBuilder sb, String title, CollectorResult<?> result) {

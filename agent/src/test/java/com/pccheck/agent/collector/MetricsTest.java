@@ -50,4 +50,25 @@ class MetricsTest {
         assertNull(Metrics.cpuLoadToPercent(1.5));
         assertNull(Metrics.cpuLoadToPercent(Double.POSITIVE_INFINITY));
     }
+
+    @Test
+    void cleanOemTextDescartaTextosGenericosDeFabricantes() {
+        assertNull(Metrics.cleanOemText("To be filled by O.E.M."));
+        assertNull(Metrics.cleanOemText(" Default string "));
+        assertNull(Metrics.cleanOemText("None"));
+        assertNull(Metrics.cleanOemText("unknown"));
+        assertNull(Metrics.cleanOemText(null));
+        assertEquals("ROG STRIX B550-F", Metrics.cleanOemText(" ROG STRIX B550-F "));
+    }
+
+    @Test
+    void usedBytesValidaCoerencia() {
+        assertEquals(60L, Metrics.usedBytes(100L, 40L));
+        assertEquals(0L, Metrics.usedBytes(100L, 100L));
+        assertNull(Metrics.usedBytes(null, 40L));
+        assertNull(Metrics.usedBytes(100L, null));
+        assertNull(Metrics.usedBytes(0L, 0L));
+        assertNull(Metrics.usedBytes(100L, -1L));
+        assertNull(Metrics.usedBytes(100L, 101L));
+    }
 }

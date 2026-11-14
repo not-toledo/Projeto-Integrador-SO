@@ -1,10 +1,19 @@
 package com.pccheck.agent.collector;
 
+import java.util.Locale;
+import java.util.Set;
+
 /**
  * Conversões e validações puras (sem dependência do OSHI), para tratar valores
  * ausentes, inválidos ou sentinelas da biblioteca (ex.: -1) como "não disponível".
  */
 public final class Metrics {
+
+    /** Textos genéricos que fabricantes de placas/BIOS deixam preenchidos; não identificam o componente. */
+    private static final Set<String> OEM_PLACEHOLDERS = Set.of(
+            "to be filled by o.e.m.", "default string", "not specified", "not applicable", "n/a", "none",
+            "o.e.m.", "system serial number", "system product name", "system manufacturer",
+            "system version", "base board serial number");
 
     private Metrics() {
     }
@@ -44,5 +53,22 @@ public final class Metrics {
             return null;
         }
         return load * 100.0;
+    }
+
+    /** Como cleanText, mas também descarta textos genéricos de fabricantes (ex.: "To be filled by O.E.M."). */
+    public static String cleanOemText(String text) {
+        String cleaned = cleanText(text);
+        if (cleaned == null || OEM_PLACEHOLDERS.contains(cleaned.toLowerCase(Locale.ROOT))) {
+            return null;
+        }
+        return cleaned;
+    }
+
+    /** Espaço usado = total - livre; null se algum valor for ausente ou incoerente. */
+    public static Long usedBytes(Long total, Long free) {
+        if (total == null || free == null || total <= 0 || free < 0 || free > total) {
+            return null;
+        }
+        return total - free;
     }
 }

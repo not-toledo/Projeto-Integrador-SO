@@ -13,7 +13,7 @@
 
   <groupId>com.pccheck</groupId>
   <artifactId>pccheck-backend</artifactId>
-  <version>0.2.0</version>
+  <version>0.3.0</version>
   <name>PCCheck Backend</name>
 
   <properties>
@@ -21,6 +21,12 @@
   </properties>
 
   <dependencies>
+    <!-- Coletores do agente (mesmo processo). Instale antes: mvn -pl agent install -->
+    <dependency>
+      <groupId>com.pccheck</groupId>
+      <artifactId>pccheck-agent</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>

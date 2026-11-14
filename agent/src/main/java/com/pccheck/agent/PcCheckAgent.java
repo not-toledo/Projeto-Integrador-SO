@@ -7,12 +7,12 @@ import oshi.SystemInfo;
 /**
  * Ponto de entrada do agente local do PCCheck.
  *
- * V0.2: coleta sistema operacional, CPU e memoria do computador local (via OSHI)
+ * V0.3: coleta SO, CPU, memoria, GPU, placa-mae e armazenamento do computador local (via OSHI)
  * e imprime o resultado. Os dados sao lidos do sistema, nunca simulados.
  */
 public final class PcCheckAgent {
 
-    public static final String VERSION = "0.2.0";
+    public static final String VERSION = "0.3.0";
 
     private PcCheckAgent() {
     }
