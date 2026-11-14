@@ -1,5 +1,13 @@
 # Histórico de versões
 
+## V0.4 — Módulo A: interface
+- Dashboard em React + TypeScript (`HardwareOverviewPage`) com cartões para sistema operacional, CPU, RAM, GPU, placa-mãe e armazenamento.
+- Estados de carregamento, erro de comunicação (com tentativa nova), indisponibilidade e falha de coleta por componente.
+- Horário e origem da última coleta; botão Atualizar com trava contra requisições simultâneas; mantém a última coleta se a atualização falhar.
+- Serviço `inventoryService` com validação do formato da resposta; formatadores que exibem "Não disponível" para valores ausentes ou inválidos.
+- Proxy `/api` no Vite (dev e preview) para `127.0.0.1:8080`.
+- Testes com Vitest e Testing Library (18 testes). Agente e backend permanecem na versão 0.3.0 (sem alterações).
+
 ## V0.3 — Módulo A: coleta de hardware
 - Coletores `GpuCollector`, `MotherboardCollector` e `DiskCollector` (unidades físicas e volumes), isolados por `CollectorRunner`.
 - Novos modelos: `GpuInfo`, `MotherboardInfo`, `DiskInfo`, `VolumeInfo`, `StorageInfo`; `SystemSnapshot` ampliado.

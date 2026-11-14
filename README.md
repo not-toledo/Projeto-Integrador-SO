@@ -3,7 +3,7 @@
 Aplicação local de identificação, diagnóstico básico e monitoramento de hardware.
 Projeto Integrador de Sistemas Operacionais.
 
-**Versão atual: V0.3 — Módulo A: coleta de hardware** (sistema operacional, CPU, memória, GPU, placa-mãe e armazenamento, via agente Java + OSHI, com API de inventário).
+**Versão atual: V0.4 — Módulo A: interface** (dashboard React com sistema operacional, CPU, memória, GPU, placa-mãe e armazenamento, alimentado pela API de inventário).
 
 ## Objetivo e problema
 
@@ -27,7 +27,7 @@ Dados indisponíveis são tratados como "não disponível": o sistema nunca simu
 
 - Java 21 e [OSHI](https://github.com/oshi/oshi) 6.6.5 (agente de coleta)
 - Spring Boot 3.3.5 (API local com o inventário de hardware em `/api/inventory`)
-- React + TypeScript com Vite (interface; página inicial mínima, evolui a partir da V0.4)
+- React + TypeScript com Vite, Vitest e Testing Library (interface do Módulo A)
 - Maven, JUnit 5, Git/GitHub, Shell Script
 
 ## Conceitos de Sistemas Operacionais aplicados
@@ -49,7 +49,8 @@ Previstos nas próximas versões: temperaturas, SMART e coleta periódica em seg
 - Modelos de resposta padronizados (`OsInfo`, `CpuInfo`, `MemoryInfo`, `GpuInfo`, `MotherboardInfo`, `StorageInfo`, `SystemSnapshot`) e DTOs da API (`InventoryDto`, `ComponentDto`).
 - Saída em texto no terminal.
 - Backend com `GET /api/inventory` (inventário de hardware; cada componente com estado próprio) e `GET /api/ping`, escutando apenas em `127.0.0.1`. Detalhes em [docs/api-inventario.md](docs/api-inventario.md).
-- Frontend de estrutura inicial (a interface do Módulo A vem na V0.4).
+- Dashboard do Módulo A (frontend): um cartão por componente (sistema operacional, CPU, RAM, GPU, placa-mãe e armazenamento), com barras de utilização, horário e origem da última coleta e botão **Atualizar** (coleta manual).
+- Estados da interface: carregando; erro de comunicação com o backend (com "Tentar novamente"); componente indisponível ("Não disponível") e componente com falha de coleta, sem afetar os demais cartões. Se uma atualização falhar, a última coleta bem-sucedida continua visível com um aviso.
 
 ## Estrutura do repositório
 
@@ -57,7 +58,7 @@ Previstos nas próximas versões: temperaturas, SMART e coleta periódica em seg
 pccheck/
 ├── agent/      # Agente local (Java 21 + OSHI): collector/, model/ e testes unitários
 ├── backend/    # API Spring Boot (escuta só em 127.0.0.1:8080)
-├── frontend/   # React + TypeScript (Vite)
+├── frontend/   # React + TypeScript (Vite): components/, modules/hardware/, pages/, services/
 ├── scripts/    # Automação: run-agent e run-backend (.sh / .bat)
 ├── tests/      # Verificação ponta a ponta: verificar-agente.sh e verificar-api.sh
 ├── docs/       # Documentação e histórico (CHANGELOG)
@@ -89,11 +90,16 @@ Teste: abrir `http://127.0.0.1:8080/api/inventory` (inventário) ou `http://127.
 
 ### Frontend
 
+Com o backend em execução (`scripts/run-backend.sh` ou `.bat`):
+
 ```
 cd frontend
 npm install
 npm run dev
 ```
+
+Abra o endereço exibido pelo Vite (normalmente `http://localhost:5173`). Em desenvolvimento, o Vite encaminha `/api` para
+`http://127.0.0.1:8080`, então não há configuração de CORS. Para outro endereço de API, defina `VITE_API_BASE`.
 
 ## Script de automação
 
@@ -109,8 +115,9 @@ Execute a partir de qualquer pasta; os scripts entram na raiz do projeto sozinho
 2. **Verificação ponta a ponta** (executa o agente real e confere as seções da saída):
    `mvn -pl agent package` e depois `tests/verificar-agente.sh` (Linux/macOS/Git Bash).
 3. **Verificação da API** (com o backend em execução): `tests/verificar-api.sh` confere que cada componente do inventário tem estado próprio.
-4. **Conferência manual**: compare os valores do agente com o Gerenciador de Tarefas e o Gerenciador de Dispositivos (Windows) ou `lscpu`, `free -h` e `df -h` (Linux).
-   Memória total, núcleos, modelo da CPU/GPU e capacidade dos volumes devem coincidir.
+4. **Testes do frontend** (formatação de valores, serviço de API e estados da interface: carregando, erro, indisponível, falha parcial e atualização): `cd frontend && npm test`. Verificação de tipos e build: `npm run build`.
+5. **Conferência manual**: compare os valores do agente com o Gerenciador de Tarefas e o Gerenciador de Dispositivos (Windows) ou `lscpu`, `free -h` e `df -h` (Linux).
+   Memória total, núcleos, modelo da CPU/GPU e capacidade dos volumes devem coincidir com o que o dashboard exibe.
 
 ## Limitações conhecidas
 
@@ -120,4 +127,5 @@ Execute a partir de qualquer pasta; os scripts entram na raiz do projeto sozinho
 - Armazenamento: o tipo (SSD/HDD) não é informado, pois não há evidência confiável via OSHI; o espaço livre é o disponível ao usuário.
 - Placa-mãe: textos genéricos como "To be filled by O.E.M." são descartados e aparecem como "Não disponível".
 - Temperatura e SMART ainda não foram implementados (V0.5).
-- A interface ainda não exibe o inventário (V0.4).
+- A interface atualiza apenas manualmente (botão **Atualizar**); atualização periódica e gráficos vêm no Módulo C (V0.7/V0.8).
+- O dashboard foi verificado por testes automatizados e pelo proxy de desenvolvimento; a aparência em navegador com dados reais depende de teste na sua máquina.
