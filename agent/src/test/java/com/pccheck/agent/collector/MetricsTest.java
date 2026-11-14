@@ -81,4 +81,23 @@ class MetricsTest {
         assertNull(Metrics.validTemperature(Double.POSITIVE_INFINITY));
         assertNull(Metrics.validTemperature(200.0));
     }
+
+    @Test
+    void ratePerSecondCalculaTaxaEDescartaContadoresInvalidos() {
+        assertEquals(1000.0, Metrics.ratePerSecond(0L, 2000L, 2000L), 0.0001);
+        assertEquals(0.0, Metrics.ratePerSecond(500L, 500L, 1000L), 0.0001);
+        assertNull(Metrics.ratePerSecond(-1L, 100L, 1000L));
+        assertNull(Metrics.ratePerSecond(200L, 100L, 1000L)); // contador reiniciou
+        assertNull(Metrics.ratePerSecond(0L, 100L, 0L));
+        assertNull(Metrics.ratePerSecond(0L, 100L, -5L));
+    }
+
+    @Test
+    void busyPercentLimitaA100EDescartaValoresInvalidos() {
+        assertEquals(25.0, Metrics.busyPercent(0L, 500L, 2000L), 0.0001);
+        assertEquals(100.0, Metrics.busyPercent(0L, 5000L, 2000L), 0.0001);
+        assertNull(Metrics.busyPercent(100L, 50L, 2000L));
+        assertNull(Metrics.busyPercent(0L, 50L, 0L));
+        assertNull(Metrics.busyPercent(-1L, 50L, 1000L));
+    }
 }

@@ -6,7 +6,7 @@
 
   <groupId>com.pccheck</groupId>
   <artifactId>pccheck-parent</artifactId>
-  <version>0.5.0</version>
+  <version>0.7.0</version>
   <packaging>pom</packaging>
   <name>PCCheck</name>
 

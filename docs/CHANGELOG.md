@@ -1,5 +1,15 @@
 # Histórico de versões
 
+## V0.7 — Módulo C: coleta periódica
+- Agente: `LiveSampler` coleta, a cada amostra, CPU (total e por processador lógico), RAM, discos (leitura/escrita/ocupação por unidade e espaço livre dos volumes) e sensores (temperatura e ventoinhas), cada grupo isolado por `CollectorRunner`. Usa a diferença entre contadores da amostra anterior, sem bloquear.
+- GPU: sempre "não suportado" (o OSHI não fornece utilização nem memória de vídeo em uso); nenhum valor é inventado.
+- Novos modelos: `LiveSample`, `CpuLive`, `GpuLive`, `DiskLive`, `DiskActivity`, `SensorLive`; `Metrics.ratePerSecond` e `Metrics.busyPercent` (descartam contadores inválidos ou reiniciados).
+- Backend: pacote `monitor` com `MonitorEngine` (uma coleta por vez, exceções registradas, detecção de coleta travada) e `SampleHistory` (histórico limitado em memória). `LiveMonitorService` agenda a coleta em thread própria com `scheduleWithFixedDelay` (sem acúmulo de tarefas).
+- Endpoints `GET /api/live` e `GET /api/live/history?limit=N` (apenas leem a memória; a coleta ocorre em segundo plano). Documentação em `docs/api-live.md`.
+- Configuração: `pccheck.monitor.interval-ms` (padrão 2000, mínimo 500) e `pccheck.monitor.history-size` (padrão 300).
+- Testes: 14 novos no backend (histórico, motor, DTO) e 2 no agente (taxas); novo `tests/verificar-live.sh`.
+- Versão 0.7.0 em POMs, agente, `/api/ping` e scripts. Frontend sem alterações (0.6.0); gráficos e indicadores são a V0.8.
+
 ## V0.6 — Módulo B: interface
 - Página `HealthCheckPage` consumindo `GET /api/health-check`: resumo de saúde (severidade geral e contagem por nível) e lista de alertas, do mais grave para o menos grave.
 - Níveis visuais consistentes (Informação, Atenção, Crítico): cor da borda + selo com texto, para não depender só da cor; suporte a tema escuro.

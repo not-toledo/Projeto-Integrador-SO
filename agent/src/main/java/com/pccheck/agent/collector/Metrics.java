@@ -82,4 +82,26 @@ public final class Metrics {
         }
         return celsius;
     }
+
+    /**
+     * Taxa por segundo entre dois contadores acumulados. Retorna null se não houver valor anterior,
+     * se o contador diminuir (reinício/estouro) ou se o intervalo for inválido.
+     */
+    public static Double ratePerSecond(long previous, long current, long elapsedMs) {
+        if (previous < 0 || current < previous || elapsedMs <= 0) {
+            return null;
+        }
+        return (current - previous) * 1000.0 / elapsedMs;
+    }
+
+    /**
+     * Percentual de tempo ocupado a partir de um contador de milissegundos acumulados.
+     * Limitado a 100 (leituras podem exceder levemente por arredondamento); null se inválido.
+     */
+    public static Double busyPercent(long previousMs, long currentMs, long elapsedMs) {
+        if (previousMs < 0 || currentMs < previousMs || elapsedMs <= 0) {
+            return null;
+        }
+        return Math.min(100.0, (currentMs - previousMs) * 100.0 / elapsedMs);
+    }
 }
