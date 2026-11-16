@@ -1,5 +1,10 @@
 package com.pccheck.agent.collector;
 
+import com.pccheck.agent.lhm.LhmClient;
+import com.pccheck.agent.lhm.LhmGpu;
+import com.pccheck.agent.lhm.LhmReading;
+import com.pccheck.agent.lhm.LhmSource;
+import com.pccheck.agent.lhm.LhmUnavailableException;
 import com.pccheck.agent.model.CollectorResult;
 import com.pccheck.agent.model.CpuLive;
 import com.pccheck.agent.model.DiskActivity;
@@ -30,17 +35,26 @@ import oshi.software.os.OSFileStore;
  */
 public class LiveSampler {
 
-    /** Mensagem exibida para a GPU: o OSHI não fornece telemetria de GPU. */
-    static final String GPU_UNSUPPORTED =
-            "Não suportado: a biblioteca de coleta (OSHI) não fornece utilização nem memória de vídeo em uso da GPU.";
+    /**
+     * O OSHI não fornece telemetria de GPU nem leitura confiável de sensores no Windows; essas métricas vêm do
+     * LibreHardwareMonitor (servidor web local). Quando ele não está acessível, a mensagem explica como ativar.
+     */
+    static final String GPU_NO_SOURCE_HINT =
+            "A telemetria da GPU vem do LibreHardwareMonitor (o OSHI não a fornece). ";
 
     private final SystemInfo systemInfo;
+    private final LhmSource lhm;
     private long[] previousCpuTicks;
     private long[][] previousCoreTicks;
     private final Map<String, DiskCounters> previousDisk = new HashMap<>();
 
     public LiveSampler(SystemInfo systemInfo) {
+        this(systemInfo, new LhmClient(LhmClient.DEFAULT_URL));
+    }
+
+    public LiveSampler(SystemInfo systemInfo, LhmSource lhm) {
         this.systemInfo = systemInfo;
+        this.lhm = lhm;
         CentralProcessor processor = systemInfo.getHardware().getProcessor();
         // Referência inicial: a primeira amostra mede o uso desde a criação do amostrador.
         this.previousCpuTicks = processor.getSystemCpuLoadTicks();
@@ -51,9 +65,11 @@ public class LiveSampler {
         long start = System.nanoTime();
         CollectorResult<CpuLive> cpu = CollectorRunner.run(new Named<>("LiveCpu", this::readCpu));
         CollectorResult<MemoryInfo> memory = CollectorRunner.run(new RamCollector(systemInfo));
-        CollectorResult<GpuLive> gpu = CollectorResult.unavailable("LiveGpu", GPU_UNSUPPORTED);
+        // Uma única consulta ao LibreHardwareMonitor por amostra, compartilhada por GPU e sensores.
+        LhmOutcome lhmOutcome = readLhm();
+        CollectorResult<GpuLive> gpu = readGpu(lhmOutcome);
         CollectorResult<DiskLive> disks = CollectorRunner.run(new Named<>("LiveDisk", this::readDisks));
-        CollectorResult<SensorLive> sensors = CollectorRunner.run(new Named<>("LiveSensors", this::readSensors));
+        CollectorResult<SensorLive> sensors = CollectorRunner.run(new Named<>("LiveSensors", () -> readSensors(lhmOutcome)));
         long durationMs = (System.nanoTime() - start) / 1_000_000L;
         return new LiveSample(Instant.now(), durationMs, cpu, memory, gpu, disks, sensors);
     }
@@ -142,20 +158,78 @@ public class LiveSampler {
         return result.isEmpty() ? null : result;
     }
 
-    private SensorLive readSensors() {
+    /** Resultado da consulta ao LibreHardwareMonitor: leitura ou o motivo de não haver. */
+    private record LhmOutcome(LhmReading reading, String problem) {
+    }
+
+    private LhmOutcome readLhm() {
+        try {
+            return new LhmOutcome(lhm.read(), null);
+        } catch (LhmUnavailableException e) {
+            return new LhmOutcome(null, e.getMessage());
+        } catch (RuntimeException e) {
+            return new LhmOutcome(null, "Falha ao ler o LibreHardwareMonitor: " + e.getMessage());
+        }
+    }
+
+    /**
+     * GPU: UNAVAILABLE (com o motivo e o que fazer) quando o LibreHardwareMonitor não está acessível ou não
+     * informa a placa; nunca um valor inventado.
+     */
+    private CollectorResult<GpuLive> readGpu(LhmOutcome outcome) {
+        final String collector = "LiveGpu";
+        try {
+            if (outcome.reading() == null) {
+                return CollectorResult.unavailable(collector, GPU_NO_SOURCE_HINT + outcome.problem());
+            }
+            LhmGpu gpu = outcome.reading().primaryGpu();
+            if (gpu == null) {
+                return CollectorResult.unavailable(collector,
+                        "O LibreHardwareMonitor está ativo, mas não informou nenhuma placa de vídeo.");
+            }
+            if (gpu.loadPercent() == null && gpu.vramUsedBytes() == null && gpu.temperatureCelsius() == null) {
+                return CollectorResult.unavailable(collector,
+                        "O LibreHardwareMonitor encontrou a placa de vídeo, mas sem leituras de uso, memória ou temperatura.");
+            }
+            return CollectorResult.ok(collector, new GpuLive(gpu.loadPercent(), gpu.vramUsedBytes(),
+                    gpu.vramTotalBytes(), gpu.temperatureCelsius(), gpu.name()));
+        } catch (RuntimeException e) {
+            return CollectorResult.error(collector, e.getClass().getSimpleName() + ": " + e.getMessage());
+        }
+    }
+
+    private SensorLive readSensors(LhmOutcome outcome) {
         Sensors sensors = systemInfo.getHardware().getSensors();
-        Double temperature = Metrics.validTemperature(sensors.getCpuTemperature());
+        LhmReading reading = outcome.reading();
+
+        // CPU: o LibreHardwareMonitor lê o sensor real; o OSHI fica como alternativa.
+        Double temperature = reading == null ? null : Metrics.validTemperature(
+                reading.cpuTemperatureCelsius() == null ? Double.NaN : reading.cpuTemperatureCelsius());
+        if (temperature == null) {
+            temperature = Metrics.validTemperature(sensors.getCpuTemperature());
+        }
+
         List<Integer> fans = new ArrayList<>();
-        for (int rpm : sensors.getFanSpeeds()) {
-            Integer valid = Metrics.positiveOrNull(rpm);
-            if (valid != null) {
-                fans.add(valid);
+        if (reading != null) {
+            fans.addAll(reading.fanSpeedsRpm());
+        }
+        if (fans.isEmpty()) {
+            for (int rpm : sensors.getFanSpeeds()) {
+                Integer valid = Metrics.positiveOrNull(rpm);
+                if (valid != null) {
+                    fans.add(valid);
+                }
             }
         }
-        if (temperature == null && fans.isEmpty()) {
+
+        Double gpuTemperature = null;
+        if (reading != null && reading.primaryGpu() != null) {
+            gpuTemperature = reading.primaryGpu().temperatureCelsius();
+        }
+        if (temperature == null && fans.isEmpty() && gpuTemperature == null) {
             return null;
         }
-        return new SensorLive(temperature, fans.isEmpty() ? null : fans);
+        return new SensorLive(temperature, fans.isEmpty() ? null : fans, gpuTemperature);
     }
 
     private record DiskCounters(long readBytes, long writeBytes, long transferMs, long timestampMs) {

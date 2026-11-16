@@ -17,6 +17,9 @@ export interface MemoryLive {
 export interface GpuLive {
   utilizationPercent: number | null
   vramUsedBytes: number | null
+  vramTotalBytes?: number | null
+  temperatureCelsius?: number | null
+  name?: string | null
 }
 
 export interface DiskActivity {
@@ -44,6 +47,7 @@ export interface DiskLive {
 export interface SensorLive {
   cpuTemperatureCelsius: number | null
   fanSpeedsRpm: number[] | null
+  gpuTemperatureCelsius?: number | null
 }
 
 export interface LiveSample {

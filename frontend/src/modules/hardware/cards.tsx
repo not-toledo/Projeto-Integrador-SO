@@ -85,8 +85,8 @@ export function GpuCard({ result }: { result: Result<'gpu'> }) {
             </div>
           ))}
           <p className="muted">
-            Utilização e telemetria da GPU não são exibidas nesta tela. A VRAM não distingue memória dedicada de
-            compartilhada.
+            A utilização e a temperatura da GPU aparecem na aba Live Monitor (via LibreHardwareMonitor). A VRAM
+            informada aqui não distingue memória dedicada de compartilhada.
           </p>
         </>
       )}

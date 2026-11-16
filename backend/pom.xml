@@ -13,7 +13,7 @@
 
   <groupId>com.pccheck</groupId>
   <artifactId>pccheck-backend</artifactId>
-  <version>0.8.0</version>
+  <version>0.9.0</version>
   <name>PCCheck Backend</name>
 
   <properties>

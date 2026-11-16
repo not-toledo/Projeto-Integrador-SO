@@ -86,7 +86,7 @@ export function LiveMonitorPage() {
 
       <p className="muted">
         Os gráficos mostram somente leituras reais do computador local; métricas sem leitura aparecem como lacunas ou como
-        &quot;Sem leitura&quot;/&quot;Não suportado&quot;. O histórico fica apenas na memória (últimas {MAX_POINTS} amostras).
+        &quot;Sem leitura&quot;. GPU e sensores vêm do LibreHardwareMonitor (servidor web local ativo). O histórico fica apenas na memória (últimas {MAX_POINTS} amostras).
       </p>
     </main>
   )

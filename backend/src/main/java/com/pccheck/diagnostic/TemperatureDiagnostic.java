@@ -33,7 +33,8 @@ public class TemperatureDiagnostic implements Diagnostic {
             return List.of(new Alert(ID, COMPONENT, Severity.INFO, AlertKind.UNAVAILABLE,
                     "Temperatura da CPU não disponível",
                     "O sistema não informou uma leitura de temperatura. Isso é comum (depende do hardware, do driver "
-                            + "e de permissões) e não indica defeito; a temperatura não foi estimada." + reason,
+                            + "e de permissões) e não indica defeito; a temperatura não foi estimada. Para obter a leitura, "
+                            + "abra o LibreHardwareMonitor como administrador e ative Options > Remote Web Server > Run." + reason,
                     null, null, now));
         }
 

@@ -1,15 +1,33 @@
 # Histórico de versões
 
+## Pós-V0.9 — Organização da documentação
+- Documentação reorganizada no formato do repositório de referência (aula-documentacao-software): `README.md` enxuto na raiz; `docs/` com documentação de projeto, API, processo (DevOps), diagramas e checklist; `templates/README-projeto.md`; `CONTRIBUTING.md` e `SECURITY.md`.
+- Documentos de API movidos para `docs/api/`; links atualizados.
+- Diagramas em Mermaid, cada um com descrição em texto.
+- Novo `scripts/testes-documentacao.sh`: verifica documentos obrigatórios, marcadores pendentes, links internos e segredos óbvios.
+- Pendências explícitas: integrantes, licença e canal de contato de segurança.
+
+## Pós-V0.9 — GPU e sensores via LibreHardwareMonitor
+- O OSHI 6.6.5 não fornece telemetria de GPU e, no Windows, só consulta o Open Hardware Monitor antigo para sensores (por isso "Não suportado" na GPU e "Sem leitura" nos sensores). Agora o agente lê o `data.json` do servidor web local do LibreHardwareMonitor (novo pacote `com.pccheck.agent.lhm`: `LhmClient`, `LhmParser`, `LhmReading`), sem nova dependência.
+- Live Monitor: a GPU mostra placa, utilização, memória de vídeo (em uso e total) e temperatura, com gráfico; Sensores ganha temperatura da GPU e gráfico de temperaturas CPU/GPU. `GpuLive` e `SensorLive` ganharam campos (`vramTotalBytes`, `temperatureCelsius`, `name`; `gpuTemperatureCelsius`).
+- Health Check: a temperatura da CPU usa a leitura do LibreHardwareMonitor e, na falta dela, o OSHI.
+- Sem o LibreHardwareMonitor rodando, GPU e sensores continuam "Sem leitura" (nunca estimados), agora com a orientação de como ativar. Configuração em `pccheck.lhm.url` (somente localhost; em branco desativa).
+- Testes: `LhmParserTest` e `LhmClientTest` (JSON de exemplo nos formatos novo e antigo, números em pt-BR) e novos casos em `LiveMonitorPage.test.tsx`. Guia em `docs/libre-hardware-monitor.md`.
+
+## V0.9 — Integração e estabilização
+- Revisão de integração dos módulos A, B e C (backend e frontend) **sem novas funcionalidades**: a documentação da API do Live Monitor foi conferida contra o código (intervalo mínimo de 500 ms, histórico de 10 a 3600 amostras, coleta sem acúmulo, `limit` menor que 1 devolve lista vazia) e não precisou de alterações.
+- Logs: o aviso repetido do OSHI sobre `MSAcpi_ThermalZoneTemperature` (sensor ausente, uma linha por coleta) passa a ficar oculto por `logging.level.oshi.util.platform.windows.WmiQueryHandler=ERROR` em `application.properties`. A interface continua mostrando "Sem leitura"; remover a linha restaura os avisos.
+- Documentação: README com a versão atual, requisito de **Node.js 22.12+** (o Vitest 5 não roda em versões anteriores), orientação de usar dois terminais e entrar em `frontend/`, e nova seção **Solução de problemas** com as falhas reais encontradas ao executar do zero no Windows (PATH do Maven, `pccheck-parent` ausente, porta 8080 ocupada, `Missing script: "dev"`, Git Bash para os `tests/*.sh`).
+- `frontend/README.md` substituído: era o texto padrão do template do Vite; agora descreve requisitos, comandos, proxy da API e estrutura de `src/`.
+- Versão 0.9.0 em todos os módulos: POMs (raiz, agente e backend), `PcCheckAgent.VERSION`, `/api/ping`, scripts, `tests/verificar-agente.sh`, `package.json` e `package-lock.json` do frontend.
+- Pendências conhecidas: `scripts/build-agent.sh` e `.bat` são restos da V0.1 e não funcionam com as dependências atuais (substituídos por `run-agent`); a validação do fluxo completo em máquina real depende de execução manual (ver relatório da V0.9).
+
 ## V0.8.1 — Ajustes finais da interface e versão 0.8.0
-- Correção na coleta da placa-mãe: versões com placeholder numérico, como `x.x` ou `X.XX`, passam a ser descartadas e aparecem como "Não disponível". A regra fica em `Metrics.cleanOemText`, com teste em `HardwareCollectorsTest`.
-- Versão 0.8.0 em todos os módulos: POMs (raiz, agente e backend), `PcCheckAgent.VERSION`, `/api/ping`, scripts de execução e de verificação, e frontend.
-- Correção no `run-backend` (`.bat` e `.sh`): instala o pom pai (`mvn -N install`) antes do agente, evitando a falha de dependência `pccheck-parent:0.8.0` ao subir o backend a partir de um repositório Maven limpo.
-- Correção do teste `App.test.tsx`: a verificação de saída do Live Monitor passa a usar o título "Por processador lógico", já que a tela de Hardware Overview também tem um cartão "CPU".
-- Documentação: README revisado (títulos sem número de versão, limitação de atualização separada por tela, comandos de backend e de testes atualizados) e entrada da V0.8 no CHANGELOG ajustada para 0.8.0.
-- Validação automatizada: `mvn test` com BUILD SUCCESS (agente 29/29, backend 44/44); frontend `npm test` com 84/84.
-- Validação manual: Hardware Overview, Health Check e Live Monitor abertos no navegador com dados reais do computador; ping respondendo `"version":"0.8.0"`.
-- Limitações mantidas: temperatura da CPU sem leitura nesta máquina (WMI não expõe o sensor), GPU sem telemetria de uso e memória, SMART não suportado e sensores de ventoinha não testados em outro hardware.
-- Versionamento: commit `[hash e mensagem]`.
+- Correção na coleta da placa-mãe: versões com placeholder numérico, como `x.x` ou `X.XX`, passam a ser descartadas e aparecem como "Não disponível" (`Metrics.cleanOemText`, com teste em `HardwareCollectorsTest`).
+- Versão 0.8.0 em todos os módulos: POMs, `PcCheckAgent.VERSION`, `/api/ping`, scripts e frontend.
+- Correção no `run-backend` (`.bat` e `.sh`): instala o pom pai (`mvn -N install`) antes do agente, evitando a falha de dependência `pccheck-parent` ao subir o backend com o repositório Maven local limpo.
+- Correção do teste `App.test.tsx`: a verificação de saída do Live Monitor passa a usar o título "Por processador lógico", já que o Hardware Overview também tem um cartão "CPU".
+- Documentação: README revisado (títulos sem número de versão, limitação de atualização separada por tela).
 
 ## V0.8 — Módulo C: interface
 - Nova aba **Live Monitor** (`LiveMonitorPage`) no frontend, consumindo `GET /api/live/history` (carga inicial) e `GET /api/live` (consultas seguintes), sem alterar o backend nem o agente.

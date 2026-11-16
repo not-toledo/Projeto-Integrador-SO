@@ -51,6 +51,32 @@ export function cpuTemperature(sample: LiveSample): number | null {
   return isReading(v) ? v : null
 }
 
+export function gpuUtilization(sample: LiveSample): number | null {
+  const v = sample.gpu.status === 'OK' ? sample.gpu.data?.utilizationPercent : null
+  return isPercentReading(v) ? v : null
+}
+
+/** Memória de vídeo em uso, em % do total informado; null se faltar o uso ou o total. */
+export function gpuVramPercent(sample: LiveSample): number | null {
+  const data = sample.gpu.status === 'OK' ? sample.gpu.data : null
+  const used = data?.vramUsedBytes
+  const total = data?.vramTotalBytes
+  if (!isReading(used) || !isReading(total) || total <= 0 || used > total) {
+    return null
+  }
+  return (used / total) * 100
+}
+
+/** Temperatura da GPU: a do grupo de sensores ou, na falta, a informada junto da telemetria da GPU. */
+export function gpuTemperature(sample: LiveSample): number | null {
+  const fromSensors = sample.sensors.status === 'OK' ? sample.sensors.data?.gpuTemperatureCelsius : null
+  if (isReading(fromSensors)) {
+    return fromSensors
+  }
+  const fromGpu = sample.gpu.status === 'OK' ? sample.gpu.data?.temperatureCelsius : null
+  return isReading(fromGpu) ? fromGpu : null
+}
+
 function driveOf(sample: LiveSample, name: string) {
   if (sample.disks.status !== 'OK') {
     return null

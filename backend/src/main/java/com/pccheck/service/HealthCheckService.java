@@ -3,6 +3,7 @@ package com.pccheck.service;
 import com.pccheck.agent.collector.CollectorRunner;
 import com.pccheck.agent.collector.SensorCollector;
 import com.pccheck.agent.collector.SystemCollector;
+import com.pccheck.agent.lhm.LhmSource;
 import com.pccheck.agent.model.CollectorResult;
 import com.pccheck.agent.model.SensorInfo;
 import com.pccheck.agent.model.SystemSnapshot;
@@ -23,11 +24,13 @@ import org.springframework.stereotype.Service;
 public class HealthCheckService {
 
     private final HealthEvaluator evaluator;
+    private final LhmSource lhm;
     private SystemCollector collector;
     private SensorCollector sensorCollector;
 
-    public HealthCheckService(HealthThresholds thresholds) {
+    public HealthCheckService(HealthThresholds thresholds, LhmSource lhm) {
         this.evaluator = new HealthEvaluator(thresholds);
+        this.lhm = lhm;
     }
 
     /** Sincronizado para que requisições simultâneas não disparem várias coletas ao mesmo tempo. */
@@ -36,7 +39,7 @@ public class HealthCheckService {
             try {
                 SystemInfo systemInfo = new SystemInfo();
                 collector = new SystemCollector(systemInfo);
-                sensorCollector = new SensorCollector(systemInfo);
+                sensorCollector = new SensorCollector(systemInfo, lhm);
             } catch (RuntimeException | LinkageError e) {
                 collector = null;
                 sensorCollector = null;

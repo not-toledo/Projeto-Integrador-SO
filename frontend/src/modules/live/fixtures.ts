@@ -4,10 +4,23 @@ import type { LiveHistoryResponse, LiveResponse, LiveSample, MonitorStatus } fro
 
 const OK = <T>(data: T): ComponentResult<T> => ({ status: 'OK', message: null, data })
 
-export const GPU_UNSUPPORTED: LiveSample['gpu'] = {
+export const GPU_UNAVAILABLE: LiveSample['gpu'] = {
   status: 'UNAVAILABLE',
-  message: 'O OSHI não fornece utilização nem memória de vídeo em uso.',
+  message: 'A telemetria da GPU vem do LibreHardwareMonitor. O LibreHardwareMonitor não respondeu.',
   data: null,
+}
+
+/** GPU com leituras (valores de teste). */
+export const GPU_OK: LiveSample['gpu'] = {
+  status: 'OK',
+  message: null,
+  data: {
+    utilizationPercent: 42,
+    vramUsedBytes: 2 * 1024 ** 3,
+    vramTotalBytes: 8 * 1024 ** 3,
+    temperatureCelsius: 61,
+    name: 'GPU de teste',
+  },
 }
 
 export function makeStatus(overrides: Partial<MonitorStatus> = {}): MonitorStatus {
@@ -32,7 +45,7 @@ export function makeSample(overrides: Partial<LiveSample> & { at?: string } = {}
     durationMs: 12,
     cpu: OK({ totalPercent: 25, perCorePercent: [20, 30, null, 28] }),
     memory: OK({ totalBytes: 16 * 1024 ** 3, availableBytes: 6 * 1024 ** 3, usedBytes: 10 * 1024 ** 3, usedPercent: 62.5 }),
-    gpu: GPU_UNSUPPORTED,
+    gpu: GPU_UNAVAILABLE,
     disks: OK({
       drives: [{ name: 'Disco de teste', readBytesPerSecond: 2 * 1024 ** 2, writeBytesPerSecond: 512 * 1024, busyPercent: 15 }],
       volumes: [

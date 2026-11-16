@@ -4,7 +4,6 @@ import { UsageBar } from '../../components/UsageBar'
 import type { ComponentResult } from '../hardware/types'
 import { LineChart } from './LineChart'
 import {
-  NOT_SUPPORTED,
   NO_READING,
   celsius,
   isReading,
@@ -19,6 +18,9 @@ import {
   driveBusy,
   driveNames,
   driveRateMiB,
+  gpuTemperature,
+  gpuUtilization,
+  gpuVramPercent,
   hasReadings,
   memoryPercent,
   sampleTimes,
@@ -43,12 +45,10 @@ interface PanelProps {
 function LiveCard<T>({
   title,
   result,
-  unsupported = false,
   children,
 }: {
   title: string
   result: ComponentResult<T> | undefined
-  unsupported?: boolean
   children: (data: T) => ReactNode
 }) {
   let body: ReactNode
@@ -65,7 +65,7 @@ function LiveCard<T>({
   } else {
     body = (
       <div className="card-state">
-        <strong>{unsupported ? NOT_SUPPORTED : NO_READING}</strong>
+        <strong>{NO_READING}</strong>
         <p>{result?.message ?? 'O sistema não forneceu esta informação.'}</p>
       </div>
     )
@@ -127,17 +127,40 @@ export function MemoryPanel({ samples, maxGapMs }: PanelProps) {
   )
 }
 
-export function GpuPanel({ samples }: PanelProps) {
+export function GpuPanel({ samples, maxGapMs }: PanelProps) {
   const latest = samples[samples.length - 1]
+  const times = sampleTimes(samples)
+  const load = samples.map(gpuUtilization)
+  const vram = samples.map(gpuVramPercent)
   return (
-    <LiveCard title="GPU" result={latest?.gpu} unsupported>
+    <LiveCard title="GPU" result={latest?.gpu}>
       {(data) => (
-        <FieldList
-          fields={[
-            ['Utilização', livePercent(data.utilizationPercent)],
-            ['Memória de vídeo em uso', liveBytes(data.vramUsedBytes)],
-          ]}
-        />
+        <>
+          <FieldList
+            fields={[
+              ['Placa', data.name ?? NO_READING],
+              ['Utilização', livePercent(data.utilizationPercent)],
+              ['Memória de vídeo em uso', liveBytes(data.vramUsedBytes)],
+              ['Memória de vídeo total', liveBytes(data.vramTotalBytes)],
+              ['Temperatura', celsius(data.temperatureCelsius)],
+            ]}
+          />
+          {hasReadings(load) || hasReadings(vram) ? (
+            <LineChart
+              title="Uso da GPU e da memória de vídeo"
+              unit="%"
+              times={times}
+              series={[
+                { name: 'Utilização', values: load },
+                { name: 'Memória de vídeo', values: vram, dashed: true },
+              ]}
+              yMax={100}
+              maxGapMs={maxGapMs}
+            />
+          ) : (
+            <p className="muted">Sem leitura de utilização neste computador; nenhum valor é estimado.</p>
+          )}
+        </>
       )}
     </LiveCard>
   )
@@ -213,6 +236,7 @@ export function SensorsPanel({ samples, maxGapMs }: PanelProps) {
   const latest = samples[samples.length - 1]
   const times = sampleTimes(samples)
   const temps = samples.map(cpuTemperature)
+  const gpuTemps = samples.map(gpuTemperature)
   return (
     <LiveCard title="Sensores" result={latest?.sensors}>
       {(data) => (
@@ -220,11 +244,22 @@ export function SensorsPanel({ samples, maxGapMs }: PanelProps) {
           <FieldList
             fields={[
               ['Temperatura da CPU', celsius(data.cpuTemperatureCelsius)],
+              ['Temperatura da GPU', celsius(data.gpuTemperatureCelsius)],
               ['Ventoinhas', fans(data.fanSpeedsRpm)],
             ]}
           />
-          {hasReadings(temps) ? (
-            <LineChart title="Temperatura da CPU" unit="°C" times={times} series={[{ name: 'Temperatura', values: temps }]} maxGapMs={maxGapMs} digits={0} />
+          {hasReadings(temps) || hasReadings(gpuTemps) ? (
+            <LineChart
+              title="Temperaturas"
+              unit="°C"
+              times={times}
+              series={[
+                { name: 'CPU', values: temps },
+                { name: 'GPU', values: gpuTemps, dashed: true },
+              ]}
+              maxGapMs={maxGapMs}
+              digits={0}
+            />
           ) : (
             <p className="muted">Sem leitura de temperatura neste computador; nenhum valor é estimado.</p>
           )}

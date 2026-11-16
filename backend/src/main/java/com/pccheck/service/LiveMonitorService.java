@@ -1,6 +1,7 @@
 package com.pccheck.service;
 
 import com.pccheck.agent.collector.LiveSampler;
+import com.pccheck.agent.lhm.LhmSource;
 import com.pccheck.agent.model.LiveSample;
 import com.pccheck.dto.LiveDto;
 import com.pccheck.dto.LiveHistoryDto;
@@ -34,12 +35,14 @@ public class LiveMonitorService {
     static final int MAX_HISTORY = 3600;
 
     private final long intervalMs;
+    private final LhmSource lhm;
     private final MonitorEngine<LiveSample> engine;
     private ScheduledExecutorService executor;
     private LiveSampler sampler;
 
     public LiveMonitorService(@Value("${pccheck.monitor.interval-ms:2000}") long intervalMs,
-                              @Value("${pccheck.monitor.history-size:300}") int historySize) {
+                              @Value("${pccheck.monitor.history-size:300}") int historySize,
+                              LhmSource lhm) {
         if (intervalMs < MIN_INTERVAL_MS) {
             throw new IllegalArgumentException("pccheck.monitor.interval-ms deve ser pelo menos " + MIN_INTERVAL_MS + ".");
         }
@@ -48,6 +51,7 @@ public class LiveMonitorService {
                     "pccheck.monitor.history-size deve estar entre " + MIN_HISTORY + " e " + MAX_HISTORY + ".");
         }
         this.intervalMs = intervalMs;
+        this.lhm = lhm;
         Duration stall = Duration.ofMillis(Math.max(10_000, intervalMs * 5));
         this.engine = new MonitorEngine<>(this::sampleOnce, historySize, stall, Clock.systemUTC());
     }
@@ -76,7 +80,7 @@ public class LiveMonitorService {
     /** Executado somente pela thread do agendador (uma coleta por vez). */
     private LiveSample sampleOnce() {
         if (sampler == null) {
-            sampler = new LiveSampler(new SystemInfo());
+            sampler = new LiveSampler(new SystemInfo(), lhm);
         }
         return sampler.sample();
     }

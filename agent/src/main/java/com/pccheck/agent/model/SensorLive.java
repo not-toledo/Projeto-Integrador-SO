@@ -7,10 +7,15 @@ import java.util.List;
  *
  * @param cpuTemperatureCelsius temperatura da CPU em °C
  * @param fanSpeedsRpm          rotação das ventoinhas em RPM (somente leituras válidas); nula = não disponível
+ * @param gpuTemperatureCelsius temperatura da GPU em °C (somente via LibreHardwareMonitor)
  */
-public record SensorLive(Double cpuTemperatureCelsius, List<Integer> fanSpeedsRpm) {
+public record SensorLive(Double cpuTemperatureCelsius, List<Integer> fanSpeedsRpm, Double gpuTemperatureCelsius) {
 
     public SensorLive {
         fanSpeedsRpm = fanSpeedsRpm == null ? null : List.copyOf(fanSpeedsRpm);
+    }
+
+    public SensorLive(Double cpuTemperatureCelsius, List<Integer> fanSpeedsRpm) {
+        this(cpuTemperatureCelsius, fanSpeedsRpm, null);
     }
 }

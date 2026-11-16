@@ -1,6 +1,6 @@
 import { act, cleanup, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { makeHistory, makeLive, makeSample, makeSampleWithoutSensors, makeStatus } from '../modules/live/fixtures'
+import { GPU_OK, makeHistory, makeLive, makeSample, makeSampleWithoutSensors, makeStatus } from '../modules/live/fixtures'
 import type { LiveHistoryResponse, LiveResponse } from '../modules/live/types'
 import { ApiError } from '../services/inventoryService'
 import { fetchLive, fetchLiveHistory } from '../services/liveService'
@@ -67,13 +67,25 @@ describe('LiveMonitorPage', () => {
     expect(within(sensors).getByText('1.200 RPM, 1.300 RPM')).toBeTruthy()
   })
 
-  it('GPU aparece como "Não suportado", sem valores', async () => {
+  it('GPU sem o LibreHardwareMonitor aparece como "Sem leitura", com a orientação e sem valores', async () => {
     historyMock.mockResolvedValue(makeHistory([makeSample({ at: fresh() })]))
     render(<LiveMonitorPage />)
 
     const gpu = await screen.findByLabelText('GPU')
-    expect(within(gpu).getByText('Não suportado')).toBeTruthy()
+    expect(within(gpu).getByText('Sem leitura')).toBeTruthy()
+    expect(within(gpu).getByText(/LibreHardwareMonitor/)).toBeTruthy()
     expect(within(gpu).queryByText(/%/)).toBeNull()
+  })
+
+  it('GPU com leituras mostra placa, utilização, memória de vídeo e temperatura', async () => {
+    historyMock.mockResolvedValue(makeHistory([makeSample({ at: fresh(), gpu: GPU_OK })]))
+    render(<LiveMonitorPage />)
+
+    const gpu = await screen.findByLabelText('GPU')
+    expect(within(gpu).getByText('GPU de teste')).toBeTruthy()
+    expect(within(gpu).getByText('42,0%')).toBeTruthy()
+    expect(within(gpu).getByText('61,0 °C')).toBeTruthy()
+    expect(within(gpu).getByRole('img', { name: /Uso da GPU e da memória de vídeo em %/ })).toBeTruthy()
   })
 
   it('sensores e taxas de disco ausentes viram "Sem leitura", sem quebrar o restante', async () => {

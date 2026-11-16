@@ -4,7 +4,7 @@
 # Pre-requisito: agente compilado (mvn -pl agent package) ou scripts/run-agent.sh.
 set -uo pipefail
 cd "$(dirname "$0")/.."
-JAR="${1:-agent/target/pccheck-agent-0.8.0-all.jar}"
+JAR="${1:-agent/target/pccheck-agent-0.9.0-all.jar}"
 
 if [ ! -f "$JAR" ]; then
   echo "FALHA: jar nao encontrado em $JAR. Compile com: mvn -pl agent package"
