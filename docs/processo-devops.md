@@ -14,7 +14,7 @@ No Windows, os scripts `tests/*.sh` exigem um shell Bash e `curl`: use o **Git B
 
 ## Versionamento
 
-- A versão **0.9.0** aparece em todos os módulos: POMs (raiz, agente e backend), `PcCheckAgent.VERSION`, `/api/ping`,
+- A versão **1.0.0** aparece em todos os módulos: POMs (raiz, agente e backend), `PcCheckAgent.VERSION`, `/api/ping`,
   scripts, `frontend/package.json` e `package-lock.json`. Ao mudar a versão, atualize todos esses pontos.
 - Cada versão tem entrada em [CHANGELOG.md](CHANGELOG.md), com o que mudou e as pendências conhecidas.
 

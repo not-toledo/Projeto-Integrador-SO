@@ -1,5 +1,14 @@
 # Histórico de versões
 
+## V1.0 — Versão estável dos módulos A, B e C
+- Escopo congelado: nenhuma funcionalidade nova. A V1.0 fecha os módulos A, B e C; o Módulo D (compatibilidade com jogos) começa na V1.1.
+- Fins de linha: novo `.gitattributes` (LF no repositório, LF nos `.sh`, CRLF nos `.bat`). Antes, os arquivos do Windows apareciam todos como modificados no Git e os `.sh` com CRLF falhavam no Git Bash/WSL.
+- Documentação: removidas as cópias antigas `docs/api-inventario.md`, `docs/api-live.md` e `docs/api-saude.md` (a `api-live.md` estava desatualizada: ainda dizia que a GPU era sempre indisponível). A versão válida e referenciada fica em `docs/api/`.
+- Scripts: removidos `scripts/build-agent.sh` e `.bat` (restos da V0.1 que não funcionam com as dependências atuais; use `run-agent`).
+- Versão 1.0.0 em todos os módulos: POMs (raiz, agente e backend), `PcCheckAgent.VERSION`, `/api/ping`, scripts, `tests/verificar-agente.sh`, `package.json` e `package-lock.json`, além de README e documentação.
+- Pendências que dependem do grupo (não foram preenchidas para não inventar dados): integrantes (README), licença (README e arquivo `LICENSE`) e canal de contato de segurança (`SECURITY.md`).
+- Não validado nesta etapa: build e testes (`mvn test`, `npm test`, `npm run build`) e o fluxo completo em máquina real precisam ser executados pelo grupo antes de marcar a tag `v1.0.0`.
+
 ## Pós-V0.9 — Organização da documentação
 - Documentação reorganizada no formato do repositório de referência (aula-documentacao-software): `README.md` enxuto na raiz; `docs/` com documentação de projeto, API, processo (DevOps), diagramas e checklist; `templates/README-projeto.md`; `CONTRIBUTING.md` e `SECURITY.md`.
 - Documentos de API movidos para `docs/api/`; links atualizados.

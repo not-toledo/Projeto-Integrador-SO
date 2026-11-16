@@ -7,7 +7,7 @@ não há acesso remoto. Todas as rotas começam com `/api`.
 
 | Método | Rota | Descrição | Detalhes |
 |---|---|---|---|
-| GET | `/api/ping` | Verifica se o backend está ativo. Resposta: `{"status":"UP","app":"PCCheck","version":"0.9.0"}`. | — |
+| GET | `/api/ping` | Verifica se o backend está ativo. Resposta: `{"status":"UP","app":"PCCheck","version":"1.0.0"}`. | — |
 | GET | `/api/inventory` | Inventário de hardware (Módulo A). | [api/api-inventario.md](api/api-inventario.md) |
 | GET | `/api/health-check` | Relatório do Health Check (Módulo B). | [api/api-saude.md](api/api-saude.md) |
 | GET | `/api/live` | Amostra mais recente do Live Monitor e estado da coleta (Módulo C). | [api/api-live.md](api/api-live.md) |
