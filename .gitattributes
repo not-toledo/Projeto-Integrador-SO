@@ -1,0 +1,16 @@
+# Normaliza os fins de linha no repositório (LF) e evita que o Git marque
+# todos os arquivos como modificados ao alternar entre Windows e Linux.
+* text=auto
+
+# Scripts de shell precisam de LF mesmo no Windows (Git Bash/WSL).
+*.sh text eol=lf
+
+# Scripts do Windows usam CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Arquivos binários.
+*.jar binary
+*.png binary
+*.jpg binary
+*.ico binary
