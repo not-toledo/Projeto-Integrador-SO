@@ -46,12 +46,20 @@ public class GameCompatibilityEvaluator {
         List<ComponentCompatibilityDto> min = compare(game.minimum(), pc);
         List<ComponentCompatibilityDto> rec = compare(game.recommended(), pc);
         List<String> warnings = new ArrayList<>(game.warnings());
-        warnings.add("CPU e GPU só são aprovadas quando o modelo detectado é o mesmo publicado; modelos diferentes "
-                + "ficam para revisão manual (o PCCheck não estima desempenho entre modelos).");
-        warnings.add("A avaliação não estima FPS, estabilidade ou desempenho real.");
+        // O aviso sobre FPS fica no rodapé fixo da interface; aqui só entram limitações que afetaram este jogo.
+        if (hasCpuOrGpuReview(min) || hasCpuOrGpuReview(rec)) {
+            warnings.add("CPU e GPU só são aprovadas quando o modelo detectado é o mesmo publicado; modelos "
+                    + "diferentes ficam para revisão manual (o PCCheck não estima desempenho entre modelos).");
+        }
         return new GameCompatibilityDto(game.appId(), game.name(),
                 overall(min, "mínimos"), overall(rec, "recomendados"), min, rec, game.minimumRawText(),
-                game.recommendedRawText(), Instant.now(), game.source(), List.copyOf(warnings));
+                game.recommendedRawText(), Instant.now(), game.source(), List.copyOf(warnings),
+                CompatibilityVerdict.of(min, rec));
+    }
+
+    private static boolean hasCpuOrGpuReview(List<ComponentCompatibilityDto> results) {
+        return results.stream().anyMatch(r -> MANUAL.equals(r.status())
+                && ("CPU".equals(r.component()) || "GPU".equals(r.component())));
     }
 
     /** Linhas sem comparação possível (DirectX, Rede, Notas...) ficam só no texto original. */

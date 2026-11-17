@@ -118,6 +118,94 @@ class GameCompatibilityEvaluatorTest {
         assertEquals("Atende aos mínimos", result.overallMinimum());
     }
 
+    private static GameRequirementsDto game(List<RequirementFieldDto> minimum, List<RequirementFieldDto> recommended) {
+        return new GameRequirementsDto(1, "Game", null, "url", "", "", minimum, recommended,
+                Instant.now(), "Steam", List.of());
+    }
+
+    private static RequirementFieldDto ram(long gb) {
+        return field("RAM", "Memory: " + gb + " GB RAM", gb * 1_000_000_000L, gb + " GB");
+    }
+
+    private static RequirementFieldDto storage(long gb) {
+        return field("STORAGE", "Storage: " + gb + " GB available space", gb * 1_000_000_000L, gb + " GB");
+    }
+
+    @Test
+    void veredictoCompativelQuandoMinimosERecomendadosSaoConfirmados() {
+        var r = evaluator.evaluate(game(List.of(ram(8), storage(50)), List.of(ram(16), storage(50))),
+                pc(32L * GIB, 100L * GIB));
+        assertEquals("COMPATIBLE", r.verdict().code());
+        assertEquals("Compatível", r.verdict().label());
+        assertTrue(r.verdict().belowMinimum().isEmpty());
+        assertTrue(r.verdict().pendingReview().isEmpty());
+    }
+
+    @Test
+    void veredictoLimitadoQuandoSoOsMinimosSaoAtendidos() {
+        var r = evaluator.evaluate(game(List.of(ram(8)), List.of(ram(32))), pc(16L * GIB, 100L * GIB));
+        assertEquals("LIMITED", r.verdict().code());
+        assertEquals(List.of("RAM"), r.verdict().belowRecommended());
+        assertTrue(r.verdict().reasons().stream().anyMatch(s -> s.startsWith("Abaixo do recomendado em RAM")));
+    }
+
+    @Test
+    void veredictoLimitadoQuandoRecomendadoNaoPodeSerConfirmado() {
+        var cpu = field("CPU", "Processor: Intel Core i7-12700", null, null);
+        var r = evaluator.evaluate(game(List.of(ram(8)), List.of(ram(8), cpu)),
+                pc(16L * GIB, 100L * GIB, "Intel Core i7-4790K", null, null));
+        assertEquals("LIMITED", r.verdict().code());
+        assertEquals(List.of("CPU"), r.verdict().pendingReview());
+        assertTrue(r.verdict().belowRecommended().isEmpty());
+    }
+
+    @Test
+    void veredictoNaoRecomendadoIdentificaOComponenteAbaixoDoMinimo() {
+        var cpu = field("CPU", "Processor: Intel Core i5-8400", null, null);
+        var r = evaluator.evaluate(game(List.of(ram(16), storage(50), cpu), List.of()),
+                pc(8L * GIB, 100L * GIB, "Intel Core i7-4790K", null, null));
+        assertEquals("NOT_RECOMMENDED", r.verdict().code());
+        assertEquals(List.of("RAM"), r.verdict().belowMinimum());
+        assertEquals(List.of("CPU"), r.verdict().pendingReview());
+        assertTrue(r.verdict().reasons().get(0).startsWith("Não atende ao mínimo de RAM"));
+    }
+
+    @Test
+    void veredictoDadosInsuficientesNuncaViraCompativel() {
+        // RAM atendida, CPU sem confirmação: incompatibilidade não comprovada, compatibilidade também não.
+        var cpu = field("CPU", "Processor: Intel Core i5-8400", null, null);
+        var r = evaluator.evaluate(game(List.of(ram(8), cpu), List.of()),
+                pc(16L * GIB, 100L * GIB, "Intel Core i7-4790K", null, null));
+        assertEquals("INSUFFICIENT_DATA", r.verdict().code());
+        assertEquals("Dados insuficientes", r.verdict().label());
+        assertEquals(List.of("CPU"), r.verdict().pendingReview());
+    }
+
+    @Test
+    void veredictoDadosInsuficientesSemRequisitosMinimos() {
+        var r = evaluator.evaluate(game(List.of(), List.of(ram(8))), pc(16L * GIB, 100L * GIB));
+        assertEquals("INSUFFICIENT_DATA", r.verdict().code());
+    }
+
+    @Test
+    void compativelQuandoSteamNaoPublicaRecomendados() {
+        var r = evaluator.evaluate(game(List.of(ram(8)), List.of()), pc(16L * GIB, 100L * GIB));
+        assertEquals("COMPATIBLE", r.verdict().code());
+        assertTrue(r.verdict().reasons().stream().anyMatch(s -> s.contains("não publicou requisitos recomendados")));
+    }
+
+    @Test
+    void avisoDeCpuEGpuSoApareceQuandoHaRevisaoManual() {
+        var semCpu = evaluator.evaluate(game(List.of(ram(8)), List.of()), pc(16L * GIB, 100L * GIB));
+        assertTrue(semCpu.warnings().stream().noneMatch(w -> w.startsWith("CPU e GPU")));
+        var cpu = field("CPU", "Processor: Intel Core i5-8400", null, null);
+        var comCpu = evaluator.evaluate(game(List.of(cpu), List.of()),
+                pc(16L * GIB, 100L * GIB, "Intel Core i7-4790K", null, null));
+        assertTrue(comCpu.warnings().stream().anyMatch(w -> w.startsWith("CPU e GPU")));
+        // O aviso de FPS fica só no rodapé fixo da interface.
+        assertTrue(comCpu.warnings().stream().noneMatch(w -> w.contains("FPS")));
+    }
+
     @Test
     void resumoParcialDizOQueFaltaRevisar() {
         var ram = field("RAM", "Memory: 8 GB RAM", 8_000_000_000L, "8 GB");

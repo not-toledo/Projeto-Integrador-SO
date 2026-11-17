@@ -43,6 +43,21 @@ Resumo (`overallMinimum`/`overallRecommended`): "Abaixo dos ..." se algum item f
 foram confirmados; "Nenhum item abaixo dos ...; revisar manualmente: CPU, GPU" quando parte foi confirmada; e
 "Análise incompleta" quando nada pôde ser confirmado.
 
+### Classificação geral (`verdict`)
+
+| `code` | `label` | Quando |
+|---|---|---|
+| `NOT_RECOMMENDED` | Não recomendado | Algum item ficou comprovadamente abaixo do mínimo (`BELOW_MINIMUM`). |
+| `COMPATIBLE` | Compatível | Todos os itens dos mínimos e dos recomendados foram confirmados, ou a Steam não publicou recomendados. |
+| `LIMITED` | Compatibilidade limitada | Mínimos confirmados; recomendados abaixo ou não verificáveis. |
+| `INSUFFICIENT_DATA` | Dados insuficientes | Nenhum item abaixo do mínimo, mas algum item dos mínimos não pôde ser confirmado (ou não há mínimos publicados). |
+
+Campos: `reasons` (motivos em texto), `belowMinimum` e `belowRecommended` (componentes comprovadamente abaixo) e
+`pendingReview` (componentes sem confirmação). Falta de dado nunca vira compatível nem incompatível.
+
+`warnings` traz só limitações que afetaram o jogo consultado (por exemplo, CPU/GPU em revisão manual). O aviso de que a
+avaliação não garante FPS fica no rodapé fixo da interface.
+
 ## Limitações e segurança
 
 - O backend monta URLs fixas da Steam a partir do AppID; não aceita URL arbitrária.

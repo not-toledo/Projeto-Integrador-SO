@@ -41,6 +41,39 @@ class SteamRequirementsParserTest {
     }
 
     @Test
+    void paragrafoComCabecalhoEVirgulasViraUmCampoPorItem() {
+        var fields = parser.parse("<p><strong>Minimum: </strong>1.7 GHz Processor, 512MB RAM, "
+                + "DirectX&reg; 8.1 level Graphics Card, Windows&reg; 7 (32/64-bit), Mouse</p>");
+        assertEquals("CPU", fields.get(0).component());
+        assertEquals("RAM", fields.get(1).component());
+        assertEquals(512_000_000L, fields.get(1).parsedBytes());
+        assertEquals("GPU", fields.get(2).component());
+        assertEquals("OS", fields.get(3).component());
+        assertEquals("Windows 7", fields.get(3).parsedValue());
+        assertEquals("OTHER", fields.get(4).component());
+    }
+
+    @Test
+    void entidadesComunsDaSteamSaoDecodificadas() {
+        assertEquals("Windows® 10 e Intel™", parser.toPlainText("Windows&reg; 10 e Intel&trade;"));
+    }
+
+    @Test
+    void virgulaDentroDeParentesesNaoSeparaItens() {
+        assertEquals(java.util.List.of("Pentium 4 (3.0 GHz, ou melhor)", "1 GB de RAM"),
+                SteamRequirementsParser.splitTopLevel("Pentium 4 (3.0 GHz, ou melhor), 1 GB de RAM"));
+    }
+
+    @Test
+    void localizaBlocoRecomendadoDentroDosMinimos() {
+        String text = "Mínimo: 512 MB de RAM\nRecomendado: 1 GB de RAM";
+        assertEquals(text.indexOf("Recomendado"), parser.embeddedRecommendedStart(text));
+        assertEquals(-1, parser.embeddedRecommendedStart("Mínimo: 512 MB de RAM"));
+        // Cabeçalho na primeira linha não é um bloco embutido.
+        assertEquals(-1, parser.embeddedRecommendedStart("Recommended:\nMemory: 16 GB RAM"));
+    }
+
+    @Test
     void quebrasDeLinhaSeparamOsRequisitos() {
         String plain = parser.toPlainText("<li>Memory: 8 GB RAM</li><li>Storage: 20 GB</li>");
         assertEquals("Memory: 8 GB RAM\nStorage: 20 GB", plain);

@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
-import type { GameCompatibility, GameSearchResult, ComponentCompatibility } from '../modules/games/types'
+import type {
+  CompatibilityVerdict, ComponentCompatibility, GameCompatibility, GameSearchResult,
+} from '../modules/games/types'
 import { fetchGameCompatibility, searchGames } from '../services/gameService'
 
 function statusLabel(status: ComponentCompatibility['status']) {
   return ({
     COMPATIBLE: 'Atendido',
     BELOW_MINIMUM: 'Abaixo do mínimo',
-    UNKNOWN: 'Desconhecido',
+    UNKNOWN: 'Dados insuficientes',
     MANUAL_REVIEW: 'Revisão manual',
   })[status]
 }
@@ -100,6 +102,7 @@ export function GameCompatibilityPage() {
             <div><h2>{comparison.gameName}</h2><a href={selected.storeUrl} target="_blank" rel="noreferrer">Abrir na Steam</a></div>
             <button type="button" onClick={() => void choose(selected, true)} disabled={loading}>Atualizar requisitos</button>
           </div>
+          <VerdictBanner verdict={comparison.verdict} />
           <div className="grid">
             <article className="card">
               <h2>Requisitos mínimos</h2>
@@ -123,6 +126,23 @@ export function GameCompatibilityPage() {
         </section>
       )}
     </main>
+  )
+}
+
+const VERDICT_CLASS: Record<CompatibilityVerdict['code'], string> = {
+  COMPATIBLE: 'game-verdict-ok',
+  LIMITED: 'game-verdict-limited',
+  NOT_RECOMMENDED: 'game-verdict-bad',
+  INSUFFICIENT_DATA: 'game-verdict-unknown',
+}
+
+/** Classificação geral com os motivos; "Dados insuficientes" nunca é apresentado como compatível. */
+function VerdictBanner({ verdict }: { verdict: CompatibilityVerdict }) {
+  return (
+    <section className={`game-verdict ${VERDICT_CLASS[verdict.code]}`} aria-label="Classificação geral">
+      <p className="game-verdict-label">{verdict.label}</p>
+      {verdict.reasons.length > 0 && <ul>{verdict.reasons.map((r) => <li key={r}>{r}</li>)}</ul>}
+    </section>
   )
 }
 
