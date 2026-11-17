@@ -9,6 +9,8 @@
 - Documentação: `docs/api/api-jogos.md` e `docs/plano-modulo-d.md` (avaliação do estado do projeto e esquema das etapas V1.1 a V1.4).
 - Versão dos POMs e do frontend permanece 1.0.0 até a V1.4.
 
+=======
+
 ## V1.0 — Versão estável dos módulos A, B e C
 - Escopo congelado: nenhuma funcionalidade nova. A V1.0 fecha os módulos A, B e C; o Módulo D (compatibilidade com jogos) começa na V1.1.
 - Fins de linha: novo `.gitattributes` (LF no repositório, LF nos `.sh`, CRLF nos `.bat`). Antes, os arquivos do Windows apareciam todos como modificados no Git e os `.sh` com CRLF falhavam no Git Bash/WSL.
