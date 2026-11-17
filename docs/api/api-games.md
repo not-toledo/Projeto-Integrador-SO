@@ -29,6 +29,20 @@ Base: `http://127.0.0.1:8080/api/games`. As consultas Steam são feitas pelo bac
 - Estados: `COMPATIBLE`, `BELOW_MINIMUM`, `UNKNOWN`, `MANUAL_REVIEW`.
 - Um estado desconhecido ou revisão manual nunca é convertido em compatível.
 
+### Regras de comparação
+
+| Componente | Regra |
+|---|---|
+| Identificação | Pelo rótulo publicado pela Steam (`Processor:`/`Processador:`, `Memory:`/`Memória:`, `Graphics:`/`Placa de vídeo:`, `Storage:`, `OS:`/`SO:`); palavras-chave só para linhas sem rótulo. DirectX, Rede, Notas adicionais e o aviso "Requires a 64-bit processor" não são comparados (ficam no texto original). |
+| RAM | Memória visível ao Windows ≥ requisito → atende. Entre 90% e 100% → revisão manual (parte da RAM costuma ficar reservada para o sistema ou GPU integrada). Abaixo de 90% → abaixo. |
+| Armazenamento | Espaço livre do maior volume ≥ requisito. |
+| Sistema operacional | Windows: versão numérica local ≥ menor versão citada (`Windows 7/8/10` → 7; Windows 11 atende a "Windows 10"); exigência de 64 bits conferida pela arquitetura. Outros sistemas → revisão manual. |
+| CPU e GPU | Atende só quando o modelo detectado é **o mesmo** de um dos modelos publicados (sufixos contam: i5-8400 ≠ i5-8400T, RTX 3060 ≠ RTX 3060 Ti). GPU do mesmo modelo também confere a VRAM. Modelos diferentes ou requisitos sem modelo exato ("Intel Core i5") → revisão manual: o PCCheck não estima desempenho entre modelos. |
+
+Resumo (`overallMinimum`/`overallRecommended`): "Abaixo dos ..." se algum item ficou abaixo; "Atende aos ..." se todos
+foram confirmados; "Nenhum item abaixo dos ...; revisar manualmente: CPU, GPU" quando parte foi confirmada; e
+"Análise incompleta" quando nada pôde ser confirmado.
+
 ## Limitações e segurança
 
 - O backend monta URLs fixas da Steam a partir do AppID; não aceita URL arbitrária.

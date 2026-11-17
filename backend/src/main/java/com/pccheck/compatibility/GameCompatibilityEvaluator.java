@@ -2,148 +2,221 @@ package com.pccheck.compatibility;
 
 import com.pccheck.agent.model.CpuInfo;
 import com.pccheck.agent.model.GpuInfo;
-import com.pccheck.agent.model.MemoryInfo;
 import com.pccheck.agent.model.OsInfo;
-import com.pccheck.agent.model.StorageInfo;
 import com.pccheck.agent.model.VolumeInfo;
 import com.pccheck.dto.ComponentCompatibilityDto;
+import com.pccheck.dto.ComponentDto;
 import com.pccheck.dto.GameCompatibilityDto;
 import com.pccheck.dto.GameRequirementsDto;
-import com.pccheck.dto.RequirementFieldDto;
 import com.pccheck.dto.InventoryDto;
+import com.pccheck.dto.RequirementFieldDto;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.springframework.stereotype.Component;
 
-/** Avaliação conservadora: só declara compatível quando há comparação objetiva. */
+/**
+ * Avaliação conservadora: só declara "atende" quando há comparação objetiva (número com número ou o mesmo
+ * modelo de CPU/GPU). Modelos diferentes não são ordenados por desempenho; ficam para revisão manual.
+ */
 @Component
 public class GameCompatibilityEvaluator {
+
+    static final String COMPATIBLE = "COMPATIBLE";
+    static final String BELOW = "BELOW_MINIMUM";
+    static final String MANUAL = "MANUAL_REVIEW";
+    static final String UNKNOWN = "UNKNOWN";
+    private static final String NOT_AVAILABLE = "Não disponível";
+    /**
+     * A memória visível ao Windows é um pouco menor que a instalada (parte fica reservada para o sistema ou para
+     * a GPU integrada). Entre 90% e 100% do requisito o resultado é revisão manual, e não "abaixo".
+     */
+    static final double RAM_RESERVED_MARGIN = 0.90;
+    private static final Pattern WINDOWS_VERSION = Pattern.compile("(?i)windows\\s*(\\d+(?:\\.\\d+)?)");
+    private static final Pattern REQUIRES_64_BIT = Pattern.compile("(?i)64[- ]?bits?|\\bx64\\b");
+
     public GameCompatibilityDto evaluate(GameRequirementsDto game, InventoryDto pc) {
         List<ComponentCompatibilityDto> min = compare(game.minimum(), pc);
         List<ComponentCompatibilityDto> rec = compare(game.recommended(), pc);
         List<String> warnings = new ArrayList<>(game.warnings());
-        warnings.add("CPU e GPU em texto livre exigem revisão manual quando não há equivalência segura.");
+        warnings.add("CPU e GPU só são aprovadas quando o modelo detectado é o mesmo publicado; modelos diferentes "
+                + "ficam para revisão manual (o PCCheck não estima desempenho entre modelos).");
         warnings.add("A avaliação não estima FPS, estabilidade ou desempenho real.");
         return new GameCompatibilityDto(game.appId(), game.name(),
                 overall(min, "mínimos"), overall(rec, "recomendados"), min, rec, game.minimumRawText(),
                 game.recommendedRawText(), Instant.now(), game.source(), List.copyOf(warnings));
     }
 
+    /** Linhas sem comparação possível (DirectX, Rede, Notas...) ficam só no texto original. */
     private List<ComponentCompatibilityDto> compare(List<RequirementFieldDto> fields, InventoryDto pc) {
         List<ComponentCompatibilityDto> result = new ArrayList<>();
         for (RequirementFieldDto field : fields) {
             switch (field.component()) {
                 case "RAM" -> result.add(compareRam(field, pc));
                 case "STORAGE" -> result.add(compareStorage(field, pc));
-                case "CPU" -> result.add(compareModel("CPU", field.rawText(), cpu(pc), false));
+                case "CPU" -> result.add(compareCpu(field, pc));
                 case "GPU" -> result.add(compareGpu(field, pc));
                 case "OS" -> result.add(compareOs(field, pc));
-                default -> result.add(new ComponentCompatibilityDto(field.component(), field.rawText(),
-                        "Não disponível", "UNKNOWN", "O requisito não corresponde a um campo comparável."));
+                default -> {
+                    // não comparável
+                }
             }
         }
         return List.copyOf(result);
     }
 
     private ComponentCompatibilityDto compareRam(RequirementFieldDto f, InventoryDto pc) {
-        Long detected = pc.memory() != null && "OK".equals(pc.memory().status()) && pc.memory().data() != null
-                ? pc.memory().data().totalBytes() : null;
-        if (f.parsedBytes() == null || detected == null)
-            return new ComponentCompatibilityDto("RAM", f.rawText(), detected == null ? "Não disponível" : bytes(detected),
-                    "UNKNOWN", "Não foi possível comparar numericamente o requisito e a memória detectada.");
-        boolean ok = detected >= f.parsedBytes();
-        return new ComponentCompatibilityDto("RAM", f.rawText(), bytes(detected), ok ? "COMPATIBLE" : "BELOW_MINIMUM",
-                ok ? "A memória física detectada atende ao valor publicado." : "A memória física detectada está abaixo do requisito.");
+        var memory = data(pc.memory());
+        Long detected = memory == null ? null : memory.totalBytes();
+        String shown = detected == null ? NOT_AVAILABLE : bytes(detected);
+        if (f.parsedBytes() == null || detected == null) {
+            return row("RAM", f, shown, UNKNOWN, "Não foi possível comparar numericamente o requisito e a memória detectada.");
+        }
+        if (detected >= f.parsedBytes()) {
+            return row("RAM", f, shown, COMPATIBLE, "A memória detectada atende ao valor publicado.");
+        }
+        if (detected >= f.parsedBytes() * RAM_RESERVED_MARGIN) {
+            return row("RAM", f, shown, MANUAL, "A memória visível ao Windows está um pouco abaixo do valor publicado. "
+                    + "Isso é comum quando parte da RAM fica reservada (por exemplo, para a GPU integrada); "
+                    + "confira a memória instalada.");
+        }
+        return row("RAM", f, shown, BELOW, "A memória detectada está abaixo do requisito.");
     }
 
     private ComponentCompatibilityDto compareStorage(RequirementFieldDto f, InventoryDto pc) {
         Long largest = null;
-        if (pc.storage() != null && "OK".equals(pc.storage().status()) && pc.storage().data() != null) {
-            List<VolumeInfo> volumes = pc.storage().data().volumes();
-            if (volumes != null) for (VolumeInfo v : volumes)
+        var storage = data(pc.storage());
+        if (storage != null && storage.volumes() != null) {
+            for (VolumeInfo v : storage.volumes()) {
                 if (v.freeBytes() != null && (largest == null || v.freeBytes() > largest)) largest = v.freeBytes();
-        }
-        if (f.parsedBytes() == null || largest == null)
-            return new ComponentCompatibilityDto("Armazenamento", f.rawText(), largest == null ? "Não disponível" : bytes(largest),
-                    "UNKNOWN", "Não foi possível comparar o espaço livre com o requisito.");
-        boolean ok = largest >= f.parsedBytes();
-        return new ComponentCompatibilityDto("Armazenamento", f.rawText(), bytes(largest), ok ? "COMPATIBLE" : "BELOW_MINIMUM",
-                ok ? "O maior volume elegível possui espaço livre suficiente." : "Nenhum volume individual possui espaço livre suficiente.");
-    }
-
-    private String cpu(InventoryDto pc) {
-        CpuInfo d = pc.cpu() != null && "OK".equals(pc.cpu().status()) ? pc.cpu().data() : null;
-        return d == null || d.name() == null ? "Não disponível" : d.name();
-    }
-    private String gpu(InventoryDto pc) {
-        if (pc.gpu() == null || !"OK".equals(pc.gpu().status()) || pc.gpu().data() == null) return "Não disponível";
-        return pc.gpu().data().stream().map(GpuInfo::name).filter(n -> n != null).reduce((a,b) -> a + "; " + b).orElse("Não disponível");
-    }
-    private String os(InventoryDto pc) {
-        OsInfo d = pc.os() != null && "OK".equals(pc.os().status()) ? pc.os().data() : null;
-        return d == null || d.name() == null || d.name().isBlank()
-                ? "Não disponível" : String.join(" ", d.name(), safe(d.version()));
-    }
-    private ComponentCompatibilityDto compareGpu(RequirementFieldDto field, InventoryDto pc) {
-        if (pc.gpu() == null || !"OK".equals(pc.gpu().status()) || pc.gpu().data() == null
-                || pc.gpu().data().isEmpty())
-            return new ComponentCompatibilityDto("GPU", field.rawText(), "Não disponível", "UNKNOWN",
-                    "O inventário não identificou uma GPU comparável.");
-        String requiredModel = HardwareAliasCatalog.canonical(field.rawText(), true);
-        if (requiredModel == null)
-            return new ComponentCompatibilityDto("GPU", field.rawText(), gpu(pc), "MANUAL_REVIEW",
-                    "O modelo publicado não possui equivalência segura no catálogo atual.");
-        for (GpuInfo detected : pc.gpu().data()) {
-            if (!requiredModel.equals(HardwareAliasCatalog.canonical(detected.name(), true))) continue;
-            if (field.parsedBytes() != null) {
-                if (detected.vramBytes() == null)
-                    return new ComponentCompatibilityDto("GPU", field.rawText(), detected.name(),
-                            "UNKNOWN", "O modelo corresponde, mas a VRAM detectada não está disponível para comparação.");
-                boolean enough = detected.vramBytes() >= field.parsedBytes();
-                return new ComponentCompatibilityDto("GPU", field.rawText(),
-                        detected.name() + " — " + bytes(detected.vramBytes()),
-                        enough ? "COMPATIBLE" : "BELOW_MINIMUM",
-                        enough ? "Modelo e VRAM detectados atendem ao requisito publicado."
-                                : "A VRAM detectada está abaixo do valor publicado.");
             }
-            return new ComponentCompatibilityDto("GPU", field.rawText(), detected.name(), "COMPATIBLE",
-                    "O modelo detectado corresponde ao mesmo modelo identificado no catálogo explícito de aliases.");
         }
-        return new ComponentCompatibilityDto("GPU", field.rawText(), gpu(pc), "MANUAL_REVIEW",
-                "Não existe correspondência segura entre a GPU publicada e as GPUs detectadas.");
+        String shown = largest == null ? NOT_AVAILABLE : bytes(largest) + " livres (maior volume)";
+        if (f.parsedBytes() == null || largest == null) {
+            return row("Armazenamento", f, shown, UNKNOWN, "Não foi possível comparar o espaço livre com o requisito.");
+        }
+        boolean ok = largest >= f.parsedBytes();
+        return row("Armazenamento", f, shown, ok ? COMPATIBLE : BELOW,
+                ok ? "O maior volume tem espaço livre suficiente." : "Nenhum volume tem espaço livre suficiente.");
     }
 
-    private ComponentCompatibilityDto compareOs(RequirementFieldDto field, InventoryDto pc) {
-        String detected = os(pc);
-        if ("Não disponível".equals(detected))
-            return new ComponentCompatibilityDto("Sistema operacional", field.rawText(), detected, "UNKNOWN",
-                    "O sistema operacional local não foi identificado.");
-        String required = HardwareAliasCatalog.normalizeForComparison(field.parsedValue());
-        String actual = HardwareAliasCatalog.normalizeForComparison(detected);
-        if (required != null && !required.isBlank() && actual.contains(required))
-            return new ComponentCompatibilityDto("Sistema operacional", field.rawText(), detected, "COMPATIBLE",
-                    "A plataforma e a versão identificadas correspondem ao requisito publicado.");
-        return new ComponentCompatibilityDto("Sistema operacional", field.rawText(), detected, "MANUAL_REVIEW",
-                "A versão detectada não corresponde exatamente ao requisito extraído; revise a compatibilidade manualmente.");
+    private ComponentCompatibilityDto compareCpu(RequirementFieldDto f, InventoryDto pc) {
+        CpuInfo cpu = data(pc.cpu());
+        String detected = cpu == null ? null : cpu.name();
+        if (detected == null) {
+            return row("CPU", f, NOT_AVAILABLE, UNKNOWN, "O processador local não foi identificado.");
+        }
+        return compareModels("CPU", f, detected, HardwareModels.cpuModels(f.rawText()),
+                HardwareModels.cpuModels(detected));
     }
 
-    private ComponentCompatibilityDto compareModel(String component, String requirement, String detected, boolean gpu) {
-        String requiredModel = HardwareAliasCatalog.canonical(requirement, gpu);
-        String detectedModel = HardwareAliasCatalog.canonical(detected, gpu);
-        if (requiredModel != null && requiredModel.equals(detectedModel))
-            return new ComponentCompatibilityDto(component, requirement, detected, "COMPATIBLE",
-                    "O modelo detectado corresponde ao mesmo modelo identificado no catálogo explícito de aliases.");
-        return new ComponentCompatibilityDto(component, requirement, detected, "MANUAL_REVIEW",
-                "Não existe equivalência segura entre os modelos no catálogo atual; revise manualmente.");
+    private ComponentCompatibilityDto compareGpu(RequirementFieldDto f, InventoryDto pc) {
+        List<GpuInfo> gpus = data(pc.gpu());
+        List<GpuInfo> named = gpus == null ? List.of()
+                : gpus.stream().filter(g -> g.name() != null).toList();
+        if (named.isEmpty()) {
+            return row("GPU", f, NOT_AVAILABLE, UNKNOWN, "O inventário não identificou uma placa de vídeo.");
+        }
+        Set<String> required = HardwareModels.gpuModels(f.rawText());
+        for (GpuInfo gpu : named) {
+            if (Collections.disjoint(required, HardwareModels.gpuModels(gpu.name()))) continue;
+            if (f.parsedBytes() == null) {
+                return row("GPU", f, gpu.name(), COMPATIBLE, "A placa detectada é um dos modelos publicados.");
+            }
+            if (gpu.vramBytes() == null) {
+                return row("GPU", f, gpu.name(), UNKNOWN,
+                        "O modelo corresponde, mas a memória de vídeo detectada não está disponível para comparação.");
+            }
+            boolean enough = gpu.vramBytes() >= f.parsedBytes();
+            return row("GPU", f, gpu.name() + " — " + bytes(gpu.vramBytes()), enough ? COMPATIBLE : BELOW,
+                    enough ? "Modelo e memória de vídeo atendem ao requisito publicado."
+                            : "O modelo corresponde, mas a memória de vídeo está abaixo do valor publicado.");
+        }
+        String detected = String.join("; ", named.stream().map(GpuInfo::name).toList());
+        return compareModels("GPU", f, detected, required, Set.of());
     }
 
-    private String overall(List<ComponentCompatibilityDto> results, String label) {
+    /** Mesmo modelo → atende; requisito sem modelo exato ou modelos diferentes → revisão manual. */
+    private ComponentCompatibilityDto compareModels(String component, RequirementFieldDto f, String detected,
+                                                    Set<String> required, Set<String> found) {
+        if (required.isEmpty()) {
+            return row(component, f, detected, MANUAL, "O requisito não cita um modelo exato (ex.: \"Intel Core i5\"); "
+                    + "compare manualmente.");
+        }
+        if (!Collections.disjoint(required, found)) {
+            return row(component, f, detected, COMPATIBLE, "O modelo detectado é um dos modelos publicados.");
+        }
+        return row(component, f, detected, MANUAL, "Modelos diferentes. O PCCheck não compara desempenho entre "
+                + "modelos diferentes; confira em uma comparação de desempenho (benchmark).");
+    }
+
+    /** Windows: compara a versão numérica (Windows 11 atende a "Windows 10") e a exigência de 64 bits. */
+    private ComponentCompatibilityDto compareOs(RequirementFieldDto f, InventoryDto pc) {
+        OsInfo os = data(pc.os());
+        if (os == null || os.name() == null || os.name().isBlank()) {
+            return row("Sistema operacional", f, NOT_AVAILABLE, UNKNOWN, "O sistema operacional local não foi identificado.");
+        }
+        String detected = String.join(" ", os.name(), Objects.requireNonNullElse(os.version(), "")).trim()
+                + (os.architecture() == null ? "" : " (" + os.architecture() + ")");
+        Matcher required = WINDOWS_VERSION.matcher(Objects.requireNonNullElse(f.parsedValue(), ""));
+        Double localVersion = number(os.version());
+        if (!required.find() || !os.name().toLowerCase(Locale.ROOT).contains("windows") || localVersion == null) {
+            return row("Sistema operacional", f, detected, MANUAL,
+                    "Não foi possível comparar a versão automaticamente; revise manualmente.");
+        }
+        double requiredVersion = Double.parseDouble(required.group(1));
+        if (localVersion < requiredVersion) {
+            return row("Sistema operacional", f, detected, BELOW, "A versão do Windows é anterior à publicada.");
+        }
+        boolean needs64 = REQUIRES_64_BIT.matcher(f.rawText()).find();
+        if (needs64 && os.architecture() != null && !os.architecture().contains("64")) {
+            return row("Sistema operacional", f, detected, BELOW, "O jogo exige sistema de 64 bits.");
+        }
+        return row("Sistema operacional", f, detected, COMPATIBLE,
+                "A versão do Windows é igual ou mais recente que a publicada.");
+    }
+
+    /**
+     * Resumo: "abaixo" se algum item comparado ficou abaixo; "atende" só se todos foram confirmados; caso
+     * contrário diz o que foi confirmado e o que falta revisar.
+     */
+    static String overall(List<ComponentCompatibilityDto> results, String label) {
         if (results.isEmpty()) return "Análise incompleta";
-        if (results.stream().anyMatch(r -> "BELOW_MINIMUM".equals(r.status()))) return "Abaixo dos " + label;
-        if (results.stream().allMatch(r -> "COMPATIBLE".equals(r.status()))) return "Atende aos " + label;
-        return "Análise incompleta";
+        if (results.stream().anyMatch(r -> BELOW.equals(r.status()))) return "Abaixo dos " + label;
+        Set<String> pending = new LinkedHashSet<>();
+        boolean anyConfirmed = false;
+        for (ComponentCompatibilityDto r : results) {
+            if (COMPATIBLE.equals(r.status())) anyConfirmed = true;
+            else pending.add(r.component());
+        }
+        if (pending.isEmpty()) return "Atende aos " + label;
+        if (!anyConfirmed) return "Análise incompleta";
+        return "Nenhum item abaixo dos " + label + "; revisar manualmente: " + String.join(", ", pending);
     }
-    private String bytes(long value) { return String.format(java.util.Locale.forLanguageTag("pt-BR"), "%.1f GiB", value / 1073741824.0); }
-    private String safe(String s) { return s == null ? "" : s; }
+
+    private static ComponentCompatibilityDto row(String component, RequirementFieldDto f, String detected,
+                                                 String status, String explanation) {
+        return new ComponentCompatibilityDto(component, f.rawText(), detected, status, explanation);
+    }
+
+    private static <T> T data(ComponentDto<T> component) {
+        return component != null && "OK".equals(component.status()) ? component.data() : null;
+    }
+
+    private static Double number(String text) {
+        if (text == null) return null;
+        Matcher m = Pattern.compile("\\d+(?:\\.\\d+)?").matcher(text);
+        return m.find() ? Double.valueOf(m.group()) : null;
+    }
+
+    private static String bytes(long value) {
+        return String.format(Locale.forLanguageTag("pt-BR"), "%.1f GiB", value / 1073741824.0);
+    }
 }
