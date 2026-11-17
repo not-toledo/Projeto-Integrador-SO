@@ -1,5 +1,14 @@
 # Histórico de versões
 
+## V2.1 — Correções do módulo de compatibilidade com jogos
+- **Parser da Steam corrigido.** A substituição `replaceAll(..., "\n")` inseria a letra "n" no lugar da quebra de linha, então todos os requisitos viravam uma única linha e cada jogo resultava em um só campo "RAM" (CPU, GPU, SO e armazenamento nunca eram avaliados). Era a causa das 2 falhas em `SteamRequirementsParserTest`.
+- Cada linha agora é classificada pelo rótulo publicado pela Steam (inglês e português, inclusive "Graphics (AMD):"); palavras-chave só como alternativa. "Graphics: GTX 970, 4 GB memory" deixa de virar requisito de RAM; cabeçalhos "Minimum:" e o aviso "Requires a 64-bit processor" são ignorados.
+- `HardwareAliasCatalog` (2 CPUs e 2 GPUs, comparação por trecho de texto e ordem indefinida entre alternativas) substituído por `HardwareModels`, que identifica o modelo exato de CPU/GPU (Intel Core, Core Ultra, Ryzen, FX, GeForce GT/GTX/RTX, Radeon RX/R5-R9/HD, Intel HD/UHD/Arc). Sufixos contam (i5-8400 ≠ i5-8400T; RTX 3060 ≠ 3060 Ti) e todas as alternativas ("i5-8400 / Ryzen 5 3600") são consideradas.
+- Sistema operacional comparado por versão numérica (Windows 11 atende a "Windows 10"; "Windows 7/8/10" exige 7) e exigência de 64 bits.
+- RAM: margem de 90% vai para revisão manual em vez de "abaixo" (memória reservada pelo sistema/GPU integrada).
+- Linhas não comparáveis (DirectX, Rede, Notas) saem da tabela de resultados (continuam no texto original); o resumo diz o que foi confirmado e o que falta revisar, em vez de quase sempre "Análise incompleta".
+- Testes: `HardwareModelsTest` (novo), `SteamRequirementsParserTest` e `GameCompatibilityEvaluatorTest` ampliados com HTML real da Steam e os casos acima. Validado contra a Steam real (Cyberpunk 2077 e Hollow Knight).
+
 ## V1.5 — Sensores sem programa externo
 - Removida a dependência do LibreHardwareMonitor em execução (servidor web na porta 8085). O usuário não precisa mais abrir outro programa.
 - Novo leitor de sensores interno `sensor-host/` (C#, .NET Framework 4.8, ~3 MB) com a biblioteca LibreHardwareMonitorLib 0.9.6. O backend o inicia ao subir, pedindo permissão de administrador ao Windows; se recusada, roda sem elevação (GPU continua com leitura).

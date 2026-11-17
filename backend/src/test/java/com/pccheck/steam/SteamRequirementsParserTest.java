@@ -1,10 +1,30 @@
 package com.pccheck.steam;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import com.pccheck.dto.RequirementFieldDto;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class SteamRequirementsParserTest {
     private final SteamRequirementsParser parser = new SteamRequirementsParser();
+
+    /** Formato real da Steam (pc_requirements.minimum). */
+    private static final String STEAM_HTML = "<strong>Minimum:</strong><br><ul class=\"bb_ul\">"
+            + "<li>Requires a 64-bit processor and operating system<br></li>"
+            + "<li><strong>OS:</strong> Windows® 7/8/10 64-bit<br></li>"
+            + "<li><strong>Processor:</strong> Intel Core i5-8400 / AMD Ryzen 5 3600<br></li>"
+            + "<li><strong>Memory:</strong> 8 GB RAM<br></li>"
+            + "<li><strong>Graphics:</strong> NVIDIA GeForce GTX 970, 4 GB memory<br></li>"
+            + "<li><strong>DirectX:</strong> Version 12<br></li>"
+            + "<li><strong>Storage:</strong> 70 GB available space<br></li>"
+            + "<li><strong>Additional Notes:</strong> SSD recommended</li></ul>";
+
+    private static RequirementFieldDto only(List<RequirementFieldDto> fields, String component) {
+        List<RequirementFieldDto> found = fields.stream().filter(f -> f.component().equals(component)).toList();
+        assertEquals(1, found.size(), "esperava exatamente um campo " + component + " em " + fields);
+        return found.get(0);
+    }
 
     @Test
     void removesHtmlPreservesLinesAndParsesMemoryAndStorage() {
@@ -21,10 +41,65 @@ class SteamRequirementsParserTest {
     }
 
     @Test
+    void quebrasDeLinhaSeparamOsRequisitos() {
+        String plain = parser.toPlainText("<li>Memory: 8 GB RAM</li><li>Storage: 20 GB</li>");
+        assertEquals("Memory: 8 GB RAM\nStorage: 20 GB", plain);
+    }
+
+    @Test
     void leavesUnknownCpuAndGpuForManualReview() {
         var fields = parser.parse("<li>Processor: Intel Core i5-8400</li><li>Graphics: NVIDIA GTX 1060</li>");
+        assertEquals(2, fields.size());
         assertEquals("MANUAL_REVIEW", fields.get(0).parseStatus());
         assertEquals("MANUAL_REVIEW", fields.get(1).parseStatus());
+    }
+
+    @Test
+    void htmlRealDaSteamGeraUmCampoPorRequisito() {
+        var fields = parser.parse(STEAM_HTML);
+        assertEquals("Windows 7", only(fields, "OS").parsedValue());
+        assertEquals("CPU", only(fields, "CPU").component());
+        assertEquals(8_000_000_000L, only(fields, "RAM").parsedBytes());
+        assertEquals(70_000_000_000L, only(fields, "STORAGE").parsedBytes());
+        // DirectX, notas e o aviso de 64 bits não são comparáveis.
+        assertEquals(3, fields.stream().filter(f -> f.component().equals("OTHER")).count());
+    }
+
+    @Test
+    void memoriaDaPlacaDeVideoNaoViraRequisitoDeRam() {
+        RequirementFieldDto gpu = only(parser.parse(STEAM_HTML), "GPU");
+        assertEquals(4_000_000_000L, gpu.parsedBytes());
+        assertTrue(gpu.rawText().contains("GTX 970"));
+    }
+
+    @Test
+    void rotulosEmPortuguesERotulosComComplemento() {
+        var fields = parser.parse("<li>Sistema operacional: Windows 10</li><li>Memória: 16 GB de RAM</li>"
+                + "<li>Placa de vídeo: GeForce RTX 3060</li><li>Graphics (AMD): Radeon RX 6600</li>"
+                + "<li>Armazenamento: 1 TB disponível</li>");
+        assertEquals("Windows 10", only(fields, "OS").parsedValue());
+        assertEquals(16_000_000_000L, only(fields, "RAM").parsedBytes());
+        assertEquals(2, fields.stream().filter(f -> f.component().equals("GPU")).count());
+        assertEquals(1_000_000_000_000L, only(fields, "STORAGE").parsedBytes());
+    }
+
+    @Test
+    void linhasSemRotuloUsamPalavrasChave() {
+        var fields = parser.parse("<li>Windows 10 64-bit</li><li>Intel Core i7-4790</li><li>GeForce GTX 1070</li>"
+                + "<li>8 GB RAM</li>");
+        assertEquals(List.of("OS", "CPU", "GPU", "RAM"), fields.stream().map(RequirementFieldDto::component).toList());
+    }
+
+    @Test
+    void cabecalhoDeSecaoEIgnorado() {
+        assertTrue(parser.parse("<strong>Recommended:</strong><br>").isEmpty());
+        assertTrue(parser.parse("<h3>Requisitos mínimos</h3>").isEmpty());
+    }
+
+    @Test
+    void sistemaSemWindowsNaoViraVersaoDoWindows() {
+        RequirementFieldDto os = only(parser.parse("<li>OS: Ubuntu 22.04</li>"), "OS");
+        assertEquals("Ubuntu", os.parsedValue());
     }
 
     @Test
