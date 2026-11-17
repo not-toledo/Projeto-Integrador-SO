@@ -1,8 +1,8 @@
 import { ComponentCard } from '../../components/ComponentCard'
 import { FieldList } from '../../components/FieldList'
 import { UsageBar } from '../../components/UsageBar'
-import { bytes, count, duration, frequency, NOT_AVAILABLE, text } from './format'
-import type { Inventory } from './types'
+import { bytes, count, duration, frequency, NOT_AVAILABLE, NOT_REPORTED, text } from './format'
+import type { Inventory, MotherboardField } from './types'
 
 type Result<K extends keyof Inventory> = Inventory[K]
 
@@ -97,18 +97,22 @@ export function GpuCard({ result }: { result: Result<'gpu'> }) {
 export function MotherboardCard({ result }: { result: Result<'motherboard'> }) {
   return (
     <ComponentCard title="Placa-mãe" result={result}>
-      {(board) => (
-        <FieldList
-          fields={[
-            ['Fabricante', text(board.manufacturer)],
-            ['Modelo', text(board.model)],
-            ['Versão', text(board.version)],
-            ['Número de série', text(board.serialNumber)],
-            ['Computador (fabricante)', text(board.systemManufacturer)],
-            ['Computador (modelo)', text(board.systemModel)],
-          ]}
-        />
-      )}
+      {(board) => {
+        const field = (name: MotherboardField) =>
+          board[name] == null && board.notReportedFields?.includes(name) ? NOT_REPORTED : text(board[name])
+        return (
+          <FieldList
+            fields={[
+              ['Fabricante', field('manufacturer')],
+              ['Modelo', field('model')],
+              ['Versão', field('version')],
+              ['Número de série', field('serialNumber')],
+              ['Computador (fabricante)', field('systemManufacturer')],
+              ['Computador (modelo)', field('systemModel')],
+            ]}
+          />
+        )
+      }}
     </ComponentCard>
   )
 }

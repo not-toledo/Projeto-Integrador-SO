@@ -14,7 +14,7 @@ public final class Metrics {
     private static final Set<String> OEM_PLACEHOLDERS = Set.of(
             "to be filled by o.e.m.", "default string", "not specified", "not applicable", "n/a", "none",
             "o.e.m.", "system serial number", "system product name", "system manufacturer",
-            "system version", "base board serial number");
+            "system version", "base board serial number", "base board product name");
 
     /** Placeholders numéricos de versão, como "x.x" ou "X.XX": só letras x e pontuação, com ao menos um x. */
     private static final Pattern OEM_PLACEHOLDER_PATTERN = Pattern.compile("^[xX.\\- ]*[xX][xX.\\- ]*$");
@@ -61,13 +61,18 @@ public final class Metrics {
 
     /** Como cleanText, mas também descarta textos genéricos de fabricantes (ex.: "To be filled by O.E.M."). */
     public static String cleanOemText(String text) {
+        return isOemPlaceholder(text) ? null : cleanText(text);
+    }
+
+    /**
+     * true quando o firmware preencheu o campo com um texto genérico (ex.: "To be filled by O.E.M.", "x.x").
+     * Diferente de ausente: o dado existe, mas o fabricante não o informou.
+     */
+    public static boolean isOemPlaceholder(String text) {
         String cleaned = cleanText(text);
-        if (cleaned == null
-                || OEM_PLACEHOLDERS.contains(cleaned.toLowerCase(Locale.ROOT))
-                || OEM_PLACEHOLDER_PATTERN.matcher(cleaned).matches()) {
-            return null;
-        }
-        return cleaned;
+        return cleaned != null
+                && (OEM_PLACEHOLDERS.contains(cleaned.toLowerCase(Locale.ROOT))
+                    || OEM_PLACEHOLDER_PATTERN.matcher(cleaned).matches());
     }
 
     /** Espaço usado = total - livre; null se algum valor for ausente ou incoerente. */

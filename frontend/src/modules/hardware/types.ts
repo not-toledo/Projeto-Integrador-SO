@@ -48,7 +48,12 @@ export interface MotherboardInfo {
   serialNumber: string | null
   systemManufacturer: string | null
   systemModel: string | null
+  /** Campos que o firmware deixou com texto genérico do fabricante (ex.: "To be filled by O.E.M."). */
+  notReportedFields?: MotherboardField[]
 }
+
+export type MotherboardField =
+  | 'manufacturer' | 'model' | 'version' | 'serialNumber' | 'systemManufacturer' | 'systemModel'
 
 export interface DiskInfo {
   name: string | null

@@ -21,6 +21,7 @@ import java.util.Locale;
 public final class SnapshotPrinter {
 
     static final String UNAVAILABLE = "Nao disponivel";
+    static final String NOT_REPORTED = "Nao informado pelo fabricante";
     private static final double GIB = 1024.0 * 1024.0 * 1024.0;
 
     private SnapshotPrinter() {
@@ -77,12 +78,12 @@ public final class SnapshotPrinter {
         section(sb, "Placa-mae", snapshot.motherboard());
         MotherboardInfo board = snapshot.motherboard().data();
         if (board != null) {
-            line(sb, "Fabricante", board.manufacturer());
-            line(sb, "Modelo", board.model());
-            line(sb, "Versao", board.version());
-            line(sb, "Numero de serie", board.serialNumber());
-            line(sb, "Computador (fabricante)", board.systemManufacturer());
-            line(sb, "Computador (modelo)", board.systemModel());
+            boardLine(sb, board, "Fabricante", "manufacturer", board.manufacturer());
+            boardLine(sb, board, "Modelo", "model", board.model());
+            boardLine(sb, board, "Versao", "version", board.version());
+            boardLine(sb, board, "Numero de serie", "serialNumber", board.serialNumber());
+            boardLine(sb, board, "Computador (fabricante)", "systemManufacturer", board.systemManufacturer());
+            boardLine(sb, board, "Computador (modelo)", "systemModel", board.systemModel());
         }
 
         section(sb, "Armazenamento", snapshot.storage());
@@ -140,6 +141,11 @@ public final class SnapshotPrinter {
     private static void line(StringBuilder sb, String label, String value) {
         sb.append("  ").append(label).append(": ").append(value == null ? UNAVAILABLE : value)
                 .append(System.lineSeparator());
+    }
+
+    /** Campo da placa-mae: diferencia "nao informado pelo fabricante" (texto generico) de "nao disponivel". */
+    private static void boardLine(StringBuilder sb, MotherboardInfo board, String label, String field, String value) {
+        line(sb, label, value == null && board.notReportedFields().contains(field) ? NOT_REPORTED : value);
     }
 
     static String gib(Long bytes) {

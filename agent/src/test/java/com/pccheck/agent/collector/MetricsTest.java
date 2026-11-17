@@ -1,7 +1,9 @@
 package com.pccheck.agent.collector;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -59,6 +61,19 @@ class MetricsTest {
         assertNull(Metrics.cleanOemText("unknown"));
         assertNull(Metrics.cleanOemText(null));
         assertEquals("ROG STRIX B550-F", Metrics.cleanOemText(" ROG STRIX B550-F "));
+    }
+
+    @Test
+    void isOemPlaceholderDiferenciaTextoGenericoDeAusente() {
+        assertTrue(Metrics.isOemPlaceholder("To be filled by O.E.M."));
+        assertTrue(Metrics.isOemPlaceholder("x.x"));
+        assertTrue(Metrics.isOemPlaceholder("Base Board Product Name"));
+        // Ausente ou "unknown" nao e texto do fabricante: e dado nao disponivel.
+        assertFalse(Metrics.isOemPlaceholder(null));
+        assertFalse(Metrics.isOemPlaceholder("  "));
+        assertFalse(Metrics.isOemPlaceholder("unknown"));
+        assertFalse(Metrics.isOemPlaceholder("H81M-S1"));
+        assertFalse(Metrics.isOemPlaceholder("Rev 1.xx"));
     }
 
     @Test

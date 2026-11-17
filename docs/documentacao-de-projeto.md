@@ -96,7 +96,7 @@ Visão resumida; diagramas completos em [diagramas.md](diagramas.md).
 - **GPU:** identificação e VRAM informada pelo sistema (o OSHI não distingue VRAM dedicada de compartilhada). A
   utilização, a memória em uso e a temperatura vêm do leitor de sensores interno (não exigem administrador).
 - **Armazenamento:** o tipo (SSD/HDD) não é informado, pois não há evidência confiável via OSHI.
-- **Placa-mãe:** textos genéricos de fabricantes (como "To be filled by O.E.M.") e placeholders (como `x.x`) são descartados.
+- **Placa-mãe:** textos genéricos de fabricantes (como "To be filled by O.E.M.") e placeholders (como `x.x`) são descartados e aparecem como "Não informado pelo fabricante" (diferente de "Não disponível", quando o dado não pôde ser lido). No Windows, o modelo vem de `Win32_BaseBoard.Product` quando o OSHI não o informa (o OSHI lê `Win32_BaseBoard.Model`, que quase nunca é preenchido). O modelo do computador nunca é usado como modelo da placa.
 - **Sensores:** temperatura da CPU e ventoinhas da placa-mãe exigem permissão de administrador (aviso do Windows ao
   iniciar) e o driver PawnIO; sem eles ficam "Sem leitura", com o motivo. Placas-mãe com chip de monitoramento não
   suportado pela LibreHardwareMonitorLib não informam ventoinhas.
