@@ -523,6 +523,13 @@ dd {
 .game-explanation { display: block; color: var(--muted); margin-top: .3rem; min-width: 160px; }
 .game-raw { margin-top: 1rem; }
 .game-raw pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; font-size: .85rem; color: var(--muted); }
+.game-verdict { border: 1px solid var(--border); border-radius: 8px; padding: .75rem 1rem; margin-bottom: 1rem; }
+.game-verdict-label { font-size: 1.15rem; font-weight: 700; margin: 0; }
+.game-verdict ul { margin: .4rem 0 0; padding-left: 1.2rem; }
+.game-verdict-ok { color: var(--ok-text); background: var(--ok-bg); border-color: var(--ok-border); }
+.game-verdict-limited { color: var(--warn-text); background: var(--warn-bg); border-color: var(--warn-border); }
+.game-verdict-bad { color: var(--error-text); background: var(--error-bg); border-color: var(--error-border); }
+.game-verdict-unknown { color: var(--text); background: var(--surface); }
 .game-warning { margin-top: 1rem; border: 1px solid var(--warn-border); background: var(--warn-bg); color: var(--warn-text); }
 .game-warning ul { margin-bottom: 0; }
 @media (max-width: 650px) {

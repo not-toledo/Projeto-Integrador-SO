@@ -1,5 +1,12 @@
 # Histórico de versões
 
+## V2.3 — Classificação geral da compatibilidade com jogos
+- Nova classificação geral (`verdict`) por jogo: **Compatível**, **Compatibilidade limitada**, **Não recomendado** e **Dados insuficientes**, com código estável, motivos e listas de componentes abaixo do mínimo, abaixo do recomendado e pendentes de confirmação. Falta de dado nunca vira compatível nem incompatível. Campo aditivo; `overallMinimum`/`overallRecommended` mantidos.
+- Interface: faixa com a classificação e os motivos acima das tabelas; estado `UNKNOWN` passa a ser exibido como "Dados insuficientes".
+- Avisos: o aviso sobre FPS saiu da lista de limitações (já estava no rodapé fixo, ficava duplicado); o aviso de CPU/GPU só aparece quando algum desses itens ficou em revisão manual.
+- Parser: jogos antigos que publicam os requisitos em um parágrafo ("Mínimo: Processador de 1.7 GHz, 512 MB de RAM, ...") passam a gerar um campo por item (vírgulas dentro de parênteses são respeitadas); o bloco "Recomendado:" publicado dentro do campo dos mínimos é separado; `&reg;`, `&trade;` e `&copy;` são decodificados; "processador" e "placa de vídeo" reconhecidos em linhas sem rótulo. Ex.: Portal (AppID 400) passou de nenhum requisito comparável para CPU, RAM e GPU em mínimos e recomendados.
+- Testes: `GameCompatibilityEvaluatorTest` (8 cenários de classificação), `SteamRequirementsParserTest` e `SteamRequirementsServiceTest` (HTML real do Portal) e `GameCompatibilityPage.test.tsx` (novo).
+
 ## V2.2 — Identificação da placa-mãe
 - **Modelo da placa-mãe no Windows.** O OSHI 6.6.5 lê `Win32_BaseBoard.Model`, que os fabricantes quase nunca preenchem; o nome da placa fica em `Win32_BaseBoard.Product` (SMBIOS tipo 2). Quando o OSHI não traz o modelo, o agente consulta `Product` uma única vez (resultado memorizado) pelo mesmo mecanismo de WMI do OSHI, sem dependência nova. Ex.: Gigabyte H81M-S1 passou de "Não disponível" para "H81M-S1".
 - **"Não informado pelo fabricante" ≠ "Não disponível".** `MotherboardInfo` ganhou `notReportedFields`: campos que o firmware tem, mas com texto genérico ("To be filled by O.E.M.", "x.x"). Interface e saída do agente exibem a diferença. Campo novo e aditivo na API.

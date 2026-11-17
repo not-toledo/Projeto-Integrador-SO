@@ -33,15 +33,25 @@ public class SteamRequirementsService {
         JsonNode requirements = data.path("pc_requirements");
         String minimum = html(requirements.path("minimum"));
         String recommended = html(requirements.path("recommended"));
+        String minimumText = parser.toPlainText(minimum);
+        String recommendedText = parser.toPlainText(recommended);
+        if (recommendedText.isBlank()) {
+            // Jogos antigos publicam "Mínimo: ..." e "Recomendado: ..." juntos no campo dos mínimos.
+            int start = parser.embeddedRecommendedStart(minimumText);
+            if (start > 0) {
+                recommendedText = minimumText.substring(start);
+                minimumText = minimumText.substring(0, start);
+            }
+        }
         List<String> warnings = new ArrayList<>();
         if (minimum.isBlank()) warnings.add("A Steam não publicou requisitos mínimos para Windows.");
-        if (recommended.isBlank()) warnings.add("A Steam não publicou requisitos recomendados para Windows.");
+        if (recommendedText.isBlank()) warnings.add("A Steam não publicou requisitos recomendados para Windows.");
         if (minimum.isBlank() && recommended.isBlank()) warnings.add("Não há requisitos de PC interpretáveis para este jogo.");
         String name = data.path("name").asText("Jogo sem nome");
         String image = data.path("header_image").asText(null);
         GameRequirementsDto result = new GameRequirementsDto(appId, name, image,
                 "https://store.steampowered.com/app/" + appId + "/", minimum, recommended,
-                parser.parse(minimum), parser.parse(recommended), Instant.now(),
+                parser.parseText(minimumText), parser.parseText(recommendedText), Instant.now(),
                 "Steam Store — https://store.steampowered.com/api/appdetails", List.copyOf(warnings));
         cache.put(appId, new Cached(result, Instant.now().plusSeconds(43200)));
         return result;

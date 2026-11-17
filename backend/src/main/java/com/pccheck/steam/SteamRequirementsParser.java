@@ -58,7 +58,8 @@ public class SteamRequirementsParser {
                 .replace("&eacute;", "é").replace("&Eacute;", "É")
                 .replace("&aacute;", "á").replace("&Aacute;", "Á")
                 .replace("&atilde;", "ã").replace("&Atilde;", "Ã")
-                .replace("&ccedil;", "ç").replace("&Ccedil;", "Ç");
+                .replace("&ccedil;", "ç").replace("&Ccedil;", "Ç")
+                .replace("&reg;", "®").replace("&trade;", "™").replace("&copy;", "©");
         Matcher entities = Pattern.compile("&#(x[0-9a-fA-F]+|[0-9]+);").matcher(text);
         StringBuilder decoded = new StringBuilder();
         while (entities.find()) {
@@ -80,15 +81,26 @@ public class SteamRequirementsParser {
     }
 
     public List<RequirementFieldDto> parse(String html) {
-        String text = toPlainText(html);
-        if (text.isBlank()) return List.of();
+        return parseText(toPlainText(html));
+    }
+
+    /** Interpreta texto já limpo por {@link #toPlainText(String)}, uma linha por requisito. */
+    public List<RequirementFieldDto> parseText(String text) {
+        if (text == null || text.isBlank()) return List.of();
         List<RequirementFieldDto> result = new ArrayList<>();
         for (String raw : text.split("\n")) {
             String line = raw.trim();
             if (line.isEmpty() || SECTION_HEADER.matcher(simplify(line)).matches()) continue;
+            Matcher labeled = LABELED.matcher(line);
+            if (labeled.matches() && SECTION_HEADER.matcher(simplify(labeled.group(1))).matches()) {
+                // Jogos antigos: "Mínimo: Processador de 1.7 GHz, 512 MB de RAM, ..." em um único parágrafo.
+                for (String item : splitTopLevel(labeled.group(2))) {
+                    result.add(field(byKeyword(item), item, item));
+                }
+                continue;
+            }
             String component;
             String value = line;
-            Matcher labeled = LABELED.matcher(line);
             if (labeled.matches()) {
                 // Rótulo sem comparação (DirectX, Rede, Placa de som, Notas adicionais...) vira OTHER.
                 component = labelComponent(labeled.group(1));
@@ -99,6 +111,43 @@ public class SteamRequirementsParser {
             result.add(field(component, line, value));
         }
         return List.copyOf(result);
+    }
+
+    /**
+     * Posição do bloco "Recomendado:"/"Recommended:" publicado dentro do texto dos mínimos (comum em jogos
+     * antigos), ou -1. O texto deve vir de {@link #toPlainText(String)}.
+     */
+    public int embeddedRecommendedStart(String text) {
+        if (text == null) return -1;
+        int offset = 0;
+        for (String line : text.split("\n", -1)) {
+            Matcher labeled = LABELED.matcher(line.trim());
+            String head = labeled.matches() ? labeled.group(1) : line;
+            if (offset > 0 && simplify(head).matches("recomendados?|recommended|requisitos recomendados")) {
+                return offset;
+            }
+            offset += line.length() + 1;
+        }
+        return -1;
+    }
+
+    /** Divide por vírgula/ponto e vírgula fora de parênteses: "Pentium 4 (3.0 GHz, ou melhor)" fica inteiro. */
+    static List<String> splitTopLevel(String text) {
+        List<String> items = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        int depth = 0;
+        for (char c : text.toCharArray()) {
+            if (c == '(') depth++;
+            if (c == ')' && depth > 0) depth--;
+            if ((c == ',' || c == ';') && depth == 0) {
+                if (!current.toString().isBlank()) items.add(current.toString().trim());
+                current.setLength(0);
+            } else {
+                current.append(c);
+            }
+        }
+        if (!current.toString().isBlank()) items.add(current.toString().trim());
+        return items;
     }
 
     /** "Graphics:", "Graphics (AMD):" e "Placa de vídeo:" são GPU; rótulos não comparáveis viram OTHER. */
@@ -120,8 +169,9 @@ public class SteamRequirementsParser {
         // Aviso comum da Steam; não é um requisito de processador.
         if (lower.startsWith("requires a 64-bit") || lower.startsWith("requer um processador")) return "OTHER";
         if (WINDOWS.matcher(line).find() || OTHER_OS.matcher(line).find()) return "OS";
-        if (CPU_HINT.matcher(line).find() || lower.contains("processor")) return "CPU";
-        if (GPU_HINT.matcher(line).find() || lower.contains("graphics") || lower.contains("vram")) return "GPU";
+        if (CPU_HINT.matcher(line).find() || lower.contains("processor") || lower.contains("processador")) return "CPU";
+        if (GPU_HINT.matcher(line).find() || lower.contains("graphics") || lower.contains("vram")
+                || lower.contains("placa de video") || lower.contains("video card")) return "GPU";
         if (lower.contains("memory") || lower.matches(".*\\bram\\b.*") || lower.contains("memoria")) return "RAM";
         if (lower.contains("storage") || lower.contains("available space") || lower.contains("armazenamento")) return "STORAGE";
         return "OTHER";
