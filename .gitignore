@@ -1,0 +1,12 @@
+target/
+out/
+node_modules/
+dist/
+*.class
+.idea/
+.vscode/
+*.iml
+
+# Leitor de sensores (.NET): saidas de compilacao
+sensor-host/bin/
+sensor-host/obj/

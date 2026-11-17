@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Leitor de sensores do PCCheck. Processo auxiliar iniciado e encerrado pelo backend Java; o usuário não o
+    executa. Usa a biblioteca LibreHardwareMonitorLib (MPL-2.0) para temperatura da CPU, ventoinhas e GPU.
+
+    .NET Framework 4.8: já vem instalado no Windows 10 (1903+) e 11, então não exige instalar runtime.
+    WinExe: não abre janela de console.
+  -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <PlatformTarget>x64</PlatformTarget>
+    <AssemblyName>PCCheck.SensorHost</AssemblyName>
+    <RootNamespace>PCCheck.SensorHost</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.6" />
+  </ItemGroup>
+
+</Project>
