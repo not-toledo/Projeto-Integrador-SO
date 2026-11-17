@@ -12,6 +12,6 @@ public class HealthController {
 
     @GetMapping("/ping")
     public HealthDto ping() {
-        return new HealthDto("UP", "PCCheck", "0.9.0");
+        return new HealthDto("UP", "PCCheck", "1.0.0");
     }
 }

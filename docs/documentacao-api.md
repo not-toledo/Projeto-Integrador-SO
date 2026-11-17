@@ -7,11 +7,12 @@ não há acesso remoto. Todas as rotas começam com `/api`.
 
 | Método | Rota | Descrição | Detalhes |
 |---|---|---|---|
-| GET | `/api/ping` | Verifica se o backend está ativo. Resposta: `{"status":"UP","app":"PCCheck","version":"0.9.0"}`. | — |
+| GET | `/api/ping` | Verifica se o backend está ativo. Resposta: `{"status":"UP","app":"PCCheck","version":"1.0.0"}`. | — |
 | GET | `/api/inventory` | Inventário de hardware (Módulo A). | [api/api-inventario.md](api/api-inventario.md) |
 | GET | `/api/health-check` | Relatório do Health Check (Módulo B). | [api/api-saude.md](api/api-saude.md) |
 | GET | `/api/live` | Amostra mais recente do Live Monitor e estado da coleta (Módulo C). | [api/api-live.md](api/api-live.md) |
 | GET | `/api/live/history?limit=N` | Histórico recente de amostras (Módulo C). | [api/api-live.md](api/api-live.md) |
+| GET | `/api/games/search?query=...` | Pesquisa de jogos na Steam (Módulo D, em desenvolvimento). | [api/api-jogos.md](api/api-jogos.md) |
 
 ## Convenções de resposta
 
@@ -26,9 +27,10 @@ não há acesso remoto. Todas as rotas começam com `/api`.
 - [Inventário (Módulo A)](api/api-inventario.md)
 - [Health Check (Módulo B)](api/api-saude.md)
 - [Live Monitor (Módulo C)](api/api-live.md)
+- [Game Compatibility (Módulo D)](api/api-jogos.md)
 - [GPU e sensores via LibreHardwareMonitor](libre-hardware-monitor.md)
 
 ## Configuração
 
 Os parâmetros ficam em `backend/src/main/resources/application.properties` (prefixos `pccheck.health.*`,
-`pccheck.monitor.*` e `pccheck.lhm.*`).
+`pccheck.monitor.*`, `pccheck.lhm.*` e `pccheck.steam.*`).

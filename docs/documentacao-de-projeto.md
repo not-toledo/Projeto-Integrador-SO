@@ -4,7 +4,7 @@
 
 O PCCheck é uma aplicação **local** de identificação, diagnóstico básico e monitoramento de hardware. Ele coleta
 informações reais do computador onde o agente está em execução e as apresenta de forma compreensível para um usuário
-comum. Projeto da disciplina Projeto Integrador de Sistemas Operacionais (versão atual: **0.9.0**).
+comum. Projeto da disciplina Projeto Integrador de Sistemas Operacionais (versão atual: **1.0.0**).
 
 Uma aplicação hospedada na nuvem não consegue inspecionar o hardware de quem a visita; por isso a coleta sempre ocorre
 na máquina do usuário.

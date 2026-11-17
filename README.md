@@ -3,7 +3,7 @@
 Aplicação local de identificação, diagnóstico básico e monitoramento de hardware.
 Projeto Integrador de Sistemas Operacionais.
 
-**Versão atual: 0.9.0** (integração e estabilização). Histórico de mudanças em [docs/CHANGELOG.md](docs/CHANGELOG.md).
+**Versão atual: 1.0.0** (versão estável dos módulos A, B e C). Histórico de mudanças em [docs/CHANGELOG.md](docs/CHANGELOG.md).
 
 O PCCheck coleta dados **reais** do próprio computador. Dados indisponíveis aparecem como "Não disponível" ou
 "Sem leitura": o sistema nunca simula nem estima valores.
@@ -15,6 +15,7 @@ O PCCheck coleta dados **reais** do próprio computador. Dados indisponíveis ap
 | A | Hardware Overview | Identifica sistema operacional, CPU, memória, GPU, placa-mãe e armazenamento. |
 | B | Health Check | Avalia temperatura, espaço em disco e uso de RAM, com alertas explicáveis. |
 | C | Live Monitor | Mostra CPU, RAM, GPU, sensores e discos em tempo real, com gráficos. |
+| D | Game Compatibility | *Em desenvolvimento* (V1.1: pesquisa de jogos na Steam). Compara requisitos publicados com o hardware local. Ver [plano](docs/plano-modulo-d.md). |
 
 ## Documentação
 
@@ -58,7 +59,7 @@ scripts/run-backend.sh         (Linux)
 ```
 
 Os scripts instalam o agente no repositório Maven local e iniciam a API em `http://127.0.0.1:8080`.
-Teste: `http://127.0.0.1:8080/api/ping` deve responder `{"status":"UP","app":"PCCheck","version":"0.9.0"}`.
+Teste: `http://127.0.0.1:8080/api/ping` deve responder `{"status":"UP","app":"PCCheck","version":"1.0.0"}`.
 
 ### 3. Frontend (terminal 2)
 
@@ -75,7 +76,7 @@ para o backend, sem configuração de CORS. Para outro endereço de API, defina 
 
 ```
 mvn -pl agent package
-java -jar agent/target/pccheck-agent-0.9.0-all.jar
+java -jar agent/target/pccheck-agent-1.0.0-all.jar
 ```
 
 ## Configuração
