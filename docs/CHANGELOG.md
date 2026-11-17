@@ -1,5 +1,6 @@
 # Histórico de versões
 
+<<<<<<< HEAD
 ## V1.1 — Módulo D: pesquisa Steam (branch `feature/game-compatibility`)
 - Novo pacote `com.pccheck.steam` no backend: `SteamStoreClient` (busca em `storesearch`, URL montada só a partir de constantes e do termo codificado), `SteamHttp`/`JdkSteamHttp` (timeouts, HTTP 429, 5xx, corpo vazio, sem seguir redirecionamentos), `SteamGameSearchService` (valida o termo de 2 a 100 caracteres, no máximo 10 resultados, cache curto sem guardar falhas).
 - Novo endpoint `GET /api/games/search?query=...` (`GameCompatibilityController`) com erros padronizados (`INVALID_QUERY` 400, `STEAM_UNAVAILABLE` e `STEAM_RATE_LIMITED` 503, `STEAM_INVALID_RESPONSE` 502). Falha da Steam não afeta os módulos A, B e C.
@@ -10,7 +11,7 @@
 - Versão dos POMs e do frontend permanece 1.0.0 até a V1.4.
 
 =======
-
+>>>>>>> 48fcd0d60a184308c4115dd2da8e122db6dbf7b0
 ## V1.0 — Versão estável dos módulos A, B e C
 - Escopo congelado: nenhuma funcionalidade nova. A V1.0 fecha os módulos A, B e C; o Módulo D (compatibilidade com jogos) começa na V1.1.
 - Fins de linha: novo `.gitattributes` (LF no repositório, LF nos `.sh`, CRLF nos `.bat`). Antes, os arquivos do Windows apareciam todos como modificados no Git e os `.sh` com CRLF falhavam no Git Bash/WSL.
