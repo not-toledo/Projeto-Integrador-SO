@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeInventory } from '../modules/hardware/fixtures'
 import type { Inventory } from '../modules/hardware/types'
@@ -60,6 +60,33 @@ describe('HardwareOverviewPage', () => {
     expect(screen.getAllByText('Não disponível').length).toBeGreaterThan(5)
     expect(screen.getByText(/Origem: Origem de teste/)).toBeTruthy()
     expect(screen.getByText(/Última coleta:/)).toBeTruthy()
+  })
+
+  it('placa-mãe diferencia "não informado pelo fabricante" de "não disponível"', async () => {
+    fetchMock.mockResolvedValue(
+      makeInventory({
+        motherboard: {
+          status: 'OK',
+          message: null,
+          data: {
+            manufacturer: 'Gigabyte Technology Co., Ltd.',
+            model: 'H81M-S1',
+            version: null,
+            serialNumber: null,
+            systemManufacturer: null,
+            systemModel: null,
+            notReportedFields: ['version', 'serialNumber'],
+          },
+        },
+      }),
+    )
+    render(<HardwareOverviewPage />)
+
+    expect(await screen.findByText('H81M-S1')).toBeTruthy()
+    const values = within(screen.getByRole('region', { name: 'Placa-mãe' }))
+    expect(values.getAllByText('Não informado pelo fabricante')).toHaveLength(2)
+    // Campos sem texto do fabricante continuam como "Não disponível".
+    expect(values.getAllByText('Não disponível')).toHaveLength(2)
   })
 
   it('falha ou indisponibilidade de um componente não afeta os demais', async () => {

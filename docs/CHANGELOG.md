@@ -1,5 +1,11 @@
 # Histórico de versões
 
+## V2.2 — Identificação da placa-mãe
+- **Modelo da placa-mãe no Windows.** O OSHI 6.6.5 lê `Win32_BaseBoard.Model`, que os fabricantes quase nunca preenchem; o nome da placa fica em `Win32_BaseBoard.Product` (SMBIOS tipo 2). Quando o OSHI não traz o modelo, o agente consulta `Product` uma única vez (resultado memorizado) pelo mesmo mecanismo de WMI do OSHI, sem dependência nova. Ex.: Gigabyte H81M-S1 passou de "Não disponível" para "H81M-S1".
+- **"Não informado pelo fabricante" ≠ "Não disponível".** `MotherboardInfo` ganhou `notReportedFields`: campos que o firmware tem, mas com texto genérico ("To be filled by O.E.M.", "x.x"). Interface e saída do agente exibem a diferença. Campo novo e aditivo na API.
+- O modelo do computador (`systemModel`) continua separado e nunca é copiado para o modelo da placa.
+- Testes: `HardwareCollectorsTest`, `MetricsTest`, `SnapshotPrinterTest` e `HardwareOverviewPage.test.tsx` ampliados.
+
 ## V2.1 — Correções do módulo de compatibilidade com jogos
 - **Parser da Steam corrigido.** A substituição `replaceAll(..., "\n")` inseria a letra "n" no lugar da quebra de linha, então todos os requisitos viravam uma única linha e cada jogo resultava em um só campo "RAM" (CPU, GPU, SO e armazenamento nunca eram avaliados). Era a causa das 2 falhas em `SteamRequirementsParserTest`.
 - Cada linha agora é classificada pelo rótulo publicado pela Steam (inglês e português, inclusive "Graphics (AMD):"); palavras-chave só como alternativa. "Graphics: GTX 970, 4 GB memory" deixa de virar requisito de RAM; cabeçalhos "Minimum:" e o aviso "Requires a 64-bit processor" são ignorados.

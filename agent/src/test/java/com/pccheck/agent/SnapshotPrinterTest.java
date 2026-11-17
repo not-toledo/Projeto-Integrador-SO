@@ -62,7 +62,8 @@ class SnapshotPrinterTest {
                 CollectorResult.ok("CpuCollector", new CpuInfo("CPU X", "Vendor", 4, 8, 3_000_000_000L, null, 10.0)),
                 CollectorResult.ok("RamCollector", new MemoryInfo(8_589_934_592L, 4_294_967_296L, 4_294_967_296L, 50.0)),
                 CollectorResult.ok("GpuCollector", List.of(new GpuInfo("GPU X", "Vendor", null, 2_147_483_648L))),
-                CollectorResult.ok("MotherboardCollector", new MotherboardInfo("Fab", "Mod", null, null, null, null)),
+                CollectorResult.ok("MotherboardCollector", new MotherboardInfo("Fab", "Mod", null, null, null, null,
+                        List.of("serialNumber"))),
                 CollectorResult.ok("DiskCollector", new StorageInfo(
                         List.of(new DiskInfo("disco0", "Modelo D", 500_107_862_016L)),
                         List.of(new VolumeInfo("C:\\", null, "NTFS", 500_000_000_000L, 250_000_000_000L,
@@ -78,6 +79,8 @@ class SnapshotPrinterTest {
         assertTrue(text.contains("ID do dispositivo: Nao disponivel"));
         assertTrue(text.contains("VRAM informada: 2.00 GiB"));
         assertTrue(text.contains("Fabricante: Fab"));
+        assertTrue(text.contains("Versao: Nao disponivel"));
+        assertTrue(text.contains("Numero de serie: Nao informado pelo fabricante"));
         assertTrue(text.contains("Modelo: Modelo D"));
         assertTrue(text.contains("Sistema de arquivos: NTFS"));
         assertTrue(text.contains("Rotulo: Nao disponivel"));

@@ -2,6 +2,8 @@
 // nada é estimado ou preenchido por conta própria.
 
 export const NOT_AVAILABLE = 'Não disponível'
+/** O componente tem o campo, mas o fabricante deixou um texto genérico no lugar do valor. */
+export const NOT_REPORTED = 'Não informado pelo fabricante'
 
 const KIB = 1024
 const MIB = KIB * 1024

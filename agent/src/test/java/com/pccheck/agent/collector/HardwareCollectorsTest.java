@@ -67,6 +67,57 @@ class HardwareCollectorsTest {
     }
 
     @Test
+    void placaMaeRegistraCamposNaoInformadosPeloFabricante() {
+        // Valores reais de uma Gigabyte H81M-S1 (Win32_BaseBoard).
+        MotherboardInfo mb = MotherboardCollector.build("Gigabyte Technology Co., Ltd.", "H81M-S1", "x.x",
+                "To be filled by O.E.M.", "Gigabyte Technology Co., Ltd.", "H81M-S1");
+        assertEquals("H81M-S1", mb.model());
+        assertNull(mb.version());
+        assertNull(mb.serialNumber());
+        assertEquals(List.of("version", "serialNumber"), mb.notReportedFields());
+    }
+
+    @Test
+    void placaMaeCampoAusenteNaoEhMarcadoComoNaoInformado() {
+        MotherboardInfo mb = MotherboardCollector.build("Fab", null, "", "unknown", null, null);
+        assertEquals(List.of(), mb.notReportedFields());
+    }
+
+    @Test
+    void modeloDaPlacaUsaProductQuandoOshiNaoTraz() {
+        // OSHI le Win32_BaseBoard.Model (vazio); o nome da placa esta em Product.
+        assertEquals("H81M-S1", MotherboardCollector.boardModel("", () -> "H81M-S1"));
+        assertEquals("H81M-S1", MotherboardCollector.boardModel(null, () -> "H81M-S1"));
+    }
+
+    @Test
+    void modeloDaPlacaPrefereOValorValidoDoOshi() {
+        int[] calls = {0};
+        assertEquals("B450M", MotherboardCollector.boardModel("B450M", () -> {
+            calls[0]++;
+            return "Outro";
+        }));
+        assertEquals(0, calls[0]);
+    }
+
+    @Test
+    void modeloDaPlacaSemAlternativaMantemOValorOriginal() {
+        assertNull(MotherboardCollector.boardModel(null, () -> null));
+        // Texto generico continua chegando ao build, que o marca como nao informado.
+        String model = MotherboardCollector.boardModel("Default string", () -> "  ");
+        assertEquals("Default string", model);
+        assertEquals(List.of("model"),
+                MotherboardCollector.build("Fab", model, null, null, null, null).notReportedFields());
+    }
+
+    @Test
+    void modeloDaPlacaNaoUsaOModeloDoComputador() {
+        MotherboardInfo mb = MotherboardCollector.build("HP", null, null, null, "HP", "HP Pavilion 15");
+        assertNull(mb.model());
+        assertEquals("HP Pavilion 15", mb.systemModel());
+    }
+
+    @Test
     void discoConverteEDescartaInvalidos() {
         DiskInfo disk = DiskCollector.toDisk("\\\\.\\PHYSICALDRIVE0", "Modelo D", 500_107_862_016L);
         assertEquals("Modelo D", disk.model());
