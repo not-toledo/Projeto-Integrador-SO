@@ -1,7 +1,8 @@
 import { ComponentCard } from '../../components/ComponentCard'
 import { FieldList } from '../../components/FieldList'
+import { Spot } from '../../components/Spot'
 import { UsageBar } from '../../components/UsageBar'
-import { bytes, count, duration, frequency, NOT_AVAILABLE, NOT_REPORTED, text } from './format'
+import { bytes, count, duration, frequency, NOT_AVAILABLE, NOT_REPORTED, percent, text } from './format'
 import { DataSources } from '../sources/DataSources'
 import type { Platform } from '../sources/sourceCatalog'
 import type { Inventory, MotherboardField, VirtualMemoryInfo } from './types'
@@ -14,6 +15,13 @@ export function OsCard({ result, platform }: CardProps<'os'>) {
   return (
     <ComponentCard title="Sistema operacional" result={result} footer={<DataSources section="os" platform={platform} />}>
       {(os) => (
+        <>
+        <Spot
+          value={[os.name, os.version].filter(Boolean).join(' ') || NOT_AVAILABLE}
+          missing={!os.name}
+          caption={[os.buildNumber && `Build ${os.buildNumber}`, os.architecture,
+            os.uptimeSeconds != null && `ligado há ${duration(os.uptimeSeconds)}`].filter(Boolean).join(' · ')}
+        />
         <FieldList
           fields={[
             ['Nome', text(os.name)],
@@ -23,6 +31,7 @@ export function OsCard({ result, platform }: CardProps<'os'>) {
             ['Tempo de atividade', duration(os.uptimeSeconds)],
           ]}
         />
+        </>
       )}
     </ComponentCard>
   )
@@ -33,6 +42,13 @@ export function CpuCard({ result, platform }: CardProps<'cpu'>) {
     <ComponentCard title="CPU" result={result} footer={<DataSources section="cpu" platform={platform} />}>
       {(cpu) => (
         <>
+          <Spot
+            value={cpu.physicalCores != null && cpu.logicalProcessors != null
+              ? `${cpu.physicalCores} núcleos · ${cpu.logicalProcessors} threads` : NOT_AVAILABLE}
+            missing={cpu.physicalCores == null || cpu.logicalProcessors == null}
+            caption={cpu.nominalFrequencyHz != null ? `Frequência nominal de ${frequency(cpu.nominalFrequencyHz)}` : undefined}
+            gauge={{ label: 'Uso no momento da coleta', percent: cpu.usagePercent, text: percent(cpu.usagePercent) }}
+          />
           <FieldList
             fields={[
               ['Modelo', text(cpu.name)],
@@ -43,7 +59,6 @@ export function CpuCard({ result, platform }: CardProps<'cpu'>) {
               ['Frequência máxima', frequency(cpu.maxFrequencyHz)],
             ]}
           />
-          <UsageBar label="Uso atual" value={cpu.usagePercent} />
           <p className="muted">O uso de CPU é uma medição curta no momento da coleta e varia a cada atualização.</p>
         </>
       )}
@@ -70,6 +85,13 @@ export function MemoryCard({ result, platform }: CardProps<'memory'>) {
     <ComponentCard title="Memória RAM" result={result} footer={<DataSources section="memory" platform={platform} />}>
       {(memory) => (
         <>
+          <Spot
+            value={memory.usedPercent != null ? `${percent(memory.usedPercent)} em uso` : NOT_AVAILABLE}
+            missing={memory.usedPercent == null}
+            caption={memory.usedBytes != null && memory.totalBytes != null
+              ? `${bytes(memory.usedBytes)} usados de ${bytes(memory.totalBytes)}` : undefined}
+            gauge={{ label: 'Utilização', percent: memory.usedPercent, text: percent(memory.usedPercent) }}
+          />
           <FieldList
             fields={[
               ['Total', bytes(memory.totalBytes)],
@@ -79,7 +101,6 @@ export function MemoryCard({ result, platform }: CardProps<'memory'>) {
               ['Memória comprometida', commitText(memory.virtualMemory)],
             ]}
           />
-          <UsageBar label="Utilização" value={memory.usedPercent} />
         </>
       )}
     </ComponentCard>
@@ -91,6 +112,13 @@ export function GpuCard({ result, platform }: CardProps<'gpu'>) {
     <ComponentCard title="Placa de vídeo" result={result} footer={<DataSources section="gpu" platform={platform} />}>
       {(gpus) => (
         <>
+          {gpus.length > 0 && (
+            <Spot
+              value={gpus.length === 1 && gpus[0].vramBytes != null ? `${bytes(gpus[0].vramBytes)} de VRAM`
+                : `${gpus.length} ${gpus.length === 1 ? 'placa' : 'placas'} de vídeo`}
+              caption={`${gpus.length === 1 ? '1 placa' : `${gpus.length} placas`}: ${gpus.map((g) => text(g.name)).join(' + ')}`}
+            />
+          )}
           {gpus.map((gpu, index) => (
             <div className="subitem" key={`${gpu.name ?? 'gpu'}-${index}`}>
               {gpus.length > 1 && <h3>Placa {index + 1}</h3>}
@@ -121,6 +149,12 @@ export function MotherboardCard({ result, platform }: CardProps<'motherboard'>) 
         const field = (name: MotherboardField) =>
           board[name] == null && board.notReportedFields?.includes(name) ? NOT_REPORTED : text(board[name])
         return (
+          <>
+          <Spot
+            value={board.model ? `Modelo ${board.model}` : 'Modelo não informado'}
+            missing={!board.model}
+            caption={board.manufacturer ? `Fabricante: ${board.manufacturer}` : undefined}
+          />
           <FieldList
             fields={[
               ['Fabricante', field('manufacturer')],
@@ -131,6 +165,7 @@ export function MotherboardCard({ result, platform }: CardProps<'motherboard'>) 
               ['Computador (modelo)', field('systemModel')],
             ]}
           />
+          </>
         )
       }}
     </ComponentCard>
@@ -148,6 +183,13 @@ export function StorageCard({ result, platform }: CardProps<'storage'>) {
     <ComponentCard title="Armazenamento" result={result} footer={<DataSources section="storage" platform={platform} />} wide>
       {(storage) => (
         <>
+          {storage.drives && storage.drives.length > 0 && (
+            <Spot
+              value={`${storage.drives.length} ${storage.drives.length === 1 ? 'disco' : 'discos'} · ${bytes(
+                storage.drives.reduce((sum, d) => sum + (d.sizeBytes ?? 0), 0))}`}
+              caption={storage.drives.map((d) => diskType(d.mediaType, d.busType)).join(' · ')}
+            />
+          )}
           <h3>Unidades físicas</h3>
           {storage.drives === null ? (
             <p className="muted">{NOT_AVAILABLE}</p>
