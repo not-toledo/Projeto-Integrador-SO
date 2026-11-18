@@ -1,6 +1,6 @@
 // Tipos que espelham as respostas de GET /api/live e GET /api/live/history (veja docs/api-live.md).
 // Em qualquer campo de `data`, null significa "sem leitura".
-import type { ComponentResult } from '../hardware/types'
+import type { ComponentResult, PagingActivity, VirtualMemoryInfo } from '../hardware/types'
 
 export interface CpuLive {
   totalPercent: number | null
@@ -12,6 +12,8 @@ export interface MemoryLive {
   availableBytes: number | null
   usedBytes: number | null
   usedPercent: number | null
+  virtualMemory?: VirtualMemoryInfo | null
+  paging?: PagingActivity | null
 }
 
 export interface GpuLive {

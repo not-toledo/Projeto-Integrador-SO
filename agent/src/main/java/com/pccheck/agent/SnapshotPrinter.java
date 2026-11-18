@@ -10,6 +10,7 @@ import com.pccheck.agent.model.MotherboardInfo;
 import com.pccheck.agent.model.OsInfo;
 import com.pccheck.agent.model.StorageInfo;
 import com.pccheck.agent.model.SystemSnapshot;
+import com.pccheck.agent.model.VirtualMemoryInfo;
 import com.pccheck.agent.model.VolumeInfo;
 import java.util.List;
 import java.util.Locale;
@@ -60,6 +61,12 @@ public final class SnapshotPrinter {
             line(sb, "Usada", gib(mem.usedBytes()));
             line(sb, "Disponivel", gib(mem.availableBytes()));
             line(sb, "Utilizacao", percent(mem.usedPercent()));
+            VirtualMemoryInfo vm = mem.virtualMemory();
+            line(sb, "Paginacao/swap (total)", vm == null ? null : gib(vm.swapTotalBytes()));
+            line(sb, "Paginacao/swap (em uso)", vm == null ? null : gib(vm.swapUsedBytes()));
+            line(sb, "Memoria comprometida", vm == null || vm.commitUsedBytes() == null || vm.commitLimitBytes() == null
+                    ? null : gib(vm.commitUsedBytes()) + " de " + gib(vm.commitLimitBytes())
+                    + " (" + percent(vm.commitPercent()) + ")");
         }
 
         section(sb, "Placa de video", snapshot.gpu());

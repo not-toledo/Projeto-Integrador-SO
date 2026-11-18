@@ -32,6 +32,26 @@ export interface MemoryInfo {
   availableBytes: number | null
   usedBytes: number | null
   usedPercent: number | null
+  /** Swap/arquivo de paginação e memória comprometida; null se o SO não informou. */
+  virtualMemory?: VirtualMemoryInfo | null
+  /** Páginas lidas/gravadas por segundo; só no Live Monitor. */
+  paging?: PagingActivity | null
+}
+
+export interface VirtualMemoryInfo {
+  swapTotalBytes: number | null
+  swapUsedBytes: number | null
+  swapUsedPercent: number | null
+  commitLimitBytes: number | null
+  commitUsedBytes: number | null
+  /** Pode passar de 100 no Linux (overcommit). */
+  commitPercent: number | null
+}
+
+export interface PagingActivity {
+  pagesInPerSecond: number | null
+  pagesOutPerSecond: number | null
+  pageSizeBytes: number | null
 }
 
 export interface GpuInfo {

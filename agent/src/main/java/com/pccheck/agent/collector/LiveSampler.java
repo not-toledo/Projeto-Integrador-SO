@@ -7,6 +7,7 @@ import com.pccheck.agent.model.DiskLive;
 import com.pccheck.agent.model.GpuLive;
 import com.pccheck.agent.model.LiveSample;
 import com.pccheck.agent.model.MemoryInfo;
+import com.pccheck.agent.model.PagingActivity;
 import com.pccheck.agent.model.SensorLive;
 import com.pccheck.agent.model.VolumeInfo;
 import com.pccheck.agent.sensors.GpuReading;
@@ -39,6 +40,7 @@ public class LiveSampler {
     private long[] previousCpuTicks;
     private long[][] previousCoreTicks;
     private final Map<String, DiskCounters> previousDisk = new HashMap<>();
+    private PagingCounters previousPaging;
 
     public LiveSampler(SystemInfo systemInfo, SensorSource sensorSource) {
         this.systemInfo = systemInfo;
@@ -52,7 +54,7 @@ public class LiveSampler {
     public LiveSample sample() {
         long start = System.nanoTime();
         CollectorResult<CpuLive> cpu = CollectorRunner.run(new Named<>("LiveCpu", this::readCpu));
-        CollectorResult<MemoryInfo> memory = CollectorRunner.run(new RamCollector(systemInfo));
+        CollectorResult<MemoryInfo> memory = withPaging(CollectorRunner.run(new RamCollector(systemInfo)));
         // Uma única consulta ao leitor de sensores por amostra, compartilhada por GPU e sensores.
         SensorOutcome sensorOutcome = readSensorSource();
         CollectorResult<GpuLive> gpu = readGpu(sensorOutcome);
@@ -82,6 +84,39 @@ public class LiveSampler {
             return null;
         }
         return new CpuLive(total, anyCore ? cores : null);
+    }
+
+    /** Acrescenta à memória as páginas lidas/gravadas por segundo desde a amostra anterior. */
+    private CollectorResult<MemoryInfo> withPaging(CollectorResult<MemoryInfo> memory) {
+        if (!memory.isOk() || memory.data() == null) {
+            return memory;
+        }
+        try {
+            var hw = systemInfo.getHardware().getMemory();
+            var vm = hw.getVirtualMemory();
+            PagingCounters now = new PagingCounters(vm.getSwapPagesIn(), vm.getSwapPagesOut(), System.currentTimeMillis());
+            PagingCounters before = previousPaging;
+            previousPaging = now;
+            return CollectorResult.ok(memory.collector(),
+                    memory.data().withPaging(pagingBetween(before, now, Metrics.positiveOrNull(hw.getPageSize()))));
+        } catch (RuntimeException e) {
+            // Sem contadores de paginação: a RAM e a memória virtual continuam válidas.
+            return memory;
+        }
+    }
+
+    /** Conversão pura (testável): null na primeira amostra; taxa null se o contador for inválido ou recomeçar. */
+    static PagingActivity pagingBetween(PagingCounters before, PagingCounters now, Long pageSize) {
+        if (before == null) {
+            return null;
+        }
+        long elapsed = now.timestampMs() - before.timestampMs();
+        Double in = Metrics.ratePerSecond(before.pagesIn(), now.pagesIn(), elapsed);
+        Double out = Metrics.ratePerSecond(before.pagesOut(), now.pagesOut(), elapsed);
+        return in == null && out == null ? null : new PagingActivity(in, out, pageSize);
+    }
+
+    record PagingCounters(long pagesIn, long pagesOut, long timestampMs) {
     }
 
     private DiskLive readDisks() {

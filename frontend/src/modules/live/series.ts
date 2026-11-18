@@ -91,6 +91,14 @@ export function driveRateMiB(sample: LiveSample, name: string, kind: 'read' | 'w
   return isReading(v) ? v * MIB_PER_BYTE : null
 }
 
+/** Páginas de memória gravadas em disco (MiB/s); null sem leitura ou sem tamanho de página. */
+export function pagingWriteMiB(sample: LiveSample): number | null {
+  const paging = sample.memory.status === 'OK' ? sample.memory.data?.paging : null
+  const pages = paging?.pagesOutPerSecond
+  const size = paging?.pageSizeBytes
+  return isReading(pages) && isReading(size) ? pages * size * MIB_PER_BYTE : null
+}
+
 export function driveBusy(sample: LiveSample, name: string): number | null {
   const v = driveOf(sample, name)?.busyPercent
   return isPercentReading(v) ? v : null

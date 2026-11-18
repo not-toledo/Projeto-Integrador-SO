@@ -29,7 +29,7 @@ A falha de um grupo (por exemplo, sensores) não afeta os demais.
 | Grupo | Campos de `data` |
 |---|---|
 | `cpu` | `totalPercent` e `perCorePercent` (lista por processador lógico; elemento `null` = sem leitura daquele núcleo). |
-| `memory` | `totalBytes`, `availableBytes`, `usedBytes`, `usedPercent`. |
+| `memory` | `totalBytes`, `availableBytes`, `usedBytes`, `usedPercent`, `virtualMemory` (`swapTotalBytes`, `swapUsedBytes`, `swapUsedPercent`, `commitLimitBytes`, `commitUsedBytes`, `commitPercent`; pode ser `null`) e `paging` (`pagesInPerSecond`, `pagesOutPerSecond`, `pageSizeBytes`; calculado pela diferença entre duas amostras, `null` na primeira). Windows: "Pages Input/Output/sec" (incluem arquivos mapeados em memória); Linux: `pswpin`/`pswpout` de `/proc/vmstat`. |
 | `gpu` | `utilizationPercent`, `vramUsedBytes`, `vramTotalBytes`, `temperatureCelsius` e `name` da placa principal (a de maior memória de vídeo), lidos pelo **leitor de sensores interno** (ver [sensores.md](../sensores.md)). `UNAVAILABLE`, com o motivo, se não houver leitura. |
 | `disks` | `drives` (`name`, `readBytesPerSecond`, `writeBytesPerSecond`, `busyPercent`) e `volumes` (espaço livre, como no inventário); cada lista pode ser `null` independentemente. |
 | `sensors` | `cpuTemperatureCelsius`, `gpuTemperatureCelsius` e `fanSpeedsRpm` (somente leituras válidas). Vêm do leitor de sensores interno (CPU e ventoinhas da placa-mãe exigem administrador e o driver PawnIO); sem ele, usam o OSHI como alternativa. `UNAVAILABLE`, com o motivo, se nenhuma fonte expõe sensores. |

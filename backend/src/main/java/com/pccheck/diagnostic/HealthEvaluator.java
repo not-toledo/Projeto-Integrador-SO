@@ -15,10 +15,15 @@ public class HealthEvaluator {
     private final List<Diagnostic> diagnostics;
 
     public HealthEvaluator(HealthThresholds thresholds) {
+        this(thresholds, MemoryPressureThresholds.defaults());
+    }
+
+    public HealthEvaluator(HealthThresholds thresholds, MemoryPressureThresholds memoryPressure) {
         this(thresholds, List.of(
                 new TemperatureDiagnostic(thresholds),
                 new DiskSpaceDiagnostic(thresholds),
                 new MemoryDiagnostic(thresholds),
+                new MemoryPressureDiagnostic(thresholds, memoryPressure),
                 new SmartDiagnostic(),
                 new CollectionDiagnostic()));
     }
