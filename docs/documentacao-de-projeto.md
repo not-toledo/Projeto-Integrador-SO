@@ -117,4 +117,6 @@ Visão resumida; diagramas completos em [diagramas.md](diagramas.md).
 | Recursos de hardware | Núcleos físicos e lógicos, frequências, placa de vídeo e placa-mãe. Valores inválidos (como `-1`) são descartados. |
 | Armazenamento e sistema de arquivos | Unidades físicas e volumes montados, com capacidade, espaço livre e percentual de uso. |
 | Concorrência | Coleta periódica em thread de segundo plano, uma coleta por vez, sem bloquear a interface. |
+| Agendamento de tarefas e processos em segundo plano | `scripts/agendar-coleta` registra a coleta no agendador do SO (`schtasks` no Windows, `cron` no Linux). Cada execução é um processo de curta duração cujo código de saída fica registrado no agendador; o backend consulta o agendador executando `schtasks`/`crontab` com tempo limite. |
+| Arquivos, travas, permissões e variáveis de ambiente | Histórico em JSON Lines com rotação diária e retenção; gravação sob trava exclusiva de arquivo (concorrência entre agendador e backend); no Linux, pasta `700` e arquivos `600`; pasta e retenção configuráveis por `PCCHECK_DATA_DIR` e `PCCHECK_RETENCAO_DIAS`. |
 | Shell Script e automação | `scripts/` compila e executa agente e backend; `tests/` confere a saída. |

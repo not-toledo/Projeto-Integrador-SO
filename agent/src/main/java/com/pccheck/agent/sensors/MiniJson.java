@@ -7,10 +7,10 @@ import java.util.Map;
 
 /**
  * Leitor JSON mínimo (objetos, listas, textos, números, booleanos e null), suficiente para a
- * resposta do leitor de sensores. Evita adicionar uma dependência ao agente.
+ * resposta do leitor de sensores e do histórico de coletas. Evita adicionar uma dependência ao agente.
  * Objetos viram {@link Map}, listas viram {@link List}, números viram {@link Double}.
  */
-final class MiniJson {
+public final class MiniJson {
 
     private final String text;
     private int pos;
@@ -19,7 +19,7 @@ final class MiniJson {
         this.text = text;
     }
 
-    static Object parse(String json) {
+    public static Object parse(String json) {
         MiniJson parser = new MiniJson(json);
         parser.skipWhitespace();
         Object value = parser.readValue();

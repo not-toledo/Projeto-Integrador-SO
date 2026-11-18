@@ -1,5 +1,13 @@
 # Histórico de versões
 
+## V2.6 — Coleta agendada e histórico
+- Agente: modo `--registrar-coleta` (uma coleta gravada no histórico, código de saída para o agendador) e `--onde` (pasta do histórico). Pacote `history`: JSON Lines com rotação diária, retenção (7 dias, `PCCHECK_RETENCAO_DIAS`) que só apaga arquivos do próprio histórico, gravação sob trava exclusiva de arquivo e, no Linux, pasta `700` e arquivos `600` (sem alterar pastas existentes). Pasta por `PCCHECK_DATA_DIR` ou padrão do SO.
+- Scripts `agendar-coleta.bat` (Agendador de Tarefas, `schtasks`, via `javaw` sem janela) e `agendar-coleta.sh` (`cron` do usuário, sem duplicar a linha e preservando as demais): `instalar [minutos]`, `remover`, `status`, `agora`. O agente é copiado para a pasta de dados, então a tarefa sobrevive a `mvn clean`. Não exigem administrador.
+- Backend: `GET /api/history?days=N` (lê os mesmos arquivos com o mesmo código do agente) e situação da tarefa consultando `schtasks`/`crontab` com tempo limite.
+- Interface: página **Histórico** com CPU, RAM, paginação, memória comprometida e espaço livre por volume ao longo dos dias; lacunas quando não houve coleta. `LineChart` aceita rótulos de data.
+- `MiniJson` (leitor JSON do agente) passou a ser público para ser reaproveitado pelo histórico.
+- Testes: `HistoryStoreTest` (agente), `HistoryServiceTest` e `SchedulerStatusTest` (backend), `HistoryPage.test.tsx`. Script do Linux validado com `crontab` simulado; no Windows, `agora`, `status` e validação de argumentos foram executados, mas a criação real da tarefa (`instalar`) não foi executada nesta validação.
+
 ## V2.5 — De onde vêm os dados
 - Cada card da visão geral e cada painel do Live Monitor ganhou "De onde vêm estes dados?": a interface do sistema operacional que fornece cada campo, no Windows e no Linux (registro, WMI, contadores de desempenho, APIs do Kernel32/Psapi/PowrProf, `/proc`, `/sys`, `lspci`, `lshw`, `lsblk`). Na visão geral, a coluna do SO deste computador é destacada. Aparece também quando a coleta falha.
 - Fontes conferidas no bytecode do OSHI 6.6.5, no agente e no leitor de sensores; campos sem suporte aparecem como tal (ex.: telemetria da GPU no Linux). Catálogo único em `frontend/src/modules/sources/sourceCatalog.ts`.

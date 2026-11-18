@@ -20,6 +20,8 @@ interface LineChartProps {
   maxGapMs: number
   /** Casas decimais dos rótulos do eixo vertical. */
   digits?: number
+  /** Rótulo dos instantes no eixo e na descrição (padrão: hora do dia). */
+  formatTime?: (time: number) => string
 }
 
 const WIDTH = 640
@@ -34,7 +36,7 @@ function label(value: number, digits: number): string {
  * Gráfico temporal em SVG, sem biblioteca externa. Mostra apenas leituras reais:
  * valores ausentes geram lacunas, e sem nenhuma leitura o gráfico informa "Sem leitura".
  */
-export function LineChart({ title, unit, times, series, yMax, maxGapMs, digits = 0 }: LineChartProps) {
+export function LineChart({ title, unit, times, series, yMax, maxGapMs, digits = 0, formatTime = timeOfDay }: LineChartProps) {
   const anyReading = series.some((s) => hasReadings(s.values))
   const plotWidth = WIDTH - PAD.left - PAD.right
   const plotHeight = HEIGHT - PAD.top - PAD.bottom
@@ -53,7 +55,7 @@ export function LineChart({ title, unit, times, series, yMax, maxGapMs, digits =
 
   const ticks = [0, top / 2, top]
   const description = anyReading
-    ? `Gráfico de ${title} em ${unit}, de ${timeOfDay(first)} a ${timeOfDay(last)}.`
+    ? `Gráfico de ${title} em ${unit}, de ${formatTime(first)} a ${formatTime(last)}.`
     : `${title}: ${NO_READING}.`
 
   return (
@@ -85,10 +87,10 @@ export function LineChart({ title, unit, times, series, yMax, maxGapMs, digits =
         {anyReading && (
           <>
             <text className="chart-axis" x={PAD.left} y={HEIGHT - 8} textAnchor="start">
-              {timeOfDay(first)}
+              {formatTime(first)}
             </text>
             <text className="chart-axis" x={WIDTH - PAD.right} y={HEIGHT - 8} textAnchor="end">
-              {timeOfDay(last)}
+              {formatTime(last)}
             </text>
             {series.map((s, index) =>
               buildSegments(times, s.values, toX, toY, maxGapMs).map((segment, i) => (

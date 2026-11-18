@@ -84,6 +84,20 @@ mvn -pl agent package
 java -jar agent/target/pccheck-agent-1.0.0-all.jar
 ```
 
+### Coleta agendada (histórico com o PCCheck fechado)
+
+Registra uma coleta a cada N minutos no agendador do sistema operacional, sem precisar de administrador. O resultado
+aparece na página **Histórico**. Detalhes em [docs/api/api-historico.md](docs/api/api-historico.md).
+
+```
+scripts\agendar-coleta.bat instalar 15     (Windows: Agendador de Tarefas, tarefa "PCCheck\Coleta")
+scripts/agendar-coleta.sh instalar 15      (Linux: crontab do usuário)
+```
+
+Outros comandos: `status` (tarefa e arquivos), `agora` (uma coleta imediata) e `remover` (apaga a tarefa e mantém as
+coletas). As coletas ficam em `%LOCALAPPDATA%\PCCheck\coletas` (Windows) ou `~/.local/state/pccheck/coletas` (Linux),
+um arquivo por dia, por 7 dias. Variáveis: `PCCHECK_DATA_DIR` (pasta) e `PCCHECK_RETENCAO_DIAS` (retenção).
+
 ## Configuração
 
 Em `backend/src/main/resources/application.properties`:
@@ -96,6 +110,7 @@ Em `backend/src/main/resources/application.properties`:
 | `pccheck.sensors.enabled` | `true` | Liga/desliga o leitor de sensores interno. |
 | `pccheck.sensors.elevate` | `true` | Pede permissão de administrador ao iniciar (temperatura da CPU e ventoinhas). |
 | `pccheck.sensors.host-path` | (vazio) | Caminho do `PCCheck.SensorHost.exe`; vazio procura em `sensor-host/dist/`. |
+| `pccheck.history.data-dir` | (vazio) | Pasta de dados do histórico; vazio usa `PCCHECK_DATA_DIR` ou o padrão do SO. |
 
 ## Testes
 
@@ -123,7 +138,7 @@ PCCheck/
 ├── frontend/     # React + TypeScript (Vite): components/, modules/, pages/, services/
 ├── docs/         # Documentação de projeto, API, processo, diagramas e histórico
 │   └── api/      # Documentos de cada endpoint
-├── scripts/      # Execução (run-agent, run-backend, build-sensor-host) e testes de documentação
+├── scripts/      # Execução (run-agent, run-backend, build-sensor-host), coleta agendada (agendar-coleta) e testes de documentação
 ├── templates/    # Modelo de README para novos projetos
 └── tests/        # Verificação ponta a ponta (agente, API, Health Check, Live Monitor)
 ```
