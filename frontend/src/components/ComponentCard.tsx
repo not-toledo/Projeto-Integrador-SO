@@ -7,6 +7,8 @@ interface ComponentCardProps<T> {
   result: ComponentResult<T>
   /** Renderiza o conteúdo quando há dados. */
   children: (data: T) => ReactNode
+  /** Exibido abaixo do conteúdo em qualquer estado (por exemplo, de onde vêm os dados). */
+  footer?: ReactNode
 }
 
 /**
@@ -14,7 +16,7 @@ interface ComponentCardProps<T> {
  * OK (dados), UNAVAILABLE (o sistema não informou) e ERROR (a coleta falhou).
  * Indisponibilidade e falha de coleta não são apresentadas como defeito do hardware.
  */
-export function ComponentCard<T>({ title, result, children }: ComponentCardProps<T>) {
+export function ComponentCard<T>({ title, result, children, footer }: ComponentCardProps<T>) {
   let body: ReactNode
   if (result.status === 'OK' && result.data !== null) {
     body = children(result.data)
@@ -39,6 +41,7 @@ export function ComponentCard<T>({ title, result, children }: ComponentCardProps
     <section className="card" aria-label={title}>
       <h2>{title}</h2>
       {body}
+      {footer}
     </section>
   )
 }

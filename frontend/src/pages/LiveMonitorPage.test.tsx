@@ -59,7 +59,8 @@ describe('LiveMonitorPage', () => {
 
     const panel = await screen.findByLabelText('Memória RAM')
     expect(within(panel).getByText('62,5%')).toBeTruthy()
-    expect(within(panel).getByText('Memória comprometida').closest('div, li, tr')?.textContent).toContain('Sem leitura')
+    const term = within(panel).getAllByText('Memória comprometida').find((el) => el.tagName === 'DT')
+    expect(term?.parentElement?.textContent).toContain('Sem leitura')
   })
 
   it('mostra o estado de conexão enquanto aguarda o backend', () => {

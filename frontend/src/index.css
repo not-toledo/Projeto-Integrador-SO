@@ -523,7 +523,13 @@ dd {
 .game-explanation { display: block; color: var(--muted); margin-top: .3rem; min-width: 160px; }
 .game-raw { margin-top: 1rem; }
 .game-raw pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; font-size: .85rem; color: var(--muted); }
-.game-verdict { border: 1px solid var(--border); border-radius: 8px; padding: .75rem 1rem; margin-bottom: 1rem; }
+.data-sources { margin-top: 1rem; border-top: 1px solid var(--border); padding-top: .6rem; font-size: .85rem; }
+.data-sources summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+.data-sources table { width: 100%; border-collapse: collapse; margin-top: .5rem; }
+.data-sources th, .data-sources td { text-align: left; vertical-align: top; padding: .35rem .4rem; border-bottom: 1px solid var(--border); overflow-wrap: anywhere; }
+.data-sources thead th { color: var(--muted); }
+.data-sources-current { background: var(--bg); }
+.game-verdict {border: 1px solid var(--border); border-radius: 8px; padding: .75rem 1rem; margin-bottom: 1rem; }
 .game-verdict-label { font-size: 1.15rem; font-weight: 700; margin: 0; }
 .game-verdict ul { margin: .4rem 0 0; padding-left: 1.2rem; }
 .game-verdict-ok { color: var(--ok-text); background: var(--ok-bg); border-color: var(--ok-border); }

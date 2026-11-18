@@ -32,6 +32,22 @@ class MemoryPressureCollectorsTest {
     }
 
     @Test
+    void committedAsELidoDoProcMeminfo() {
+        // Trecho real de /proc/meminfo (Linux): valores em kB.
+        var meminfo = java.util.List.of("MemTotal:       16303112 kB", "CommitLimit:    10248740 kB",
+                "Committed_AS:   14873528 kB", "VmallocTotal:   34359738367 kB");
+        assertEquals(14_873_528L * 1024, RamCollector.committedAsBytes(meminfo));
+    }
+
+    @Test
+    void committedAsAusenteOuInvalidoNaoEInventado() {
+        assertNull(RamCollector.committedAsBytes(java.util.List.of("MemTotal: 16303112 kB")));
+        assertNull(RamCollector.committedAsBytes(java.util.List.of("Committed_AS: abc kB")));
+        assertNull(RamCollector.committedAsBytes(java.util.List.of("Committed_AS: -5 kB")));
+        assertNull(RamCollector.committedAsBytes(java.util.List.of()));
+    }
+
+    @Test
     void memoriaVirtualDescartaValoresInvalidos() {
         assertNull(RamCollector.toVirtual(-1, -1, 0, -1));
         VirtualMemoryInfo semSwap = RamCollector.toVirtual(0, 0, 16 * GB, 8 * GB);

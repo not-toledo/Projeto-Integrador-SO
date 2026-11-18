@@ -89,7 +89,8 @@ describe('HardwareOverviewPage', () => {
     render(<HardwareOverviewPage />)
 
     const card = within(await screen.findByRole('region', { name: 'Memória RAM' }))
-    expect(card.getByText('Memória comprometida').parentElement?.textContent).toContain('Não disponível')
+    const term = card.getAllByText('Memória comprometida').find((el) => el.tagName === 'DT')
+    expect(term?.parentElement?.textContent).toContain('Não disponível')
   })
 
   it('placa-mãe diferencia "não informado pelo fabricante" de "não disponível"', async () => {

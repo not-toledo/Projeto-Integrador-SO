@@ -1,10 +1,16 @@
 # Histórico de versões
 
+## V2.5 — De onde vêm os dados
+- Cada card da visão geral e cada painel do Live Monitor ganhou "De onde vêm estes dados?": a interface do sistema operacional que fornece cada campo, no Windows e no Linux (registro, WMI, contadores de desempenho, APIs do Kernel32/Psapi/PowrProf, `/proc`, `/sys`, `lspci`, `lshw`, `lsblk`). Na visão geral, a coluna do SO deste computador é destacada. Aparece também quando a coleta falha.
+- Fontes conferidas no bytecode do OSHI 6.6.5, no agente e no leitor de sensores; campos sem suporte aparecem como tal (ex.: telemetria da GPU no Linux). Catálogo único em `frontend/src/modules/sources/sourceCatalog.ts`.
+- Testes: `sourceCatalog.test.tsx` (cobertura de todos os campos exibidos, destaque da plataforma e exibição com falha de coleta).
+
 ## V2.4 — Pressão de memória e paginação
 - Agente: `MemoryInfo` ganhou `virtualMemory` (arquivo de paginação/swap e memória comprometida em relação ao limite) e, no Live Monitor, `paging` (páginas lidas/gravadas por segundo, pela diferença entre amostras). Dados do OSHI, sem dependência nova.
 - Health Check: novo `MemoryPressureDiagnostic`. `memory:commit` avisa com memória comprometida a partir de 90% do limite no Windows (no Linux é informativo, por causa do overcommit). `memory:paging` avisa somente quando a média de páginas gravadas no último minuto passa de 1 MiB/s **e** a RAM está acima do limite de aviso — um pico isolado ou paginação sem RAM cheia não geram aviso. Limites configuráveis (`pccheck.health.memory-pressure.*`).
 - Interface: card de RAM com paginação/swap e memória comprometida; Live Monitor com memória comprometida, taxa de paginação e gráfico de páginas gravadas.
 - Testes: `MemoryPressureCollectorsTest` (agente), `MemoryPressureDiagnosticTest` (backend) e testes de frontend.
+- **Correção (Linux):** o OSHI 6.6.5 informa como "memória virtual em uso" a soma de RAM usada e swap usado, que não é memória comprometida. No Linux o agente passa a ler `Committed_AS` diretamente de `/proc/meminfo`; sem leitura, o campo fica não disponível. No Windows nada muda (`CommitTotal` de `GetPerformanceInfo`).
 
 ## V2.3 — Classificação geral da compatibilidade com jogos
 - Nova classificação geral (`verdict`) por jogo: **Compatível**, **Compatibilidade limitada**, **Não recomendado** e **Dados insuficientes**, com código estável, motivos e listas de componentes abaixo do mínimo, abaixo do recomendado e pendentes de confirmação. Falta de dado nunca vira compatível nem incompatível. Campo aditivo; `overallMinimum`/`overallRecommended` mantidos.
