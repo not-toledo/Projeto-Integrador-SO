@@ -1,3 +1,4 @@
+import { PageHeader } from '../components/PageHeader'
 import { dateTime } from '../modules/hardware/format'
 import { NO_READING, intervalLabel, timeOfDay } from '../modules/live/format'
 import { CpuPanel, DisksPanel, GpuPanel, MemoryPanel, SensorsPanel } from '../modules/live/panels'
@@ -16,25 +17,27 @@ export function LiveMonitorPage() {
 
   return (
     <main className="page">
-      <header className="page-header">
-        <div>
-          <h1>PCCheck — Live Monitor</h1>
-          <p className="muted">
-            Última leitura: <strong>{latest ? timeOfDay(latest.collectedAt) : NO_READING}</strong>
-            {status && (
-              <>
-                <br />
-                Intervalo de coleta: {intervalLabel(status.intervalMs)} · Amostras: {samples.length}/{Math.min(status.historyCapacity, MAX_POINTS)}
-                {latest && <> · Duração da última coleta: {latest.durationMs} ms</>}
-              </>
-            )}
+      <PageHeader
+        eyebrow="Módulo C · Live Monitor"
+        title="Monitor em tempo real"
+        actions={
+          <p className={`connection connection-${state}`} role="status" aria-live="polite" data-state={state}>
+            <span className="connection-dot" aria-hidden="true" />
+            {CONNECTION_LABEL[state]}
           </p>
-        </div>
-        <p className={`connection connection-${state}`} role="status" aria-live="polite" data-state={state}>
-          <span className="connection-dot" aria-hidden="true" />
-          {CONNECTION_LABEL[state]}
+        }
+      >
+        <p className="muted">
+          Última leitura: <strong>{latest ? timeOfDay(latest.collectedAt) : NO_READING}</strong>
+          {status && (
+            <>
+              <br />
+              Intervalo de coleta: {intervalLabel(status.intervalMs)} · Amostras: {samples.length}/{Math.min(status.historyCapacity, MAX_POINTS)}
+              {latest && <> · Duração da última coleta: {latest.durationMs} ms</>}
+            </>
+          )}
         </p>
-      </header>
+      </PageHeader>
 
       {state === 'disconnected' && (
         <div className="banner banner-error" role="alert">

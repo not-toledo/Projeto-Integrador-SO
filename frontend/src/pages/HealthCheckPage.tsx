@@ -1,3 +1,4 @@
+import { PageHeader } from '../components/PageHeader'
 import { useHealthCheck } from '../modules/health/useHealthCheck'
 import { AlertList } from '../modules/health/AlertList'
 import { HealthSummary } from '../modules/health/HealthSummary'
@@ -9,21 +10,23 @@ export function HealthCheckPage() {
 
   return (
     <main className="page">
-      <header className="page-header">
-        <div>
-          <h1>PCCheck — Health Check</h1>
-          {report && (
-            <p className="muted">
-              Última avaliação: <strong>{dateTime(report.collectedAt)}</strong>
-              <br />
-              Origem: {report.source}
-            </p>
-          )}
-        </div>
-        <button type="button" onClick={refresh} disabled={loading}>
-          {loading ? 'Avaliando…' : 'Reavaliar'}
-        </button>
-      </header>
+      <PageHeader
+        eyebrow="Módulo B · Health Check"
+        title="Saúde do computador"
+        actions={
+          <button type="button" onClick={refresh} disabled={loading}>
+            {loading ? 'Avaliando…' : 'Reavaliar'}
+          </button>
+        }
+      >
+        {report && (
+          <p className="muted">
+            Última avaliação: <strong>{dateTime(report.collectedAt)}</strong>
+            <br />
+            Origem: {report.source}
+          </p>
+        )}
+      </PageHeader>
 
       {error && (
         <div className="banner banner-error" role="alert">

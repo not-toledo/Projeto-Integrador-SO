@@ -1,3 +1,4 @@
+import { PageHeader } from '../components/PageHeader'
 import { useEffect, useState } from 'react'
 import type {
   CompatibilityVerdict, ComponentCompatibility, GameCompatibility, GameSearchResult,
@@ -64,12 +65,12 @@ export function GameCompatibilityPage() {
 
   return (
     <main className="page">
-      <header className="page-header">
-        <div>
-          <h1>PCCheck — Compatibilidade com jogos</h1>
-          <p className="muted">Pesquise jogos da Steam e compare os requisitos publicados com o hardware local.</p>
-        </div>
-      </header>
+      <PageHeader
+        eyebrow="Módulo D · Game Compatibility"
+        title="Compatibilidade com jogos"
+      >
+        <p className="muted">Pesquise jogos da Steam e compare os requisitos publicados com o hardware local.</p>
+      </PageHeader>
 
       <section className="game-search">
         <label htmlFor="game-query">Nome do jogo</label>

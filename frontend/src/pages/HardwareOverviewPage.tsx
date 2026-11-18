@@ -1,3 +1,4 @@
+import { PageHeader } from '../components/PageHeader'
 import { useInventory } from '../modules/hardware/useInventory'
 import { CpuCard, GpuCard, MemoryCard, MotherboardCard, OsCard, StorageCard } from '../modules/hardware/cards'
 import { dateTime } from '../modules/hardware/format'
@@ -10,21 +11,23 @@ export function HardwareOverviewPage() {
 
   return (
     <main className="page">
-      <header className="page-header">
-        <div>
-          <h1>PCCheck — Hardware Overview</h1>
-          {inventory && (
-            <p className="muted">
-              Última coleta: <strong>{dateTime(inventory.collectedAt)}</strong>
-              <br />
-              Origem: {inventory.source}
-            </p>
-          )}
-        </div>
-        <button type="button" onClick={refresh} disabled={loading}>
-          {loading ? 'Atualizando…' : 'Atualizar'}
-        </button>
-      </header>
+      <PageHeader
+        eyebrow="Módulo A · Hardware Overview"
+        title="Hardware"
+        actions={
+          <button type="button" onClick={refresh} disabled={loading}>
+            {loading ? 'Atualizando…' : 'Atualizar'}
+          </button>
+        }
+      >
+        {inventory && (
+          <p className="muted">
+            Última coleta: <strong>{dateTime(inventory.collectedAt)}</strong>
+            <br />
+            Origem: {inventory.source}
+          </p>
+        )}
+      </PageHeader>
 
       {error && (
         <div className="banner banner-error" role="alert">

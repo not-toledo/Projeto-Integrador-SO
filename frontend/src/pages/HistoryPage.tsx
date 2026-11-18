@@ -1,3 +1,4 @@
+import { PageHeader } from '../components/PageHeader'
 import { useState } from 'react'
 import { dateTime } from '../modules/hardware/format'
 import {
@@ -50,21 +51,23 @@ export function HistoryPage() {
 
   return (
     <main className="page">
-      <header className="page-header">
-        <div>
-          <h1>PCCheck — Histórico</h1>
-          <p className="muted">
-            Coletas feitas pela tarefa agendada do sistema operacional, inclusive com o PCCheck fechado.
-          </p>
-        </div>
-        <div className="history-controls">
-          <label htmlFor="history-days">Período</label>
-          <select id="history-days" value={days} onChange={(e) => setDays(Number(e.target.value))}>
-            {PERIODS.map((p) => <option key={p} value={p}>{p === 1 ? 'Último dia' : `Últimos ${p} dias`}</option>)}
-          </select>
-          <button type="button" onClick={refresh} disabled={loading}>Atualizar</button>
-        </div>
-      </header>
+      <PageHeader
+        eyebrow="Coletas agendadas"
+        title="Histórico"
+        actions={
+          <div className="history-controls">
+            <label htmlFor="history-days">Período</label>
+            <select id="history-days" value={days} onChange={(e) => setDays(Number(e.target.value))}>
+              {PERIODS.map((p) => <option key={p} value={p}>{p === 1 ? 'Último dia' : `Últimos ${p} dias`}</option>)}
+            </select>
+            <button type="button" onClick={refresh} disabled={loading}>Atualizar</button>
+          </div>
+        }
+      >
+        <p className="muted">
+          Coletas feitas pela tarefa agendada do sistema operacional, inclusive com o PCCheck fechado.
+        </p>
+      </PageHeader>
 
       {error && <div className="banner banner-error" role="alert">{error}</div>}
       {loading && !history && <p className="loading" role="status">Lendo o histórico…</p>}

@@ -72,16 +72,19 @@ describe('App', () => {
   it('abre a tela direto pelo endereço', async () => {
     window.location.hash = '#/games'
     render(<App />)
-    expect(await screen.findByRole('heading', { name: 'PCCheck — Compatibilidade com jogos' })).toBeTruthy()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Compatibilidade com jogos' })).toBeTruthy()
     expect(screen.getByLabelText('Nome do jogo')).toBeTruthy()
   })
 
   it('abre o Live Monitor pela navegação e interrompe a consulta ao sair da tela', async () => {
     render(<App />)
+    // O Início tem o painel "Agora", que também consulta o Live Monitor.
+    expect(await screen.findByText('Uso da CPU')).toBeTruthy()
+    const before = vi.mocked(fetchLiveHistory).mock.calls.length
     await go('Monitor')
     expect(await screen.findByLabelText('CPU')).toBeTruthy()
     expect(navLink('Monitor').getAttribute('aria-current')).toBe('page')
-    expect(fetchLiveHistory).toHaveBeenCalledTimes(1)
+    expect(fetchLiveHistory).toHaveBeenCalledTimes(before + 1)
 
     await go('Hardware')
     expect(await screen.findByText('SO de teste')).toBeTruthy()
