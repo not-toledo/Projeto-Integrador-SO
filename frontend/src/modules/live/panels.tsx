@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { FieldList } from '../../components/FieldList'
 import { UsageBar } from '../../components/UsageBar'
-import type { ComponentResult } from '../hardware/types'
+import type { ComponentResult, PagingActivity, VirtualMemoryInfo } from '../hardware/types'
 import { LineChart } from './LineChart'
 import {
   NO_READING,
@@ -23,6 +23,7 @@ import {
   gpuVramPercent,
   hasReadings,
   memoryPercent,
+  pagingWriteMiB,
   sampleTimes,
 } from './series'
 import type { LiveSample } from './types'
@@ -105,6 +106,21 @@ export function CpuPanel({ samples, maxGapMs }: PanelProps) {
   )
 }
 
+/** Memória comprometida e limite. O percentual pode passar de 100% no Linux (overcommit). */
+function commitText(vm: VirtualMemoryInfo | null | undefined): string {
+  if (!vm || !isReading(vm.commitUsedBytes) || !isReading(vm.commitLimitBytes)) return NO_READING
+  const percent = isReading(vm.commitPercent)
+    ? ` (${vm.commitPercent.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%)`
+    : ''
+  return `${liveBytes(vm.commitUsedBytes)} de ${liveBytes(vm.commitLimitBytes)}${percent}`
+}
+
+function pagingWriteText(paging: PagingActivity | null | undefined): string {
+  const pages = paging?.pagesOutPerSecond
+  const size = paging?.pageSizeBytes
+  return rate(pages != null && size != null ? pages * size : null)
+}
+
 export function MemoryPanel({ samples, maxGapMs }: PanelProps) {
   const latest = samples[samples.length - 1]
   const times = sampleTimes(samples)
@@ -118,9 +134,12 @@ export function MemoryPanel({ samples, maxGapMs }: PanelProps) {
               ['Usada', liveBytes(data.usedBytes)],
               ['Disponível', liveBytes(data.availableBytes)],
               ['Total', liveBytes(data.totalBytes)],
+              ['Memória comprometida', commitText(data.virtualMemory)],
+              ['Paginação (gravação em disco)', pagingWriteText(data.paging)],
             ]}
           />
           <LineChart title="Uso da RAM" unit="%" times={times} series={[{ name: 'Uso', values: samples.map(memoryPercent) }]} yMax={100} maxGapMs={maxGapMs} />
+          <LineChart title="Páginas gravadas em disco" unit="MiB/s" times={times} series={[{ name: 'Gravação', values: samples.map(pagingWriteMiB) }]} maxGapMs={maxGapMs} digits={2} />
         </>
       )}
     </LiveCard>

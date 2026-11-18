@@ -2,7 +2,7 @@ import { ComponentCard } from '../../components/ComponentCard'
 import { FieldList } from '../../components/FieldList'
 import { UsageBar } from '../../components/UsageBar'
 import { bytes, count, duration, frequency, NOT_AVAILABLE, NOT_REPORTED, text } from './format'
-import type { Inventory, MotherboardField } from './types'
+import type { Inventory, MotherboardField, VirtualMemoryInfo } from './types'
 
 type Result<K extends keyof Inventory> = Inventory[K]
 
@@ -47,6 +47,20 @@ export function CpuCard({ result }: { result: Result<'cpu'> }) {
   )
 }
 
+function swapText(vm: VirtualMemoryInfo | null | undefined): string {
+  if (!vm || vm.swapTotalBytes == null) return NOT_AVAILABLE
+  if (vm.swapTotalBytes === 0) return 'Desativado'
+  return `${bytes(vm.swapUsedBytes)} em uso de ${bytes(vm.swapTotalBytes)}`
+}
+
+/** Memória reservada pelos programas e o limite (RAM + paginação). Pode passar de 100% no Linux (overcommit). */
+function commitText(vm: VirtualMemoryInfo | null | undefined): string {
+  if (!vm || vm.commitUsedBytes == null || vm.commitLimitBytes == null) return NOT_AVAILABLE
+  const percent = vm.commitPercent == null ? ''
+    : ` (${vm.commitPercent.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%)`
+  return `${bytes(vm.commitUsedBytes)} de ${bytes(vm.commitLimitBytes)}${percent}`
+}
+
 export function MemoryCard({ result }: { result: Result<'memory'> }) {
   return (
     <ComponentCard title="Memória RAM" result={result}>
@@ -57,6 +71,8 @@ export function MemoryCard({ result }: { result: Result<'memory'> }) {
               ['Total', bytes(memory.totalBytes)],
               ['Usada', bytes(memory.usedBytes)],
               ['Disponível', bytes(memory.availableBytes)],
+              ['Arquivo de paginação / swap', swapText(memory.virtualMemory)],
+              ['Memória comprometida', commitText(memory.virtualMemory)],
             ]}
           />
           <UsageBar label="Utilização" value={memory.usedPercent} />

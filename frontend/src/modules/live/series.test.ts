@@ -14,6 +14,7 @@ import {
   limitSamples,
   memoryPercent,
   niceMax,
+  pagingWriteMiB,
   segmentPath,
 } from './series'
 
@@ -210,5 +211,21 @@ describe('connectionState', () => {
   it('tolera atraso normal de poucas coletas', () => {
     const recent = makeSample({ at: '2026-11-14T12:00:03Z' })
     expect(connectionState({ ...base, latest: recent })).toBe('connected')
+  })
+})
+
+describe('pagingWriteMiB', () => {
+  const withPaging = (paging: { pagesInPerSecond: number | null; pagesOutPerSecond: number | null; pageSizeBytes: number | null } | null) =>
+    makeSample({ memory: { status: 'OK', message: null, data: {
+      totalBytes: 1, availableBytes: 1, usedBytes: 0, usedPercent: 0, paging } } })
+
+  it('converte páginas gravadas por segundo em MiB/s', () => {
+    expect(pagingWriteMiB(withPaging({ pagesInPerSecond: 0, pagesOutPerSecond: 256, pageSizeBytes: 4096 }))).toBe(1)
+  })
+
+  it('sem paginação, sem tamanho de página ou memória indisponível: sem leitura', () => {
+    expect(pagingWriteMiB(withPaging(null))).toBeNull()
+    expect(pagingWriteMiB(withPaging({ pagesInPerSecond: 1, pagesOutPerSecond: 1, pageSizeBytes: null }))).toBeNull()
+    expect(pagingWriteMiB(makeSample({ memory: { status: 'UNAVAILABLE', message: 'x', data: null } }))).toBeNull()
   })
 })

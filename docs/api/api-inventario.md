@@ -30,7 +30,7 @@ Dentro de `data`, **campo `null` significa "não disponível"**. Valores ausente
 |---|---|
 | `os` | `name`, `version`, `buildNumber`, `architecture`, `uptimeSeconds` |
 | `cpu` | `name`, `vendor`, `physicalCores`, `logicalProcessors`, `nominalFrequencyHz`, `maxFrequencyHz`, `usagePercent` |
-| `memory` | `totalBytes`, `availableBytes`, `usedBytes`, `usedPercent` |
+| `memory` | `totalBytes`, `availableBytes`, `usedBytes`, `usedPercent`, `virtualMemory` (`swapTotalBytes`, `swapUsedBytes`, `swapUsedPercent`, `commitLimitBytes`, `commitUsedBytes`, `commitPercent`; pode ser `null`). `commitPercent` pode passar de 100 no Linux (overcommit). |
 | `gpu` | Lista de placas: `name`, `vendor`, `deviceId`, `vramBytes` |
 | `motherboard` | `manufacturer`, `model`, `version`, `serialNumber`, `systemManufacturer`, `systemModel`, `notReportedFields` (nomes dos campos que o firmware deixou com texto genérico, como "To be filled by O.E.M."; campo nulo fora dessa lista = não disponível) |
 | `storage` | `drives` (`name`, `model`, `sizeBytes`) e `volumes` (`mountPoint`, `label`, `fileSystem`, `totalBytes`, `freeBytes`, `usedBytes`, `usedPercent`); cada lista pode ser `null` independentemente |

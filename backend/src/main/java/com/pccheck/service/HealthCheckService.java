@@ -11,6 +11,7 @@ import com.pccheck.diagnostic.HealthEvaluator;
 import com.pccheck.diagnostic.HealthInput;
 import com.pccheck.diagnostic.HealthReport;
 import com.pccheck.diagnostic.HealthThresholds;
+import com.pccheck.diagnostic.MemoryPressureThresholds;
 import java.time.Instant;
 import oshi.SystemInfo;
 
@@ -25,12 +26,17 @@ public class HealthCheckService {
 
     private final HealthEvaluator evaluator;
     private final SensorSource sensors;
+    private final LiveMonitorService liveMonitor;
+    private final int pagingWindow;
     private SystemCollector collector;
     private SensorCollector sensorCollector;
 
-    public HealthCheckService(HealthThresholds thresholds, SensorSource sensors) {
-        this.evaluator = new HealthEvaluator(thresholds);
+    public HealthCheckService(HealthThresholds thresholds, MemoryPressureThresholds memoryPressure,
+                              SensorSource sensors, LiveMonitorService liveMonitor) {
+        this.evaluator = new HealthEvaluator(thresholds, memoryPressure);
         this.sensors = sensors;
+        this.liveMonitor = liveMonitor;
+        this.pagingWindow = memoryPressure.windowSamples();
     }
 
     /** Sincronizado para que requisições simultâneas não disparem várias coletas ao mesmo tempo. */
@@ -51,6 +57,8 @@ public class HealthCheckService {
         }
         SystemSnapshot snapshot = collector.collect();
         CollectorResult<SensorInfo> sensors = CollectorRunner.run(sensorCollector);
-        return evaluator.evaluate(new HealthInput(snapshot, sensors), Instant.now());
+        // A paginação é uma taxa: vem das amostras recentes do Live Monitor, não de uma leitura isolada.
+        return evaluator.evaluate(new HealthInput(snapshot, sensors, liveMonitor.recentPaging(pagingWindow)),
+                Instant.now());
     }
 }

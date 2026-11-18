@@ -32,6 +32,36 @@ async function advance(ms: number) {
 }
 
 describe('LiveMonitorPage', () => {
+  it('memória mostra memória comprometida, paginação e o gráfico de páginas gravadas', async () => {
+    const memory = {
+      status: 'OK' as const,
+      message: null,
+      data: {
+        totalBytes: 16 * 1024 ** 3, availableBytes: 2 * 1024 ** 3, usedBytes: 14 * 1024 ** 3, usedPercent: 87.5,
+        virtualMemory: { swapTotalBytes: 8 * 1024 ** 3, swapUsedBytes: 1024 ** 3, swapUsedPercent: 12.5,
+          commitLimitBytes: 24 * 1024 ** 3, commitUsedBytes: 21 * 1024 ** 3, commitPercent: 87.5 },
+        // 512 páginas de 4 KiB por segundo = 2 MiB/s.
+        paging: { pagesInPerSecond: 10, pagesOutPerSecond: 512, pageSizeBytes: 4096 },
+      },
+    }
+    historyMock.mockResolvedValue(makeHistory([makeSample({ at: fresh(-2000), memory }), makeSample({ at: fresh(), memory })]))
+    render(<LiveMonitorPage />)
+
+    const panel = await screen.findByLabelText('Memória RAM')
+    expect(within(panel).getByText('21,00 GiB de 24,00 GiB (87,5%)')).toBeTruthy()
+    expect(within(panel).getByText('2,00 MiB/s')).toBeTruthy()
+    expect(within(panel).getByRole('img', { name: /Páginas gravadas em disco em MiB\/s/ })).toBeTruthy()
+  })
+
+  it('memória sem dados de paginação mostra "Sem leitura" sem quebrar o painel', async () => {
+    historyMock.mockResolvedValue(makeHistory([makeSample({ at: fresh() })]))
+    render(<LiveMonitorPage />)
+
+    const panel = await screen.findByLabelText('Memória RAM')
+    expect(within(panel).getByText('62,5%')).toBeTruthy()
+    expect(within(panel).getByText('Memória comprometida').closest('div, li, tr')?.textContent).toContain('Sem leitura')
+  })
+
   it('mostra o estado de conexão enquanto aguarda o backend', () => {
     historyMock.mockReturnValue(new Promise<LiveHistoryResponse>(() => {}))
     render(<LiveMonitorPage />)

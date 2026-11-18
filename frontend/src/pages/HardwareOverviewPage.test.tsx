@@ -62,6 +62,36 @@ describe('HardwareOverviewPage', () => {
     expect(screen.getByText(/Última coleta:/)).toBeTruthy()
   })
 
+  it('memória mostra paginação/swap e memória comprometida, inclusive acima de 100% (Linux)', async () => {
+    const GIB = 1024 ** 3
+    fetchMock.mockResolvedValue(
+      makeInventory({
+        memory: {
+          status: 'OK',
+          message: null,
+          data: {
+            totalBytes: 8 * GIB, availableBytes: 2 * GIB, usedBytes: 6 * GIB, usedPercent: 75,
+            virtualMemory: { swapTotalBytes: 2 * GIB, swapUsedBytes: GIB, swapUsedPercent: 50,
+              commitLimitBytes: 10 * GIB, commitUsedBytes: 15 * GIB, commitPercent: 150 },
+          },
+        },
+      }),
+    )
+    render(<HardwareOverviewPage />)
+
+    const card = within(await screen.findByRole('region', { name: 'Memória RAM' }))
+    expect(card.getByText('1,00 GiB em uso de 2,00 GiB')).toBeTruthy()
+    expect(card.getByText('15,00 GiB de 10,00 GiB (150,0%)')).toBeTruthy()
+  })
+
+  it('memória sem memória virtual informada mostra "Não disponível"', async () => {
+    fetchMock.mockResolvedValue(makeInventory())
+    render(<HardwareOverviewPage />)
+
+    const card = within(await screen.findByRole('region', { name: 'Memória RAM' }))
+    expect(card.getByText('Memória comprometida').parentElement?.textContent).toContain('Não disponível')
+  })
+
   it('placa-mãe diferencia "não informado pelo fabricante" de "não disponível"', async () => {
     fetchMock.mockResolvedValue(
       makeInventory({

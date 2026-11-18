@@ -2,6 +2,7 @@ package com.pccheck.service;
 
 import com.pccheck.agent.collector.LiveSampler;
 import com.pccheck.agent.model.LiveSample;
+import com.pccheck.agent.model.PagingActivity;
 import com.pccheck.agent.sensors.SensorSource;
 import com.pccheck.dto.LiveDto;
 import com.pccheck.dto.LiveHistoryDto;
@@ -93,6 +94,15 @@ public class LiveMonitorService {
         LiveSample latest = engine.latest();
         return new LiveDto(LiveDto.SOURCE, engine.status(isRunning(), intervalMs),
                 latest == null ? null : LiveSampleDto.from(latest));
+    }
+
+    /** Atividade de paginação das últimas amostras (mais antiga primeiro), para o Health Check. */
+    public List<PagingActivity> recentPaging(int limit) {
+        return engine.history(limit).stream()
+                .map(LiveSample::memory)
+                .filter(m -> m != null && m.isOk() && m.data() != null && m.data().paging() != null)
+                .map(m -> m.data().paging())
+                .toList();
     }
 
     public LiveHistoryDto history(int limit) {
