@@ -12,9 +12,11 @@ import java.util.List;
  * @param limitation            por que parte dos sensores não pôde ser lida (ex.: sem permissão de
  *                              administrador ou sem o driver); null quando não há limitação conhecida
  * @param disks                 saúde dos discos com leitura SMART
+ * @param diskLimitation        por que o SMART dos discos pode não ter sido lido (exige só administrador, não o
+ *                              driver PawnIO); null quando não há limitação conhecida
  */
 public record SensorReading(Double cpuTemperatureCelsius, List<GpuReading> gpus, List<Integer> fanSpeedsRpm,
-                            String limitation, List<DiskHealth> disks) {
+                            String limitation, List<DiskHealth> disks, String diskLimitation) {
 
     public SensorReading {
         gpus = gpus == null ? List.of() : List.copyOf(gpus);
@@ -25,7 +27,7 @@ public record SensorReading(Double cpuTemperatureCelsius, List<GpuReading> gpus,
     /** Sem leitura de discos. */
     public SensorReading(Double cpuTemperatureCelsius, List<GpuReading> gpus, List<Integer> fanSpeedsRpm,
                          String limitation) {
-        this(cpuTemperatureCelsius, gpus, fanSpeedsRpm, limitation, List.of());
+        this(cpuTemperatureCelsius, gpus, fanSpeedsRpm, limitation, List.of(), null);
     }
 
     /**

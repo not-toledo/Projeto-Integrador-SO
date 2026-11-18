@@ -28,6 +28,10 @@ public final class SensorHostParser {
             "O driver PawnIO não está instalado; sem ele o Windows não permite ler a temperatura da CPU e as "
                     + "ventoinhas da placa-mãe. Instale-o uma vez (https://pawnio.eu) e reinicie o PCCheck.";
 
+    public static final String DISKS_NOT_ELEVATED =
+            "A saúde dos discos (SMART) exige permissão de administrador. Reinicie o PCCheck e confirme o aviso do "
+                    + "Windows.";
+
     private static final String[] CPU_TEMPERATURE_NAMES = {
         "CPU Package", "Core (Tctl/Tdie)", "Core (Tdie)", "Core (Tctl)", "CPU (Tctl/Tdie)", "Tdie", "Tctl",
         "Core Max", "Core Average"
@@ -82,7 +86,7 @@ public final class SensorHostParser {
                 }
             }
         }
-        return new SensorReading(cpuTemperature, gpus, fans, limitation(map), disks);
+        return new SensorReading(cpuTemperature, gpus, fans, limitation(map), disks, diskLimitation(map));
     }
 
     /** Explica o que falta para ler os sensores que dependem do driver (CPU e placa-mãe). */
@@ -98,6 +102,15 @@ public final class SensorHostParser {
             return NO_DRIVER;
         }
         return null;
+    }
+
+    /** O SMART dos discos depende só da elevação (não do driver PawnIO). */
+    private static String diskLimitation(Map<?, ?> root) {
+        String error = text(root.get("error"));
+        if (error != null) {
+            return "O leitor de sensores não conseguiu acessar o hardware: " + error;
+        }
+        return Boolean.TRUE.equals(root.get("elevated")) ? null : DISKS_NOT_ELEVATED;
     }
 
     private static List<Sensor> sensors(Object raw) {

@@ -34,8 +34,8 @@ public class DiskHealthCollector implements Collector<DiskHealthInfo> {
             throw new CollectorUnavailableException(e.getMessage());
         }
         if (reading.disks().isEmpty()) {
-            throw new CollectorUnavailableException(reading.limitation() != null ? reading.limitation() : NO_DISKS);
+            throw new CollectorUnavailableException(reading.diskLimitation() != null ? reading.diskLimitation() : NO_DISKS);
         }
-        return new DiskHealthInfo(reading.disks(), reading.limitation());
+        return new DiskHealthInfo(reading.disks(), reading.diskLimitation());
     }
 }

@@ -89,9 +89,11 @@ class DiskHealthTest {
         SensorReading reading = SensorHostParser.parse(REAL_JSON);
         assertEquals(2, new DiskHealthCollector(() -> reading).collect().disks().size());
 
-        SensorReading semDiscos = new SensorReading(45.0, List.of(), List.of(), "Sem administrador.");
+        // Sem administrador: o motivo é o dos discos, não o texto da CPU.
+        SensorReading semDiscos = new SensorReading(45.0, List.of(), List.of(), "texto da CPU", List.of(),
+                "Sem administrador para o SMART.");
         var e = assertThrows(CollectorUnavailableException.class, () -> new DiskHealthCollector(() -> semDiscos).collect());
-        assertEquals("Sem administrador.", e.getMessage());
+        assertEquals("Sem administrador para o SMART.", e.getMessage());
 
         SensorReading semMotivo = new SensorReading(45.0, List.of(), List.of(), null);
         assertEquals(DiskHealthCollector.NO_DISKS, assertThrows(CollectorUnavailableException.class,
@@ -100,6 +102,17 @@ class DiskHealthTest {
         SensorSource linux = SensorSource.unavailable("Leitor de sensores não suportado neste sistema.");
         assertEquals("Leitor de sensores não suportado neste sistema.", assertThrows(CollectorUnavailableException.class,
                 () -> new DiskHealthCollector(linux).collect()).getMessage());
+    }
+
+    @Test
+    void motivoDosDiscosDependeSoDaElevacao() {
+        String semAdmin = "{\"version\":1,\"elevated\":false,\"driver\":true,\"error\":null,\"hardware\":[]}";
+        assertEquals(SensorHostParser.DISKS_NOT_ELEVATED, SensorHostParser.parse(semAdmin).diskLimitation());
+        // Sem o driver PawnIO, mas com administrador: o SMART é lido normalmente (o driver é só da CPU/placa-mãe).
+        String semDriver = "{\"version\":1,\"elevated\":true,\"driver\":false,\"error\":null,\"hardware\":[]}";
+        SensorReading r = SensorHostParser.parse(semDriver);
+        assertNull(r.diskLimitation());
+        assertTrue(r.limitation().contains("PawnIO"));
     }
 
     @Test
