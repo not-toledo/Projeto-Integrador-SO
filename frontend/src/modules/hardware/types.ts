@@ -83,6 +83,8 @@ export interface DiskInfo {
   mediaType?: string | null
   /** Barramento informado pelo SO (ex.: "SATA", "NVMe", "USB"). */
   busType?: string | null
+  /** Pontos de montagem das partições deste disco (ex.: "C:\", "/home"), como o SO informa. */
+  mountPoints?: string[]
 }
 
 export interface VolumeInfo {

@@ -1,4 +1,4 @@
-import type { GameCompatibility, GameSearchResult } from '../modules/games/types'
+import type { GameCompatibility, GameSearchResult, InstalledGames, Precheck } from '../modules/games/types'
 
 const API_BASE: string = import.meta.env.VITE_API_BASE ?? ''
 
@@ -27,4 +27,12 @@ export function searchGames(query: string): Promise<GameSearchResult[]> {
 }
 export function fetchGameCompatibility(appId: number, refresh = false): Promise<GameCompatibility> {
   return request(`/api/games/${appId}/compatibility${refresh ? '?refresh=true' : ''}`)
+}
+/** Jogos instalados pela Steam, lidos pelo backend nos arquivos locais da Steam. */
+export function fetchInstalledGames(): Promise<InstalledGames> {
+  return request('/api/games/installed')
+}
+/** Pré-checagem antes de jogar: estado do PC agora (leva cerca de 1 s no backend). */
+export function fetchPrecheck(appId: number): Promise<Precheck> {
+  return request(`/api/games/${appId}/precheck`)
 }

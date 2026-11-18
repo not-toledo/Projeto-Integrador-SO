@@ -11,6 +11,19 @@ Base: `http://127.0.0.1:8080/api/games`. As consultas Steam são feitas pelo bac
 - Cache de pesquisa: 5 minutos.
 - Erros de validação: HTTP 400; indisponibilidade Steam: HTTP 503.
 
+## Jogos instalados
+
+`GET /installed`
+
+- Lê, só localmente, os arquivos da Steam: `steamapps/libraryfolders.vdf` (bibliotecas) e `steamapps/appmanifest_<AppID>.acf` (um por jogo). Nada é enviado à internet nem alterado nas pastas da Steam.
+- Pasta da Steam: `PCCHECK_STEAM_DIR`, se definida; no Windows, o registro (`HKCU\Software\Valve\Steam\SteamPath`, depois `HKLM\SOFTWARE\WOW6432Node\Valve\Steam\InstallPath`) e `C:\Program Files (x86)\Steam`; no Linux, `~/.steam/steam`, `~/.local/share/Steam` e a pasta do Flatpak.
+- Resposta: `steamFound`, `steamPath`, `libraries` (`path`, `mountPoint`, `freeBytes`, `totalBytes`, `mediaType`, `available`, `gameCount`), `games` (`appId`, `name`, `installDir`, `libraryPath`, `mountPoint`, `mediaType`, `sizeOnDiskBytes`, `state`, `lastUpdated`, `storeUrl`), `problems` e `scannedAt`.
+- `state` vem do `StateFlags` do manifesto: `INSTALLED`, `UPDATE_REQUIRED` (instalado, atualização pendente) ou `INCOMPLETE` (download ou instalação não concluídos).
+- `mediaType` (SSD/HDD) é o do disco físico que contém a biblioteca, ligado pelos volumes das partições.
+- Campos pessoais do manifesto, como o ID da conta (`LastOwner`), não são lidos.
+- Manifesto inválido entra em `problems`, sem esconder os demais. Steam não encontrada: `steamFound=false` e a orientação em `problems`.
+- A lista inclui ferramentas da Steam (ex.: Steamworks Common Redistributables), que não têm requisitos de jogo.
+
 ## Requisitos
 
 `GET /{appId}/requirements`
@@ -58,6 +71,24 @@ Campos: `reasons` (motivos em texto), `belowMinimum` e `belowRecommended` (compo
 
 `warnings` traz só limitações que afetaram o jogo consultado (por exemplo, CPU/GPU em revisão manual). O aviso de que a
 avaliação não garante FPS fica no rodapé fixo da interface.
+
+## Pré-checagem antes de jogar
+
+`GET /{appId}/precheck`
+
+Avalia o estado do PC **agora** para o jogo (a compatibilidade compara o hardware instalado). Leva cerca de 1 s (duas leituras de processos). Cada verificação tem `status` próprio: `OK`, `ATTENTION`, `INFO` (só informa) ou `UNAVAILABLE` (não verificado, nunca tratado como ok). `overall` é `ATTENTION` se alguma verificação for `ATTENTION`; senão `READY`.
+
+| `id` | Fonte | Regra (heurísticas do projeto) |
+|---|---|---|
+| `ram` | Memória disponível (OSHI) e RAM mínima publicada | `OK` se disponível ≥ mínimo; `INFO` entre 50% e 100% do mínimo; `ATTENTION` abaixo de 50%. Sem requisito interpretável ou sem Steam: `INFO`, sem comparar. |
+| `cpu` | Uso total da CPU entre duas leituras (~1 s) | `ATTENTION` a partir de 50%, citando os 3 aplicativos que mais usam CPU. |
+| `install` | Manifesto da Steam (`StateFlags`) | `ATTENTION` com atualização pendente ou instalação incompleta; `INFO` se o jogo não está instalado. |
+| `game-disk-space` | Volume da biblioteca do jogo | `ATTENTION` com espaço livre abaixo do limite do Health Check (`pccheck.health.disk-free-warning-percent`). |
+| `game-ssd` | Requisito "SSD" e tipo do disco do jogo | Só quando os requisitos pedem SSD: `ATTENTION` se o jogo está num HDD; `UNAVAILABLE` se o SO não informa o tipo. |
+| `power` | Windows: `powercfg /getactivescheme` (GUID dos planos padrão); Linux: `/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor` | `ATTENTION` no plano Economia de energia; Equilibrado e Alto desempenho `OK`; planos personalizados e o governador do Linux só `INFO`. |
+| `battery` | Fontes de energia (OSHI) | `ATTENTION` só se uma bateria informa que está descarregando (desktops podem informar uma bateria fictícia, que não conta). |
+
+`topCpu` e `topMemory`: até 5 aplicativos (processos com o mesmo nome somados), sem o processo ocioso e sem o próprio PCCheck. CPU em % do total (carga do OSHI dividida pelos processadores lógicos); memória é a soma do conjunto de trabalho (RSS), em que páginas compartilhadas podem ser contadas mais de uma vez. O PCCheck não encerra nem altera processos. Sem leitura de processos: `processError` com o motivo.
 
 ## Limitações e segurança
 

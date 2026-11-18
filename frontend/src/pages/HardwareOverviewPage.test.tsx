@@ -92,7 +92,7 @@ describe('HardwareOverviewPage', () => {
           message: null,
           data: {
             drives: [
-              { name: '\\\\.\\PHYSICALDRIVE0', model: 'SSD-REDRAGON-SPARK-480', sizeBytes: 480e9, mediaType: 'SSD', busType: 'SATA' },
+              { name: '\\\\.\\PHYSICALDRIVE0', model: 'SSD-REDRAGON-SPARK-480', sizeBytes: 480e9, mediaType: 'SSD', busType: 'SATA', mountPoints: ['C:\\'] },
               { name: '\\\\.\\PHYSICALDRIVE2', model: 'SanDisk Cruzer Blade', sizeBytes: 16e9, mediaType: null, busType: 'USB' },
               { name: '/dev/sdc', model: 'Disco antigo', sizeBytes: 1e9 },
             ],
@@ -106,6 +106,8 @@ describe('HardwareOverviewPage', () => {
     const card = within(await screen.findByRole('region', { name: 'Armazenamento' }))
     const tipos = card.getAllByText('Tipo').filter((el) => el.tagName === 'DT').map((dt) => dt.nextElementSibling?.textContent)
     expect(tipos).toEqual(['SSD (SATA)', 'USB', 'Não disponível'])
+    const volumes = card.getAllByText('Volumes neste disco').filter((el) => el.tagName === 'DT').map((dt) => dt.nextElementSibling?.textContent)
+    expect(volumes).toEqual(['C:\\', 'Não disponível', 'Não disponível'])
   })
 
   it('memória sem memória virtual informada mostra "Não disponível"', async () => {

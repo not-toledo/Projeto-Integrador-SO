@@ -119,7 +119,7 @@ Em `backend/src/main/resources/application.properties`:
 1. **Agente:** `mvn -pl agent test`.
 2. **Backend:** `mvn -pl backend -am test`.
 3. **Ponta a ponta do agente:** `mvn -pl agent package` e depois `tests/verificar-agente.sh` (Git Bash ou WSL no Windows).
-4. **API, com o backend em execução:** `tests/verificar-api.sh`, `tests/verificar-saude.sh` e `tests/verificar-live.sh`.
+4. **API, com o backend em execução:** `tests/verificar-api.sh`, `tests/verificar-saude.sh`, `tests/verificar-live.sh` e `tests/verificar-jogos.sh` (jogos instalados e pré-checagem).
 5. **Frontend:** `cd frontend && npm test` e `npm run build`.
 6. **Documentação:** `scripts/testes-documentacao.sh`.
 7. **Conferência manual:** compare os valores com o Gerenciador de Tarefas e o Gerenciador de Dispositivos (Windows)
