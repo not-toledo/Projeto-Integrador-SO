@@ -4,9 +4,11 @@ import com.pccheck.compatibility.GameCompatibilityEvaluator;
 import com.pccheck.dto.GameCompatibilityDto;
 import com.pccheck.dto.GameRequirementsDto;
 import com.pccheck.dto.GameSearchResultDto;
+import com.pccheck.dto.InstalledGamesDto;
 import com.pccheck.service.InventoryService;
 import com.pccheck.steam.SteamGameSearchService;
 import com.pccheck.steam.SteamRequirementsService;
+import com.pccheck.steam.local.InstalledGamesService;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,18 +23,26 @@ public class GameCompatibilityController {
     private final SteamRequirementsService requirements;
     private final InventoryService inventory;
     private final GameCompatibilityEvaluator evaluator;
+    private final InstalledGamesService installed;
 
     public GameCompatibilityController(SteamGameSearchService search, SteamRequirementsService requirements,
-            InventoryService inventory, GameCompatibilityEvaluator evaluator) {
+            InventoryService inventory, GameCompatibilityEvaluator evaluator, InstalledGamesService installed) {
         this.search = search;
         this.requirements = requirements;
         this.inventory = inventory;
         this.evaluator = evaluator;
+        this.installed = installed;
     }
 
     @GetMapping("/search")
     public List<GameSearchResultDto> search(@RequestParam String query) {
         return search.search(query);
+    }
+
+    /** Jogos instalados pela Steam neste computador (lidos dos arquivos locais da Steam). */
+    @GetMapping("/installed")
+    public InstalledGamesDto installed() {
+        return installed.installed();
     }
 
     @GetMapping("/{appId}/requirements")

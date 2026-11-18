@@ -531,6 +531,12 @@ dd {
 .game-status-unknown { color: var(--warn-text); background: var(--warn-bg); border-color: var(--warn-border); }
 .game-explanation { display: block; color: var(--muted); margin-top: .3rem; min-width: 160px; }
 .game-raw { margin-top: 1rem; }
+.installed-games { margin-bottom: 1.5rem; }
+.installed-games > summary { cursor: pointer; font-weight: 700; }
+.installed-libraries { margin: .75rem 0; padding-left: 1.2rem; color: var(--muted); font-size: .85rem; overflow-wrap: anywhere; }
+.installed-toolbar { display: flex; align-items: center; gap: .5rem; margin-bottom: .75rem; flex-wrap: wrap; }
+.installed-toolbar input { flex: 1; min-width: 160px; padding: .5rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); font: inherit; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .game-raw pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; font-size: .85rem; color: var(--muted); }
 .data-sources { margin-top: 1rem; border-top: 1px solid var(--border); padding-top: .6rem; font-size: .85rem; }
 .data-sources summary { cursor: pointer; color: var(--accent); font-weight: 600; }

@@ -147,6 +147,11 @@ class DiskHealthTest {
         assertEquals("SSD", d.mediaType());
         assertEquals("SATA", d.busType());
         assertTrue(DiskCollector.toDisk("d", "m", 1L).mediaType() == null);
+        assertTrue(d.mountPoints().isEmpty(), "sem partições informadas: lista vazia, nunca null");
+
+        DiskInfo comVolumes = DiskCollector.toDisk("\\\\.\\PHYSICALDRIVE1", "HDD", 1L, "HDD", "SATA", List.of("D:\\"));
+        assertEquals(List.of("D:\\"), comVolumes.mountPoints());
+        assertTrue(new DiskInfo("x", "y", 1L, null, null, null).mountPoints().isEmpty());
     }
 
     private void disk(String name, String rotational, String removable) throws Exception {

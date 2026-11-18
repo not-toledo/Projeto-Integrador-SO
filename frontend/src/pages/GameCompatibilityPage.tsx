@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type {
   CompatibilityVerdict, ComponentCompatibility, GameCompatibility, GameSearchResult,
 } from '../modules/games/types'
+import { InstalledGames } from '../modules/games/InstalledGames'
 import { fetchGameCompatibility, searchGames } from '../services/gameService'
 
 function statusLabel(status: ComponentCompatibility['status']) {
@@ -91,6 +92,8 @@ export function GameCompatibilityPage() {
           <p className="muted">Nenhum resultado encontrado.</p>
         )}
       </section>
+
+      <InstalledGames onSelect={(game) => { setQuery(game.name); void choose(game) }} />
 
       {error && <div className="banner banner-error" role="alert">{error}</div>}
       {loading && <p className="loading" role="status">Obtendo requisitos e comparando com o inventário local…</p>}

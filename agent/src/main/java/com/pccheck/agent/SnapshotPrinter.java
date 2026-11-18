@@ -116,6 +116,7 @@ public final class SnapshotPrinter {
             line(sb, "    Capacidade", gib(d.sizeBytes()));
             line(sb, "    Tipo", d.mediaType());
             line(sb, "    Barramento", d.busType());
+            line(sb, "    Volumes", d.mountPoints().isEmpty() ? null : String.join(", ", d.mountPoints()));
         }
     }
 

@@ -160,6 +160,7 @@ export function StorageCard({ result, platform }: CardProps<'storage'>) {
                     ['Modelo', text(drive.model)],
                     ['Capacidade', bytes(drive.sizeBytes)],
                     ['Tipo', diskType(drive.mediaType, drive.busType)],
+                    ['Volumes neste disco', drive.mountPoints?.length ? drive.mountPoints.join(', ') : NOT_AVAILABLE],
                   ]}
                 />
               </div>

@@ -11,6 +11,19 @@ Base: `http://127.0.0.1:8080/api/games`. As consultas Steam são feitas pelo bac
 - Cache de pesquisa: 5 minutos.
 - Erros de validação: HTTP 400; indisponibilidade Steam: HTTP 503.
 
+## Jogos instalados
+
+`GET /installed`
+
+- Lê, só localmente, os arquivos da Steam: `steamapps/libraryfolders.vdf` (bibliotecas) e `steamapps/appmanifest_<AppID>.acf` (um por jogo). Nada é enviado à internet nem alterado nas pastas da Steam.
+- Pasta da Steam: `PCCHECK_STEAM_DIR`, se definida; no Windows, o registro (`HKCU\Software\Valve\Steam\SteamPath`, depois `HKLM\SOFTWARE\WOW6432Node\Valve\Steam\InstallPath`) e `C:\Program Files (x86)\Steam`; no Linux, `~/.steam/steam`, `~/.local/share/Steam` e a pasta do Flatpak.
+- Resposta: `steamFound`, `steamPath`, `libraries` (`path`, `mountPoint`, `freeBytes`, `totalBytes`, `mediaType`, `available`, `gameCount`), `games` (`appId`, `name`, `installDir`, `libraryPath`, `mountPoint`, `mediaType`, `sizeOnDiskBytes`, `state`, `lastUpdated`, `storeUrl`), `problems` e `scannedAt`.
+- `state` vem do `StateFlags` do manifesto: `INSTALLED`, `UPDATE_REQUIRED` (instalado, atualização pendente) ou `INCOMPLETE` (download ou instalação não concluídos).
+- `mediaType` (SSD/HDD) é o do disco físico que contém a biblioteca, ligado pelos volumes das partições.
+- Campos pessoais do manifesto, como o ID da conta (`LastOwner`), não são lidos.
+- Manifesto inválido entra em `problems`, sem esconder os demais. Steam não encontrada: `steamFound=false` e a orientação em `problems`.
+- A lista inclui ferramentas da Steam (ex.: Steamworks Common Redistributables), que não têm requisitos de jogo.
+
 ## Requisitos
 
 `GET /{appId}/requirements`

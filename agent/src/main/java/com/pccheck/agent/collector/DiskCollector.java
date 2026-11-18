@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 import oshi.PlatformEnum;
 import oshi.SystemInfo;
 import oshi.hardware.HWDiskStore;
+import oshi.hardware.HWPartition;
 import oshi.software.os.OSFileStore;
 import oshi.util.Memoizer;
 
@@ -69,7 +70,8 @@ public class DiskCollector implements Collector<StorageInfo> {
         List<DiskInfo> result = new ArrayList<>();
         for (HWDiskStore disk : systemInfo.getHardware().getDiskStores()) {
             DiskMediaTypes.Media media = mediaOf(disk.getName());
-            DiskInfo info = toDisk(disk.getName(), disk.getModel(), disk.getSize(), media.mediaType(), media.busType());
+            DiskInfo info = toDisk(disk.getName(), disk.getModel(), disk.getSize(), media.mediaType(), media.busType(),
+                    mountPoints(disk));
             if (info != null) {
                 result.add(info);
             }
@@ -107,19 +109,40 @@ public class DiskCollector implements Collector<StorageInfo> {
         return new DiskMediaTypes.Media(null, null);
     }
 
+    /** Pontos de montagem das partições (Windows: "C:\"; Linux: "/", "/home"). Vazio se a leitura falhar. */
+    private static List<String> mountPoints(HWDiskStore disk) {
+        try {
+            List<String> result = new ArrayList<>();
+            for (HWPartition partition : disk.getPartitions()) {
+                String mount = Metrics.cleanText(partition.getMountPoint());
+                if (mount != null && !result.contains(mount)) {
+                    result.add(mount);
+                }
+            }
+            return result;
+        } catch (RuntimeException e) {
+            return List.of();
+        }
+    }
+
     /** Conversão pura (testável). */
     static DiskInfo toDisk(String name, String model, long sizeBytes) {
-        return toDisk(name, model, sizeBytes, null, null);
+        return toDisk(name, model, sizeBytes, null, null, List.of());
     }
 
     static DiskInfo toDisk(String name, String model, long sizeBytes, String mediaType, String busType) {
+        return toDisk(name, model, sizeBytes, mediaType, busType, List.of());
+    }
+
+    static DiskInfo toDisk(String name, String model, long sizeBytes, String mediaType, String busType,
+                           List<String> mountPoints) {
         String n = Metrics.cleanText(name);
         String m = Metrics.cleanText(model);
         Long size = Metrics.positiveOrNull(sizeBytes);
         if (n == null && m == null && size == null) {
             return null;
         }
-        return new DiskInfo(n, m, size, mediaType, busType);
+        return new DiskInfo(n, m, size, mediaType, busType, mountPoints);
     }
 
     /** Conversão pura (testável): volumes sem capacidade válida são ignorados. */

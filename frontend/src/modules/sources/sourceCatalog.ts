@@ -118,6 +118,11 @@ export const DATA_SOURCES: Record<SourceSection, DataSource[]> = {
       windows: 'WMI MSFT_PhysicalDisk (ROOT\\Microsoft\\Windows\\Storage): MediaType e BusType (lido pelo agente)',
       linux: '/sys/block/<disco>/queue/rotational e /sys/block/<disco>/removable (lido pelo agente)',
     },
+    {
+      field: 'Volumes neste disco',
+      windows: 'WMI Win32_DiskDriveToDiskPartition e Win32_LogicalDiskToPartition (partição → letra da unidade)',
+      linux: 'udev (partições do disco) e /proc/mounts (ponto de montagem)',
+    },
     { field: 'Ponto de montagem', windows: 'APIs FindFirstVolume e GetVolumePathNamesForVolumeName (Kernel32)', linux: '/proc/mounts' },
     { field: 'Rótulo', windows: 'API GetVolumeInformation (Kernel32)', linux: 'Comando lsblk -o mountpoint,label' },
     { field: 'Sistema de arquivos', windows: 'API GetVolumeInformation (Kernel32)', linux: '/proc/mounts' },

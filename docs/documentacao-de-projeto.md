@@ -95,7 +95,8 @@ Visão resumida; diagramas completos em [diagramas.md](diagramas.md).
 - O uso de CPU é uma média em 500 ms e varia a cada execução.
 - **GPU:** identificação e VRAM informada pelo sistema (o OSHI não distingue VRAM dedicada de compartilhada). A
   utilização, a memória em uso e a temperatura vêm do leitor de sensores interno (não exigem administrador).
-- **Armazenamento:** o tipo (SSD/HDD) não é informado, pois não há evidência confiável via OSHI.
+- **Armazenamento:** o tipo (SSD/HDD) só aparece quando o SO informa (Windows: `MSFT_PhysicalDisk`; Linux: `/sys/block`); pen drives e discos em que o SO não informa ficam "Não disponível". Nunca é deduzido do nome do modelo.
+- **Jogos instalados:** só a Steam é lida (outras lojas não). A lista vem dos arquivos da própria Steam e inclui ferramentas (ex.: redistribuíveis). Steam em local não padrão exige `PCCHECK_STEAM_DIR`.
 - **Placa-mãe:** textos genéricos de fabricantes (como "To be filled by O.E.M.") e placeholders (como `x.x`) são descartados e aparecem como "Não informado pelo fabricante" (diferente de "Não disponível", quando o dado não pôde ser lido). No Windows, o modelo vem de `Win32_BaseBoard.Product` quando o OSHI não o informa (o OSHI lê `Win32_BaseBoard.Model`, que quase nunca é preenchido). O modelo do computador nunca é usado como modelo da placa.
 - **Sensores:** temperatura da CPU e ventoinhas da placa-mãe exigem permissão de administrador (aviso do Windows ao
   iniciar) e o driver PawnIO; sem eles ficam "Sem leitura", com o motivo. Placas-mãe com chip de monitoramento não
@@ -116,7 +117,8 @@ Visão resumida; diagramas completos em [diagramas.md](diagramas.md).
 | Identificação do sistema operacional | Nome, versão, build, arquitetura e tempo de atividade (OSHI lê `/proc` no Linux e os contadores de desempenho do Windows). |
 | Recursos de hardware | Núcleos físicos e lógicos, frequências, placa de vídeo e placa-mãe. Valores inválidos (como `-1`) são descartados. |
 | Dispositivos de bloco e SMART | Tipo de cada disco informado pelo SO (Windows: WMI `MSFT_PhysicalDisk`; Linux: `/sys/block/<disco>/queue/rotational`, ignorando removíveis) e saúde pelo SMART, que exige privilégio de administrador para o acesso direto ao dispositivo. |
-| Armazenamento e sistema de arquivos | Unidades físicas e volumes montados, com capacidade, espaço livre e percentual de uso. |
+| Armazenamento e sistema de arquivos | Unidades físicas e volumes montados, com capacidade, espaço livre e percentual de uso. Cada volume é ligado ao disco físico pelas partições (Windows: WMI `Win32_DiskDriveToDiskPartition`/`Win32_LogicalDiskToPartition`; Linux: udev e `/proc/mounts`). |
+| Arquivos e diretórios de outros programas | Jogos instalados lidos dos arquivos da Steam (`libraryfolders.vdf` e `appmanifest_*.acf`), só leitura, com caminhos por SO (registro do Windows ou pastas do Linux/Flatpak), limite de tamanho por arquivo e arquivos inválidos listados sem esconder os demais. |
 | Concorrência | Coleta periódica em thread de segundo plano, uma coleta por vez, sem bloquear a interface. |
 | Agendamento de tarefas e processos em segundo plano | `scripts/agendar-coleta` registra a coleta no agendador do SO (`schtasks` no Windows, `cron` no Linux). Cada execução é um processo de curta duração cujo código de saída fica registrado no agendador; o backend consulta o agendador executando `schtasks`/`crontab` com tempo limite. |
 | Arquivos, travas, permissões e variáveis de ambiente | Histórico em JSON Lines com rotação diária e retenção; gravação sob trava exclusiva de arquivo (concorrência entre agendador e backend); no Linux, pasta `700` e arquivos `600`; pasta e retenção configuráveis por `PCCHECK_DATA_DIR` e `PCCHECK_RETENCAO_DIAS`. |

@@ -34,3 +34,37 @@ export interface CompatibilityVerdict {
   belowRecommended: string[]
   pendingReview: string[]
 }
+
+/** Biblioteca (pasta de jogos) da Steam e o volume/disco onde está. */
+export interface SteamLibrary {
+  path: string
+  mountPoint: string | null
+  freeBytes: number | null
+  totalBytes: number | null
+  /** "SSD"/"HDD" do disco físico do volume, só quando o SO informa. */
+  mediaType: string | null
+  available: boolean
+  gameCount: number
+}
+
+export interface InstalledGame {
+  appId: number
+  name: string | null
+  installDir: string | null
+  libraryPath: string
+  mountPoint: string | null
+  mediaType: string | null
+  sizeOnDiskBytes: number | null
+  state: 'INSTALLED' | 'UPDATE_REQUIRED' | 'INCOMPLETE'
+  lastUpdated: string | null
+  storeUrl: string
+}
+
+export interface InstalledGames {
+  steamFound: boolean
+  steamPath: string | null
+  libraries: SteamLibrary[]
+  games: InstalledGame[]
+  problems: string[]
+  scannedAt: string
+}
