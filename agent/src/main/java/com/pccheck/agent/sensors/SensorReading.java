@@ -1,5 +1,6 @@
 package com.pccheck.agent.sensors;
 
+import com.pccheck.agent.model.DiskHealth;
 import java.util.Comparator;
 import java.util.List;
 
@@ -10,13 +11,21 @@ import java.util.List;
  * @param fanSpeedsRpm          rotação das ventoinhas com leitura válida (> 0)
  * @param limitation            por que parte dos sensores não pôde ser lida (ex.: sem permissão de
  *                              administrador ou sem o driver); null quando não há limitação conhecida
+ * @param disks                 saúde dos discos com leitura SMART
  */
 public record SensorReading(Double cpuTemperatureCelsius, List<GpuReading> gpus, List<Integer> fanSpeedsRpm,
-                            String limitation) {
+                            String limitation, List<DiskHealth> disks) {
 
     public SensorReading {
         gpus = gpus == null ? List.of() : List.copyOf(gpus);
         fanSpeedsRpm = fanSpeedsRpm == null ? List.of() : List.copyOf(fanSpeedsRpm);
+        disks = disks == null ? List.of() : List.copyOf(disks);
+    }
+
+    /** Sem leitura de discos. */
+    public SensorReading(Double cpuTemperatureCelsius, List<GpuReading> gpus, List<Integer> fanSpeedsRpm,
+                         String limitation) {
+        this(cpuTemperatureCelsius, gpus, fanSpeedsRpm, limitation, List.of());
     }
 
     /**

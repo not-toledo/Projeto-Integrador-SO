@@ -1,12 +1,14 @@
 package com.pccheck.service;
 
 import com.pccheck.agent.collector.CollectorRunner;
+import com.pccheck.agent.collector.DiskHealthCollector;
 import com.pccheck.agent.collector.SensorCollector;
 import com.pccheck.agent.collector.SystemCollector;
 import com.pccheck.agent.model.CollectorResult;
 import com.pccheck.agent.model.SensorInfo;
 import com.pccheck.agent.model.SystemSnapshot;
 import com.pccheck.agent.sensors.SensorSource;
+import com.pccheck.diagnostic.DiskHealthThresholds;
 import com.pccheck.diagnostic.HealthEvaluator;
 import com.pccheck.diagnostic.HealthInput;
 import com.pccheck.diagnostic.HealthReport;
@@ -32,8 +34,8 @@ public class HealthCheckService {
     private SensorCollector sensorCollector;
 
     public HealthCheckService(HealthThresholds thresholds, MemoryPressureThresholds memoryPressure,
-                              SensorSource sensors, LiveMonitorService liveMonitor) {
-        this.evaluator = new HealthEvaluator(thresholds, memoryPressure);
+                              DiskHealthThresholds diskHealth, SensorSource sensors, LiveMonitorService liveMonitor) {
+        this.evaluator = new HealthEvaluator(thresholds, memoryPressure, diskHealth);
         this.sensors = sensors;
         this.liveMonitor = liveMonitor;
         this.pagingWindow = memoryPressure.windowSamples();
@@ -58,7 +60,7 @@ public class HealthCheckService {
         SystemSnapshot snapshot = collector.collect();
         CollectorResult<SensorInfo> sensors = CollectorRunner.run(sensorCollector);
         // A paginação é uma taxa: vem das amostras recentes do Live Monitor, não de uma leitura isolada.
-        return evaluator.evaluate(new HealthInput(snapshot, sensors, liveMonitor.recentPaging(pagingWindow)),
-                Instant.now());
+        return evaluator.evaluate(new HealthInput(snapshot, sensors, liveMonitor.recentPaging(pagingWindow),
+                CollectorRunner.run(new DiskHealthCollector(this.sensors))), Instant.now());
     }
 }

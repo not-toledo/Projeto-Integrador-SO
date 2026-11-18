@@ -1,5 +1,6 @@
 package com.pccheck.config;
 
+import com.pccheck.diagnostic.DiskHealthThresholds;
 import com.pccheck.diagnostic.HealthThresholds;
 import com.pccheck.diagnostic.MemoryPressureThresholds;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,5 +29,14 @@ public class HealthConfig {
             @Value("${pccheck.health.memory-pressure.window-samples:30}") int windowSamples,
             @Value("${pccheck.health.memory-pressure.min-samples:10}") int minSamples) {
         return new MemoryPressureThresholds(commitWarningPercent, pageOutWarning, windowSamples, minSamples);
+    }
+
+    @Bean
+    public DiskHealthThresholds diskHealthThresholds(
+            @Value("${pccheck.health.disk.life-warning-percent:20}") double lifeWarning,
+            @Value("${pccheck.health.disk.life-critical-percent:5}") double lifeCritical,
+            @Value("${pccheck.health.disk.hdd-temp-warning-c:55}") double hddTemp,
+            @Value("${pccheck.health.disk.ssd-temp-warning-c:70}") double ssdTemp) {
+        return new DiskHealthThresholds(lifeWarning, lifeCritical, hddTemp, ssdTemp);
     }
 }

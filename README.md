@@ -150,7 +150,7 @@ Problemas comuns estão em [docs/processo-devops.md](docs/processo-devops.md#sol
 ## Limitações conhecidas
 
 Lista completa em [docs/documentacao-de-projeto.md](docs/documentacao-de-projeto.md#limitações-conhecidas).
-Destaques: temperatura da CPU e ventoinhas exigem permissão de administrador e o driver PawnIO; SMART não é suportado; os limites do Health Check são
+Destaques: temperatura da CPU e ventoinhas exigem permissão de administrador e o driver PawnIO; a saúde dos discos (SMART) exige permissão de administrador e não inclui setores realocados; os limites do Health Check são
 genéricos; e a leitura com sensores reais depende de teste na sua máquina.
 
 ## Integrantes

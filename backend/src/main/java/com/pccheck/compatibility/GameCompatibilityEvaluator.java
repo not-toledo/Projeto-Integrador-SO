@@ -1,6 +1,7 @@
 package com.pccheck.compatibility;
 
 import com.pccheck.agent.model.CpuInfo;
+import com.pccheck.agent.model.DiskInfo;
 import com.pccheck.agent.model.GpuInfo;
 import com.pccheck.agent.model.OsInfo;
 import com.pccheck.agent.model.VolumeInfo;
@@ -72,6 +73,7 @@ public class GameCompatibilityEvaluator {
                 case "CPU" -> result.add(compareCpu(field, pc));
                 case "GPU" -> result.add(compareGpu(field, pc));
                 case "OS" -> result.add(compareOs(field, pc));
+                case "SSD" -> result.add(compareSsd(field, pc));
                 default -> {
                     // não comparável
                 }
@@ -96,6 +98,28 @@ public class GameCompatibilityEvaluator {
                     + "confira a memória instalada.");
         }
         return row("RAM", f, shown, BELOW, "A memória detectada está abaixo do requisito.");
+    }
+
+    /**
+     * "SSD required": atende se há um SSD. Abaixo só quando todos os discos internos têm tipo conhecido e nenhum é
+     * SSD; disco interno de tipo desconhecido deixa o item sem confirmação. Discos USB não contam como SSD.
+     */
+    private ComponentCompatibilityDto compareSsd(RequirementFieldDto f, InventoryDto pc) {
+        var storage = data(pc.storage());
+        List<DiskInfo> drives = storage == null || storage.drives() == null ? List.of() : storage.drives();
+        List<DiskInfo> internal = drives.stream().filter(d -> !"USB".equals(d.busType())).toList();
+        List<String> ssds = internal.stream().filter(d -> "SSD".equals(d.mediaType()))
+                .map(d -> d.model() != null ? d.model() : d.name()).toList();
+        if (!ssds.isEmpty()) {
+            return row("Armazenamento (SSD)", f, "SSD: " + String.join("; ", ssds), COMPATIBLE,
+                    "Há um SSD neste computador. Instale o jogo nele para atender ao requisito.");
+        }
+        if (!internal.isEmpty() && internal.stream().allMatch(d -> d.mediaType() != null)) {
+            return row("Armazenamento (SSD)", f, "Somente HDD", BELOW,
+                    "Nenhum SSD foi encontrado: os discos internos são HDD, e o jogo exige SSD.");
+        }
+        return row("Armazenamento (SSD)", f, NOT_AVAILABLE, UNKNOWN,
+                "O sistema não informou o tipo (SSD/HDD) de todos os discos internos.");
     }
 
     private ComponentCompatibilityDto compareStorage(RequirementFieldDto f, InventoryDto pc) {

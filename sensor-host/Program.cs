@@ -50,6 +50,8 @@ namespace PCCheck.SensorHost
                 IsGpuEnabled = true,
                 IsMotherboardEnabled = true,
                 IsControllerEnabled = true,
+                // Discos: temperatura e dados SMART (vida útil restante, dados gravados, horas ligado).
+                IsStorageEnabled = true,
             };
             string openError = null;
             try
@@ -233,7 +235,9 @@ namespace PCCheck.SensorHost
                 sb.Append(',');
             }
             first = false;
+            // "id" (ex.: "/hdd/0", "/nvme/1") liga a leitura ao disco físico; campo opcional para o leitor Java.
             sb.Append("{\"type\":").Append(Str(hardware.HardwareType.ToString()))
+              .Append(",\"id\":").Append(Str(hardware.Identifier.ToString()))
               .Append(",\"name\":").Append(Str(hardware.Name))
               .Append(",\"sensors\":[");
             bool firstSensor = true;

@@ -30,6 +30,9 @@ public class SteamRequirementsParser {
     private static final Pattern GPU_HINT = Pattern.compile("(?i)(nvidia|geforce|\\bgtx\\s*\\d+|\\brtx\\s*\\d+|radeon|\\brx\\s*\\d+|intel\\s*(?:hd|uhd|iris|arc))");
     private static final Pattern SECTION_HEADER = Pattern.compile(
             "(?i)^(minimum|recommended|minimos?|recomendados?|requisitos\\s+(?:minimos|recomendados))\\s*:?$");
+    private static final Pattern SSD = Pattern.compile("(?i)\\bSSD\\b");
+    private static final Pattern SSD_OPTIONAL = Pattern.compile(
+            "(?i)recommend|recomend|prefer|opcional|optional|\\b(or|ou)\\s+HDD\\b|HDD\\s*(/|or|ou)\\s*SSD|SSD\\s*(/|or|ou)\\s*HDD");
     /** "Rótulo: valor", com rótulo curto (até 40 caracteres, sem dois-pontos). */
     private static final Pattern LABELED = Pattern.compile("^([^:]{1,40}):\\s*(.*)$");
 
@@ -96,6 +99,7 @@ public class SteamRequirementsParser {
                 // Jogos antigos: "Mínimo: Processador de 1.7 GHz, 512 MB de RAM, ..." em um único parágrafo.
                 for (String item : splitTopLevel(labeled.group(2))) {
                     result.add(field(byKeyword(item), item, item));
+                    addSsdRequirement(result, item);
                 }
                 continue;
             }
@@ -109,8 +113,23 @@ public class SteamRequirementsParser {
                 component = byKeyword(line);
             }
             result.add(field(component, line, value));
+            addSsdRequirement(result, line);
         }
         return List.copyOf(result);
+    }
+
+    /**
+     * "SSD required", "Requer SSD", "Storage: 70 GB SSD": o jogo exige SSD. "SSD recommended" ou "SSD preferível"
+     * não é exigência e não gera o requisito.
+     */
+    static boolean requiresSsd(String line) {
+        return line != null && SSD.matcher(line).find() && !SSD_OPTIONAL.matcher(line).find();
+    }
+
+    private static void addSsdRequirement(List<RequirementFieldDto> result, String line) {
+        if (requiresSsd(line)) {
+            result.add(new RequirementFieldDto("SSD", line, null, "SSD", 0.8, "PARSED"));
+        }
     }
 
     /**

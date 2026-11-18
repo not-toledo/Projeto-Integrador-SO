@@ -1,5 +1,14 @@
 # Histórico de versões
 
+## V2.7 — Saúde dos discos e tipo SSD/HDD
+- Agente: tipo de mídia e barramento de cada disco informados pelo SO (Windows: WMI `MSFT_PhysicalDisk`, sem administrador; Linux: `/sys/block/<disco>/queue/rotational`, ignorando removíveis). Nunca deduzido do nome do modelo; pen drives ficam sem tipo.
+- Leitor de sensores: `IsStorageEnabled` ligado e campo `id` por hardware (ex.: `/ssd/0`), que liga a leitura ao disco físico. O parser Java lê temperatura, vida útil restante, dados gravados, horas ligado e quantidade de vezes ligado (nomes conferidos na LibreHardwareMonitorLib 0.9.6 e na saída real).
+- Health Check: o aviso fixo "SMART não suportado" foi substituído pelo `DiskHealthDiagnostic`: um alerta por disco (`smart:<n>`), com vida útil (Atenção ≤ 20%, Crítico ≤ 5%) e temperatura (Atenção ≥ 55 °C em HDD, ≥ 70 °C em SSD). "Indicadores normais" deixa claro que setores realocados e erros de leitura não são lidos. Sem leitura, `smart` informa o motivo. Limites em `pccheck.health.disk.*`.
+- Módulo D: "SSD required" passa a ser comparado com os discos reais (antes era ignorado).
+- Interface: campo "Tipo" no card de armazenamento, com a fonte em "De onde vêm estes dados?".
+- Requisitos RF20 e RN08 atualizados (SMART deixou de ser "não suportado").
+- Testes: `DiskHealthTest` (agente, com a saída real do leitor), `DiskHealthDiagnosticTest`, testes de SSD no parser e no avaliador, e teste do card de armazenamento.
+
 ## V2.6 — Coleta agendada e histórico
 - Agente: modo `--registrar-coleta` (uma coleta gravada no histórico, código de saída para o agendador) e `--onde` (pasta do histórico). Pacote `history`: JSON Lines com rotação diária, retenção (7 dias, `PCCHECK_RETENCAO_DIAS`) que só apaga arquivos do próprio histórico, gravação sob trava exclusiva de arquivo e, no Linux, pasta `700` e arquivos `600` (sem alterar pastas existentes). Pasta por `PCCHECK_DATA_DIR` ou padrão do SO.
 - Scripts `agendar-coleta.bat` (Agendador de Tarefas, `schtasks`, via `javaw` sem janela) e `agendar-coleta.sh` (`cron` do usuário, sem duplicar a linha e preservando as demais): `instalar [minutos]`, `remover`, `status`, `agora`. O agente é copiado para a pasta de dados, então a tarefa sobrevive a `mvn clean`. Não exigem administrador.

@@ -38,6 +38,7 @@ Base: `http://127.0.0.1:8080/api/games`. As consultas Steam são feitas pelo bac
 | Armazenamento | Espaço livre do maior volume ≥ requisito. |
 | Sistema operacional | Windows: versão numérica local ≥ menor versão citada (`Windows 7/8/10` → 7; Windows 11 atende a "Windows 10"); exigência de 64 bits conferida pela arquitetura. Outros sistemas → revisão manual. |
 | CPU e GPU | Atende só quando o modelo detectado é **o mesmo** de um dos modelos publicados (sufixos contam: i5-8400 ≠ i5-8400T, RTX 3060 ≠ RTX 3060 Ti). GPU do mesmo modelo também confere a VRAM. Modelos diferentes ou requisitos sem modelo exato ("Intel Core i5") → revisão manual: o PCCheck não estima desempenho entre modelos. |
+| SSD | "SSD required", "Requer SSD" ou "Storage: 70 GB SSD" geram um requisito `SSD`; "SSD recommended", "preferível", "opcional" e "HDD/SSD" não. Atende se há um SSD (tipo informado pelo SO); abaixo se todos os discos internos têm tipo conhecido e nenhum é SSD; senão `UNKNOWN`. Discos USB não contam. |
 
 Resumo (`overallMinimum`/`overallRecommended`): "Abaixo dos ..." se algum item ficou abaixo; "Atende aos ..." se todos
 foram confirmados; "Nenhum item abaixo dos ...; revisar manualmente: CPU, GPU" quando parte foi confirmada; e

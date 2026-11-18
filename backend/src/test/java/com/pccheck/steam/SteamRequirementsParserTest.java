@@ -140,4 +140,23 @@ class SteamRequirementsParserTest {
         assertTrue(parser.parse(null).isEmpty());
         assertEquals("", parser.toPlainText(""));
     }
+
+    @Test
+    void ssdExigidoViraRequisitoERecomendadoNao() {
+        assertTrue(SteamRequirementsParser.requiresSsd("Outras observações: SSD required."));
+        assertTrue(SteamRequirementsParser.requiresSsd("Storage: 70 GB available space (SSD)"));
+        assertTrue(SteamRequirementsParser.requiresSsd("Armazenamento: requer SSD"));
+        assertFalse(SteamRequirementsParser.requiresSsd("Storage: 50 GB (SSD recommended)"));
+        assertFalse(SteamRequirementsParser.requiresSsd("SSD preferível"));
+        assertFalse(SteamRequirementsParser.requiresSsd("Storage: 20 GB HDD/SSD"));
+        assertFalse(SteamRequirementsParser.requiresSsd("Graphics: SSDX 9000"));
+    }
+
+    @Test
+    void observacaoDoCyberpunkGeraRequisitoDeSsd() {
+        var fields = parser.parse("<li><strong>Armazenamento:</strong> 70 GB de espaço disponível</li>"
+                + "<li><strong>Outras observações:</strong> SSD required.</li>");
+        assertEquals(java.util.List.of("STORAGE", "OTHER", "SSD"), fields.stream().map(f -> f.component()).toList());
+        assertEquals("SSD", fields.get(2).parsedValue());
+    }
 }
