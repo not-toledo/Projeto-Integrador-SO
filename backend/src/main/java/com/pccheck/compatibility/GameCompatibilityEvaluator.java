@@ -1,11 +1,13 @@
 package com.pccheck.compatibility;
 
 import com.pccheck.agent.model.CpuInfo;
+import com.pccheck.benchmark.BenchmarkCatalog;
 import com.pccheck.agent.model.DiskInfo;
 import com.pccheck.agent.model.GpuInfo;
 import com.pccheck.agent.model.OsInfo;
 import com.pccheck.agent.model.VolumeInfo;
 import com.pccheck.dto.ComponentCompatibilityDto;
+import com.pccheck.dto.ComponentCompatibilityDto.BenchmarkDto;
 import com.pccheck.dto.ComponentDto;
 import com.pccheck.dto.GameCompatibilityDto;
 import com.pccheck.dto.GameRequirementsDto;
@@ -21,11 +23,13 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Avaliação conservadora: só declara "atende" quando há comparação objetiva (número com número ou o mesmo
- * modelo de CPU/GPU). Modelos diferentes não são ordenados por desempenho; ficam para revisão manual.
+ * Avaliação conservadora: só declara "atende" quando há comparação objetiva (número com número, o mesmo modelo de
+ * CPU/GPU ou, para modelos diferentes, pontuações do benchmark do Blender na mesma versão e no mesmo backend).
+ * Sem dado comparável, CPU/GPU ficam para revisão manual.
  */
 @Component
 public class GameCompatibilityEvaluator {
@@ -43,19 +47,51 @@ public class GameCompatibilityEvaluator {
     private static final Pattern WINDOWS_VERSION = Pattern.compile("(?i)windows\\s*(\\d+(?:\\.\\d+)?)");
     private static final Pattern REQUIRES_64_BIT = Pattern.compile("(?i)64[- ]?bits?|\\bx64\\b");
 
+    /**
+     * Decisão por benchmark (heurísticas do projeto). Confiança alta: atende com razão ≥ 1,0, abaixo com razão
+     * &lt; 0,85. Confiança média: margens mais largas (≥ 1,15 e &lt; 0,70). Entre as margens: revisão manual.
+     */
+    static final double HIGH_OK = 1.0;
+    static final double HIGH_BELOW = 0.85;
+    static final double MEDIUM_OK = 1.15;
+    static final double MEDIUM_BELOW = 0.70;
+    /** Pontuação por núcleo físico local abaixo de 85% da exigida: o total maior não basta para atender. */
+    static final double PER_CORE_WARNING = 0.85;
+
+    private final BenchmarkCatalog benchmarks;
+
+    /** Sem tabela de benchmarks (testes das regras básicas). */
+    public GameCompatibilityEvaluator() {
+        this(BenchmarkCatalog.empty());
+    }
+
+    @Autowired
+    public GameCompatibilityEvaluator(BenchmarkCatalog benchmarks) {
+        this.benchmarks = benchmarks;
+    }
+
     public GameCompatibilityDto evaluate(GameRequirementsDto game, InventoryDto pc) {
         List<ComponentCompatibilityDto> min = compare(game.minimum(), pc);
         List<ComponentCompatibilityDto> rec = compare(game.recommended(), pc);
         List<String> warnings = new ArrayList<>(game.warnings());
         // O aviso sobre FPS fica no rodapé fixo da interface; aqui só entram limitações que afetaram este jogo.
+        if (usesBenchmark(min) || usesBenchmark(rec)) {
+            warnings.add("CPU e GPU de modelos diferentes foram comparadas pelo benchmark de renderização do Blender "
+                    + "(Blender Open Data): mede desempenho relativo em renderização, não desempenho em jogos. Resultado "
+                    + "abaixo não significa que o jogo não abre.");
+        }
         if (hasCpuOrGpuReview(min) || hasCpuOrGpuReview(rec)) {
-            warnings.add("CPU e GPU só são aprovadas quando o modelo detectado é o mesmo publicado; modelos "
-                    + "diferentes ficam para revisão manual (o PCCheck não estima desempenho entre modelos).");
+            warnings.add("CPU e GPU sem o mesmo modelo publicado nem dados de benchmark comparáveis (ou com "
+                    + "desempenho próximo do exigido) ficam para revisão manual.");
         }
         return new GameCompatibilityDto(game.appId(), game.name(),
                 overall(min, "mínimos"), overall(rec, "recomendados"), min, rec, game.minimumRawText(),
                 game.recommendedRawText(), Instant.now(), game.source(), List.copyOf(warnings),
                 CompatibilityVerdict.of(min, rec));
+    }
+
+    private static boolean usesBenchmark(List<ComponentCompatibilityDto> results) {
+        return results.stream().anyMatch(r -> r.benchmark() != null);
     }
 
     private static boolean hasCpuOrGpuReview(List<ComponentCompatibilityDto> results) {
@@ -145,8 +181,13 @@ public class GameCompatibilityEvaluator {
         if (detected == null) {
             return row("CPU", f, NOT_AVAILABLE, UNKNOWN, "O processador local não foi identificado.");
         }
-        return compareModels("CPU", f, detected, HardwareModels.cpuModels(f.rawText()),
-                HardwareModels.cpuModels(detected));
+        Set<String> required = HardwareModels.cpuModels(f.rawText());
+        Set<String> local = HardwareModels.cpuModels(detected);
+        if (!required.isEmpty() && !local.isEmpty() && Collections.disjoint(required, local)) {
+            ComponentCompatibilityDto byBenchmark = byBenchmark("CPU", "CPU", f, detected, local, required, null);
+            if (byBenchmark != null) return byBenchmark;
+        }
+        return compareModels("CPU", f, detected, required, local);
     }
 
     private ComponentCompatibilityDto compareGpu(RequirementFieldDto f, InventoryDto pc) {
@@ -172,6 +213,17 @@ public class GameCompatibilityEvaluator {
                             : "O modelo corresponde, mas a memória de vídeo está abaixo do valor publicado.");
         }
         String detected = String.join("; ", named.stream().map(GpuInfo::name).toList());
+        if (!required.isEmpty()) {
+            // A placa com mais memória de vídeo primeiro (em geral a dedicada).
+            List<GpuInfo> ordered = named.stream().sorted((a, b) -> Long.compare(
+                    b.vramBytes() == null ? 0 : b.vramBytes(), a.vramBytes() == null ? 0 : a.vramBytes())).toList();
+            for (GpuInfo gpu : ordered) {
+                Set<String> local = HardwareModels.gpuModels(gpu.name());
+                if (local.isEmpty()) continue;
+                ComponentCompatibilityDto byBenchmark = byBenchmark("GPU", "GPU", f, gpu.name(), local, required, gpu);
+                if (byBenchmark != null) return byBenchmark;
+            }
+        }
         return compareModels("GPU", f, detected, required, Set.of());
     }
 
@@ -185,8 +237,99 @@ public class GameCompatibilityEvaluator {
         if (!Collections.disjoint(required, found)) {
             return row(component, f, detected, COMPATIBLE, "O modelo detectado é um dos modelos publicados.");
         }
-        return row(component, f, detected, MANUAL, "Modelos diferentes. O PCCheck não compara desempenho entre "
-                + "modelos diferentes; confira em uma comparação de desempenho (benchmark).");
+        return row(component, f, detected, MANUAL, "Modelos diferentes, sem comparação por benchmark possível (sem "
+                + "dados dos dois modelos na mesma versão do Blender, ou GPUs de gerações diferentes, em que a "
+                + "renderização não representa a diferença em jogos); compare manualmente.");
+    }
+
+    /**
+     * Compara pelo benchmark com a alternativa publicada do mesmo fabricante (os requisitos da Steam já trazem a
+     * equivalência declarada pelo desenvolvedor, ex.: "GTX 1060 / RX 580"); sem ela, com as demais alternativas.
+     * Null se nenhum par tiver dados comparáveis.
+     */
+    private ComponentCompatibilityDto byBenchmark(String kind, String component, RequirementFieldDto f, String detected,
+                                                  Set<String> localKeys, Set<String> requiredKeys, GpuInfo gpu) {
+        if (benchmarks.isEmpty()) return null;
+        for (String localKey : localKeys) {
+            String vendor = vendor(localKey);
+            List<String> ordered = new ArrayList<>(requiredKeys.stream().filter(k -> vendor(k).equals(vendor)).toList());
+            requiredKeys.stream().filter(k -> !vendor(k).equals(vendor)).forEach(ordered::add);
+            for (String requiredKey : ordered) {
+                if ("GPU".equals(kind)) {
+                    // Só GPUs da mesma geração: entre gerações, a renderização exagera a diferença dos jogos.
+                    String generation = BenchmarkCatalog.gpuGeneration(localKey);
+                    if (generation == null || !generation.equals(BenchmarkCatalog.gpuGeneration(requiredKey))) continue;
+                }
+                BenchmarkCatalog.Match m = benchmarks.match(kind, localKey, requiredKey);
+                if (m != null) return decide(component, f, detected, m, gpu);
+            }
+        }
+        return null;
+    }
+
+    private static String vendor(String key) {
+        int dash = key.indexOf('-');
+        return dash < 0 ? key : key.substring(0, dash);
+    }
+
+    private static ComponentCompatibilityDto decide(String component, RequirementFieldDto f, String detected,
+                                                    BenchmarkCatalog.Match m, GpuInfo gpu) {
+        double ratio = m.ratio();
+        boolean high = "HIGH".equals(m.confidence());
+        String status = ratio >= (high ? HIGH_OK : MEDIUM_OK) ? COMPATIBLE
+                : ratio < (high ? HIGH_BELOW : MEDIUM_BELOW) ? BELOW : MANUAL;
+        String numbers = String.format(Locale.forLanguageTag("pt-BR"),
+                "Benchmark do Blender %s (%s): %s %.1f pontos (%d execuções) × %s %.1f pontos (%d execuções) = %.0f%% "
+                        + "do exigido. Confiança %s.",
+                m.local().version(), m.local().backend(), m.local().deviceName(), m.local().median(),
+                m.local().samples(), m.required().deviceName(), m.required().median(), m.required().samples(),
+                ratio * 100, high ? "alta" : "média");
+        String verdict = switch (status) {
+            case COMPATIBLE -> " O desempenho de renderização é igual ou maior que o do modelo exigido.";
+            case BELOW -> " O desempenho de renderização fica claramente abaixo do modelo exigido.";
+            default -> ratio >= 1 ? " Acima do exigido, mas com poucos dados para confirmar; revise manualmente."
+                    : " Próximo do exigido ou com poucos dados para decidir; revise manualmente.";
+        };
+        String extra = "";
+        // A renderização usa todos os núcleos; jogos dependem mais do desempenho por núcleo. Quando o total e o
+        // desempenho por núcleo apontam em direções opostas, a decisão fica para revisão manual.
+        if ("CPU".equals(component) && m.local().cores() != null && m.required().cores() != null) {
+            // Por núcleo físico, e não por thread: dividir por threads penalizaria quem tem Hyper-Threading/SMT.
+            double perCore = (m.local().median() / m.local().cores())
+                    / (m.required().median() / m.required().cores());
+            String detail = String.format(Locale.forLanguageTag("pt-BR"), "o desempenho estimado por núcleo é %.0f%% "
+                    + "do exigido (%d núcleos × %d)", perCore * 100, m.local().cores(), m.required().cores());
+            if (COMPATIBLE.equals(status) && perCore < PER_CORE_WARNING) {
+                status = MANUAL;
+                verdict = " O total é maior, mas " + detail + ": jogos que dependem de poucos núcleos podem ficar "
+                        + "abaixo do exigido; revise manualmente.";
+            } else if (BELOW.equals(status) && perCore >= 1.0) {
+                status = MANUAL;
+                verdict = " O total é menor (menos núcleos), mas " + detail + ": em jogos que usam poucos núcleos o "
+                        + "processador local pode atender; revise manualmente.";
+            } else if (perCore < PER_CORE_WARNING && !BELOW.equals(status)) {
+                extra = " Atenção: " + detail + "; jogos que dependem de poucos núcleos podem ser limitados.";
+            }
+        }
+        String shown = detected;
+        if (gpu != null && f.parsedBytes() != null) {
+            if (gpu.vramBytes() == null) {
+                extra += " A memória de vídeo detectada não está disponível para comparar com a publicada.";
+                if (COMPATIBLE.equals(status)) status = MANUAL;
+            } else {
+                shown = detected + " — " + bytes(gpu.vramBytes());
+                if (gpu.vramBytes() < f.parsedBytes()) {
+                    extra += " A memória de vídeo detectada é menor que a publicada; revise manualmente (o Windows "
+                            + "pode informar até 4 GiB para placas com mais memória).";
+                    if (COMPATIBLE.equals(status)) status = MANUAL;
+                }
+            }
+        }
+        BenchmarkDto benchmark = new BenchmarkDto(m.local().deviceName(), m.required().deviceName(),
+                m.local().median(), m.required().median(), m.local().samples(), m.required().samples(),
+                m.local().backend(), m.local().version(), ratio, m.confidence(), m.source());
+        return new ComponentCompatibilityDto(component, f.rawText(), shown, status, numbers + verdict + extra,
+                benchmark);
     }
 
     /** Windows: compara a versão numérica (Windows 11 atende a "Windows 10") e a exigência de 64 bits. */

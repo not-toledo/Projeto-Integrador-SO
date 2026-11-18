@@ -50,12 +50,28 @@ Base: `http://127.0.0.1:8080/api/games`. As consultas Steam são feitas pelo bac
 | RAM | Memória visível ao Windows ≥ requisito → atende. Entre 90% e 100% → revisão manual (parte da RAM costuma ficar reservada para o sistema ou GPU integrada). Abaixo de 90% → abaixo. |
 | Armazenamento | Espaço livre do maior volume ≥ requisito. |
 | Sistema operacional | Windows: versão numérica local ≥ menor versão citada (`Windows 7/8/10` → 7; Windows 11 atende a "Windows 10"); exigência de 64 bits conferida pela arquitetura. Outros sistemas → revisão manual. |
-| CPU e GPU | Atende só quando o modelo detectado é **o mesmo** de um dos modelos publicados (sufixos contam: i5-8400 ≠ i5-8400T, RTX 3060 ≠ RTX 3060 Ti). GPU do mesmo modelo também confere a VRAM. Modelos diferentes ou requisitos sem modelo exato ("Intel Core i5") → revisão manual: o PCCheck não estima desempenho entre modelos. |
+| CPU e GPU | Mesmo modelo de um dos publicados → atende (sufixos contam: i5-8400 ≠ i5-8400T, RTX 3060 ≠ RTX 3060 Ti); GPU do mesmo modelo também confere a VRAM. Modelos diferentes → comparação por benchmark (abaixo), quando possível. Requisito sem modelo exato ("Intel Core i5") ou sem dado comparável → revisão manual. |
 | SSD | "SSD required", "Requer SSD" ou "Storage: 70 GB SSD" geram um requisito `SSD`; "SSD recommended", "preferível", "opcional" e "HDD/SSD" não. Atende se há um SSD (tipo informado pelo SO); abaixo se todos os discos internos têm tipo conhecido e nenhum é SSD; senão `UNKNOWN`. Discos USB não contam. |
 
 Resumo (`overallMinimum`/`overallRecommended`): "Abaixo dos ..." se algum item ficou abaixo; "Atende aos ..." se todos
 foram confirmados; "Nenhum item abaixo dos ...; revisar manualmente: CPU, GPU" quando parte foi confirmada; e
 "Análise incompleta" quando nada pôde ser confirmado.
+
+### Comparação de CPU e GPU por benchmark
+
+Fonte: [Blender Open Data](https://opendata.blender.org) (licença CC0), tabela `backend/src/main/resources/benchmarks/blender-opendata.csv` gerada por `scripts/atualizar-benchmarks` (sem internet durante o uso). Pontuação = soma das amostras por minuto das cenas monster, junkshop e classroom (a mesma do site); por modelo, backend e versão do Blender: mediana, quartis e quantidade de execuções (mínimo 3).
+
+| Regra | Motivo |
+|---|---|
+| Só compara pontuações da **mesma versão do Blender e do mesmo backend** (CPU, OptiX, CUDA, HIP, oneAPI); entre as possíveis, a com mais execuções do lado com menos. | Versões usam cenas diferentes; backends não são comparáveis. |
+| Usa primeiro a alternativa publicada **do mesmo fabricante** ("GTX 1060 / RX 580": placa NVIDIA → GTX 1060). | A equivalência é a declarada pelo desenvolvedor; evita comparar fabricantes. |
+| GPU só com GPU da **mesma geração de arquitetura** (ex.: Maxwell/Pascal, Turing, Ampere, RDNA 2). | Gerações novas ganham muito mais na renderização que nos jogos (ex.: RTX 2060 ≈ 5× a GTX 1050 Ti no Blender, ≈ 2,5× em jogos). |
+| GTX × RTX não usa o OptiX (só o CUDA). | No OptiX, os núcleos de ray tracing das RTX aceleram a renderização, não os jogos. |
+| Execuções de notebook ("Laptop", "Mobile", "Max-Q"), com mais de uma GPU, com mais de um soquete e placas fora do backend nativo (ex.: AMD em CUDA via ZLUDA) são descartadas. | Mesmo nome, outra potência ou configuração fora do padrão. |
+
+Decisão pela razão local ÷ exigido (heurística do projeto): confiança **alta** (10+ execuções de cada lado e intervalo interquartil até 25% da mediana) atende com ≥ 1,0 e fica abaixo com < 0,85; confiança **média**, com ≥ 1,15 e < 0,70. Entre as margens: revisão manual. CPU: a renderização usa todos os núcleos e os jogos dependem mais do desempenho por **núcleo físico** (não por thread, para não penalizar Hyper-Threading/SMT): total maior mas por núcleo abaixo de 85% → revisão manual; total menor mas por núcleo maior → revisão manual. GPU com desempenho suficiente e VRAM detectada menor que a publicada → revisão manual.
+
+Cada resultado comparado traz `benchmark` (`localModel`, `requiredModel`, `localScore`, `requiredScore`, `localSamples`, `requiredSamples`, `backend`, `blenderVersion`, `ratio`, `confidence`, `source`). A pontuação mede renderização, não desempenho em jogos.
 
 ### Classificação geral (`verdict`)
 

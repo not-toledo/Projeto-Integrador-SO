@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
  *
  * <p>Sufixos fazem parte do modelo: i5-8400 ≠ i5-8400T, RTX 3060 ≠ RTX 3060 Ti, RX 6700 ≠ RX 6700 XT.
  */
-final class HardwareModels {
+public final class HardwareModels {
 
     private record Rule(Pattern pattern, Function<MatchResult, String> key) {
     }
@@ -46,12 +46,12 @@ final class HardwareModels {
     }
 
     /** Modelos de CPU citados no texto, na ordem em que aparecem (vazio se nenhum modelo exato). */
-    static Set<String> cpuModels(String text) {
+    public static Set<String> cpuModels(String text) {
         return find(text, CPU);
     }
 
     /** Modelos de GPU citados no texto, na ordem em que aparecem (vazio se nenhum modelo exato). */
-    static Set<String> gpuModels(String text) {
+    public static Set<String> gpuModels(String text) {
         return find(text, GPU);
     }
 
@@ -68,7 +68,7 @@ final class HardwareModels {
     }
 
     /** Minúsculas, sem acentos e com toda pontuação (inclusive "-", "(R)", "™") trocada por espaço. */
-    static String normalize(String value) {
+    public static String normalize(String value) {
         String plain = Normalizer.normalize(value == null ? "" : value, Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "").toLowerCase(Locale.ROOT)
                 .replace("(r)", " ").replace("(tm)", " ");

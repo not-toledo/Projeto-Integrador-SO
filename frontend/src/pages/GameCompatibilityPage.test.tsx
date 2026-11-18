@@ -83,4 +83,22 @@ describe('GameCompatibilityPage', () => {
     expect(screen.queryByText('Limitações da análise')).toBeNull()
     expect(screen.getAllByText(/Não garante FPS/)).toHaveLength(1)
   })
+
+  it('CPU comparada por benchmark mostra a confiança e a fonte', async () => {
+    compatibilityMock.mockResolvedValue(comparison({
+      minimumResults: [{
+        component: 'CPU', requirement: 'Processador: Core i7-7700K / Ryzen 5 1600', detected: 'i7-4790K',
+        status: 'BELOW_MINIMUM', explanation: 'Benchmark do Blender 4.5.0 (CPU): 83% do exigido.',
+        benchmark: {
+          localModel: 'Intel Core i7-4790K', requiredModel: 'Intel Core i7-7700K', localScore: 73.67,
+          requiredScore: 88.89, localSamples: 29, requiredSamples: 39, backend: 'CPU', blenderVersion: '4.5.0',
+          ratio: 0.83, confidence: 'HIGH', source: 'Blender Open Data (opendata.blender.org, CC0), snapshot de 2026-11-18',
+        },
+      }],
+    }))
+    await selectGame()
+
+    expect(await screen.findByText(/83% do exigido/)).toBeTruthy()
+    expect(screen.getByText(/Comparado por benchmark \(confiança alta\) · Fonte: Blender Open Data/)).toBeTruthy()
+  })
 })

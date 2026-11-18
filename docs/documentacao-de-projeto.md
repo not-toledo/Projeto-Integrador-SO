@@ -22,16 +22,16 @@ Um usuário comum não tem uma forma simples de saber qual hardware o computador
 
 ## Escopo
 
-**Dentro do escopo (módulos A, B e C):**
+**Dentro do escopo (módulos A, B, C e D):**
 
 | Módulo | Nome | Responsabilidade |
 |---|---|---|
 | A | Hardware Overview | Identificar e apresentar componentes e suas propriedades. |
 | B | Health Check | Avaliar indicadores disponíveis e apresentar alertas explicáveis. |
 | C | Live Monitor | Atualizar métricas periodicamente e exibir gráficos de desempenho. |
+| D | Game Compatibility | Comparar requisitos da Steam com o hardware (inclusive por benchmark), listar jogos instalados e fazer a pré-checagem antes de jogar. |
 
-**Fora do escopo:** análise de processos, compatibilidade com jogos, exportação de relatórios, banco de dados
-(o histórico fica só em memória), testes de estresse e qualquer ação que altere o computador.
+**Fora do escopo:** gerenciamento de processos (a pré-checagem só lê os processos; nada é encerrado nem tem a prioridade alterada), exportação de relatórios, banco de dados (o histórico usa arquivos JSON Lines), testes de estresse e qualquer ação que altere o computador.
 
 ## Requisitos funcionais
 
@@ -96,6 +96,7 @@ Visão resumida; diagramas completos em [diagramas.md](diagramas.md).
 - **GPU:** identificação e VRAM informada pelo sistema (o OSHI não distingue VRAM dedicada de compartilhada). A
   utilização, a memória em uso e a temperatura vêm do leitor de sensores interno (não exigem administrador).
 - **Armazenamento:** o tipo (SSD/HDD) só aparece quando o SO informa (Windows: `MSFT_PhysicalDisk`; Linux: `/sys/block`); pen drives e discos em que o SO não informa ficam "Não disponível". Nunca é deduzido do nome do modelo.
+- **Comparação por benchmark:** o Blender Open Data mede renderização, não jogos. Por isso GPUs só são comparadas dentro da mesma geração, e CPUs com diferença entre o total e o desempenho por núcleo ficam para revisão manual. Placas sem resultado no benchmark atual (ex.: AMD Polaris, como RX 480/580) e notebooks não são comparados. A GTX 1060 de 3 GB e a de 6 GB têm a mesma chave de modelo. A tabela é um retrato do snapshot usado; é atualizada por `scripts/atualizar-benchmarks`.
 - **Pré-checagem antes de jogar:** os limites (50% do mínimo de RAM livre, 50% de CPU) são heurísticas do projeto. Mede um instante (~1 s): um pico passageiro pode aparecer ou passar despercebido. O plano de energia só é avaliado para os três planos padrão do Windows; no Linux o governador é só informado.
 - **Jogos instalados:** só a Steam é lida (outras lojas não). A lista vem dos arquivos da própria Steam e inclui ferramentas (ex.: redistribuíveis). Steam em local não padrão exige `PCCHECK_STEAM_DIR`.
 - **Placa-mãe:** textos genéricos de fabricantes (como "To be filled by O.E.M.") e placeholders (como `x.x`) são descartados e aparecem como "Não informado pelo fabricante" (diferente de "Não disponível", quando o dado não pôde ser lido). No Windows, o modelo vem de `Win32_BaseBoard.Product` quando o OSHI não o informa (o OSHI lê `Win32_BaseBoard.Model`, que quase nunca é preenchido). O modelo do computador nunca é usado como modelo da placa.
