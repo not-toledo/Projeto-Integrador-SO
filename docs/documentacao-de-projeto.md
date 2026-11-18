@@ -87,7 +87,7 @@ Visão resumida; diagramas completos em [diagramas.md](diagramas.md).
 1. O **agente** consulta o sistema operacional pelo OSHI e, para GPU e sensores, o leitor de sensores interno (iniciado pelo backend).
 2. Os **coletores** convertem os resultados em modelos padronizados, cada um com estado próprio.
 3. O **backend** expõe a API local e executa as regras do Health Check.
-4. O **frontend** consulta a API e apresenta os módulos A, B e C.
+4. O **frontend** consulta a API e apresenta a tela Início e os módulos A, B, C e D, além do histórico.
 
 ## Limitações conhecidas
 

@@ -1,5 +1,15 @@
 # Histórico de versões
 
+## V3.0 — Nova interface
+- Identidade visual escura e minimalista: preto, cinzas e uma cor de destaque (verde) só para estados; divisórias finas tracejadas; fonte pixelada [Silkscreen](https://github.com/googlefonts/silkscreen) (licença OFL, incluída em `frontend/public/fonts/`, sem acesso à internet) apenas em títulos. O tema claro foi removido.
+- Cabeçalho fixo com as 6 telas e botão MENU em telas estreitas; cada tela tem endereço próprio (`#/hardware`, `#/live`...), sem biblioteca de rotas, e o botão Voltar do navegador funciona. Rodapé com atalhos, GitHub e créditos.
+- Nova tela **Início** (abre por padrão): apresentação, "Seu computador" (inventário real e números da máquina), funcionalidades, "Agora" (CPU, RAM, GPU e temperaturas ao vivo com minigráficos, "Sem leitura" quando falta sensor), "Vai rodar?" (passos e classificações do Módulo D) e "Sobre o projeto". Nenhum valor demonstrativo: tudo vem da API.
+- Ilustrações próprias em SVG isométrico (processador e camadas do sistema), geradas no código.
+- Telas internas com cabeçalho padrão (módulo, título, coleta e ações); cards, tabelas, gráficos, avisos e estados de carregamento no novo padrão. Serviços, regras e dados sem alteração.
+- Acessibilidade: atalho "Pular para o conteúdo", foco visível, campos com contraste 3:1, animações desligadas com "reduzir movimento".
+- `tests/verificar-live.sh`: a GPU pode ter leitura real desde o leitor de sensores (V1.5); a verificação aceita leitura real ou indisponível e continua rejeitando outro estado.
+- Testes: navegação por endereço e menu (`App.test.tsx`, `navigation.test.ts`) e tela Início (`HomePage.test.tsx`).
+
 ## V2.9 — Comparação de CPU e GPU por benchmark
 - Tabela `benchmarks/blender-opendata.csv` (Blender Open Data, CC0; 6.394 linhas, snapshot de 2026-11-18): mediana, quartis, execuções e núcleos por modelo, backend e versão do Blender. Gerada por `BlenderDatasetBuilder` (reaproveita as regras de `HardwareModels`) via `scripts/atualizar-benchmarks.sh/.bat`, que param se o backend estiver aberto.
 - `BenchmarkCatalog` + `GameCompatibilityEvaluator`: CPU/GPU de modelos diferentes passam a ser comparadas pela alternativa do mesmo fabricante, na mesma versão e backend, com confiança alta/média e margens próprias; resultado com o campo `benchmark` e a fonte na interface. Sem dado comparável, continua revisão manual.

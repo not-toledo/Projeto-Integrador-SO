@@ -10,6 +10,8 @@ O PCCheck coleta dados **reais** do próprio computador. Dados indisponíveis ap
 
 ## Módulos
 
+A tela **Início** apresenta o PCCheck com um resumo real do computador e leituras ao vivo, e leva a cada módulo:
+
 | Módulo | Nome | O que faz |
 |---|---|---|
 | A | Hardware Overview | Identifica sistema operacional, CPU, memória, GPU, placa-mãe e armazenamento. |
@@ -36,6 +38,7 @@ O PCCheck coleta dados **reais** do próprio computador. Dados indisponíveis ap
 - Spring Boot 3.3.5 (API local)
 - React 19 com TypeScript, Vite, Vitest e Testing Library (interface)
 - Maven, JUnit 5, Shell Script
+- Fonte [Silkscreen](https://github.com/googlefonts/silkscreen) (OFL) nos títulos da interface
 
 ## Requisitos
 
@@ -76,7 +79,8 @@ npm install
 npm run dev
 ```
 
-Abra o endereço exibido pelo Vite (normalmente `http://localhost:5173`). Em desenvolvimento, o Vite encaminha `/api`
+Abra o endereço exibido pelo Vite (normalmente `http://localhost:5173`). Cada tela tem endereço próprio
+(ex.: `http://localhost:5173/#/live`). Em desenvolvimento, o Vite encaminha `/api`
 para o backend, sem configuração de CORS. Para outro endereço de API, defina `VITE_API_BASE`.
 
 ### Agente isolado
