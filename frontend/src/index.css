@@ -20,6 +20,7 @@
   --muted: #8b8b92;
   --border: #2a2a2e;
   --divider: #34343a;
+  --field-border: #5f5f66;
   --accent: #7cffb2;
   --track: #1e1e22;
 
@@ -161,12 +162,13 @@ button:disabled {
   cursor: progress;
 }
 
+/* Bordas de campos com contraste de 3:1 sobre o fundo (WCAG 1.4.11). */
 input,
 select {
   font: inherit;
   color: var(--text);
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--field-border);
   border-radius: var(--radius);
 }
 
@@ -290,7 +292,7 @@ dd {
 }
 
 .history-controls { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
-.history-controls select { padding: .4rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); font: inherit; }
+.history-controls select { padding: .4rem; border: 1px solid var(--field-border); border-radius: var(--radius); background: var(--surface); color: var(--text); font: inherit; }
 
 .loading {
   padding: 2rem 0;
@@ -550,7 +552,7 @@ dd {
 /* Módulo D — Game Compatibility */
 .game-search { position: relative; max-width: 720px; margin-bottom: 1.5rem; }
 .game-search label { display: block; font-weight: 600; margin-bottom: .4rem; }
-.game-search input { width: 100%; box-sizing: border-box; padding: .75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); font: inherit; }
+.game-search input { width: 100%; box-sizing: border-box; padding: .75rem; border: 1px solid var(--field-border); border-radius: var(--radius); background: var(--surface); color: var(--text); font: inherit; }
 .game-results { position: absolute; z-index: 5; left: 0; right: 0; top: 100%; margin: .25rem 0 0; padding: 0; list-style: none; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 8px 24px #0002; overflow: hidden; }
 .game-result { display: flex; width: 100%; align-items: center; gap: .75rem; text-align: left; color: var(--text); background: var(--surface); border: 0; border-radius: 0; border-bottom: 1px solid var(--border); }
 .game-result:hover { background: var(--bg); }
@@ -577,7 +579,7 @@ dd {
 .installed-games > summary { cursor: pointer; font-weight: 700; }
 .installed-libraries { margin: .75rem 0; padding-left: 1.2rem; color: var(--muted); font-size: .85rem; overflow-wrap: anywhere; }
 .installed-toolbar { display: flex; align-items: center; gap: .5rem; margin-bottom: .75rem; flex-wrap: wrap; }
-.installed-toolbar input { flex: 1; min-width: 160px; padding: .5rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); font: inherit; }
+.installed-toolbar input { flex: 1; min-width: 160px; padding: .5rem; border: 1px solid var(--field-border); border-radius: var(--radius); background: var(--surface); color: var(--text); font: inherit; }
 .precheck { margin-top: 1rem; }
 .precheck-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
 .precheck-header h2 { margin-bottom: .25rem; }
@@ -1345,6 +1347,222 @@ dd {
 .iso-label { fill: var(--text); font-family: var(--font-display); font-size: 8.5px; text-transform: uppercase; }
 .iso-label-top { fill: var(--accent); }
 .iso-label-detail { fill: var(--muted); font-family: var(--font-body); font-size: 6.5px; }
+
+/* ==== Refinamento (V3.0, etapa 4) ==== */
+
+/* Gráficos: grade tracejada, eixos monoespaçados, título em caixa alta. */
+.chart {
+  margin-top: 1.25rem;
+}
+
+.chart figcaption {
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.chart figcaption strong {
+  font-weight: 600;
+}
+
+.chart figcaption .muted {
+  margin: 0;
+  font-size: inherit;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.chart-legend {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.8rem;
+}
+
+.chart-grid {
+  stroke: #34343a;
+  stroke-dasharray: 2 4;
+}
+
+.chart-axis {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.chart-empty {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.chart-line {
+  stroke-width: 1.6;
+}
+
+/* Avisos: faixa lateral fina, título forte, mesmo formato em todas as telas. */
+.banner {
+  border-left-width: 3px;
+  border-radius: var(--radius);
+  padding: 0.9rem 1.1rem;
+  font-size: 0.92rem;
+}
+
+.banner > strong:first-child {
+  display: block;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.banner button {
+  margin-top: 0.75rem;
+}
+
+.banner-error button {
+  border-color: var(--error-text);
+  color: var(--error-text);
+}
+
+.banner-error button:hover:not(:disabled) {
+  background: var(--error-text);
+  color: #000;
+}
+
+.card-state {
+  padding: 0.75rem 0;
+  color: var(--muted);
+}
+
+.card-state strong {
+  color: var(--text);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.card-state-error {
+  padding: 0.75rem;
+  border-left-width: 3px;
+}
+
+.card-state-error strong {
+  color: inherit;
+}
+
+/* Números com largura fixa onde mudam com frequência. */
+.usage-label strong,
+.summary-counts strong,
+.game-table td,
+.cores {
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-counts strong {
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.usage-track {
+  height: 6px;
+  border-radius: 0;
+}
+
+/* Tabelas e listas: destaque discreto da linha sob o cursor. */
+.game-table tbody tr,
+.data-sources tbody tr {
+  transition: background var(--ease);
+}
+
+.game-table tbody tr:hover,
+.data-sources tbody tr:hover {
+  background: var(--surface-2);
+}
+
+.game-search label {
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.game-search input {
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+}
+
+.game-results {
+  box-shadow: 0 16px 40px rgb(0 0 0 / 0.7);
+}
+
+.game-verdict {
+  border-left-width: 3px;
+}
+
+.game-verdict-label {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.history-controls label {
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.history-controls select {
+  padding: 0.6rem 0.75rem;
+}
+
+/* Âncoras da tela Início não ficam sob o cabeçalho fixo. */
+.section {
+  scroll-margin-top: 72px;
+}
+
+/* Entrada discreta das telas e seções. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.page,
+.hero-text,
+.hero-art {
+  animation: rise 420ms ease both;
+}
+
+.hero-art {
+  animation-delay: 120ms;
+}
+
+.feature,
+.tile {
+  animation: rise 420ms ease both;
+}
+
+.feature:nth-child(2), .tile:nth-child(2) { animation-delay: 60ms; }
+.feature:nth-child(3), .tile:nth-child(3) { animation-delay: 120ms; }
+.feature:nth-child(4), .tile:nth-child(4) { animation-delay: 180ms; }
+.feature:nth-child(5), .tile:nth-child(5) { animation-delay: 240ms; }
+
+.feature:hover .feature-icon {
+  transform: translateY(-2px);
+}
+
+.feature-icon {
+  display: inline-flex;
+  transition: transform var(--ease);
+}
+
+.logo:hover .logo-mark {
+  background: var(--accent);
+}
+
+.logo-mark {
+  transition: background var(--ease);
+}
 
 /* ==== Responsivo ==== */
 

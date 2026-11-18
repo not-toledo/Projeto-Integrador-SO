@@ -49,7 +49,7 @@ export function InstalledGames({ onSelect }: { onSelect: (game: GameSearchResult
   return (
     <details className="card installed-games" onToggle={(e) => { if (e.currentTarget.open && !data && !loading) void load() }}>
       <summary>Jogos instalados neste PC (Steam)</summary>
-      {loading && <p className="muted" role="status">Lendo as bibliotecas da Steam…</p>}
+      {loading && <p className="loading" role="status">Lendo as bibliotecas da Steam…</p>}
       {error && <div className="banner banner-error" role="alert">{error}</div>}
       {data && !data.steamFound && <p className="muted">{data.problems[0]}</p>}
       {data?.steamFound && (

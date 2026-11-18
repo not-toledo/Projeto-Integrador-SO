@@ -17,7 +17,7 @@ export function SiteHeader({ current }: { current: View }) {
   return (
     <header className="site-header">
       <div className="site-header-inner">
-        <a className="logo" href={hrefOf('home')} aria-label="PCCheck, início">
+        <a className="logo" href={hrefOf('home')} aria-label="PCCheck, início" onClick={() => setOpen(false)}>
           <span className="logo-mark" aria-hidden="true" />
           PCCHECK
         </a>
