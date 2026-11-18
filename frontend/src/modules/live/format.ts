@@ -6,7 +6,6 @@ import { isPercentReading, isReading } from './series-helpers'
 export { isPercentReading, isReading }
 
 export const NO_READING = 'Sem leitura'
-export const NOT_SUPPORTED = 'Não suportado'
 
 const KIB = 1024
 const MIB = KIB * 1024

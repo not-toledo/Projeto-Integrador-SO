@@ -64,6 +64,8 @@ scripts/run-backend.sh         (Linux)
 ```
 
 Os scripts compilam o leitor de sensores na primeira vez, instalam o agente no repositório Maven local e iniciam a API em `http://127.0.0.1:8080`.
+Se a porta 8080 já estiver em uso (outro backend aberto), o script para antes de recompilar o agente: trocar o agente com o backend aberto causaria erro 500 nas telas ainda não abertas. Feche o outro backend e rode de novo.
+
 Teste: `http://127.0.0.1:8080/api/ping` deve responder `{"status":"UP","app":"PCCheck","version":"1.0.0"}`.
 
 ### 3. Frontend (terminal 2)

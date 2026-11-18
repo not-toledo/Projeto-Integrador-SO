@@ -53,8 +53,22 @@ class DiskHealthDiagnosticTest {
         assertEquals("Vida útil restante 70,0% · 48,0 °C · 7.371 h ligado · 53.880 GB gravados", ssd.observedValue());
         // Honestidade: "normal" não é "sem falhas".
         assertTrue(ssd.description().contains("não garante"));
-        assertEquals("Disco: ST1000DM003-1ER162 (HDD)", alerts.get(1).component());
-        assertTrue(alerts.get(1).threshold().contains("55,0 °C (HDD)"));
+        Alert hdd = alerts.get(1);
+        assertEquals("Disco: ST1000DM003-1ER162 (HDD)", hdd.component());
+        // HDD não informa vida útil: o texto e os limites citam só a temperatura.
+        assertEquals("Temperatura: Atenção ≥ 55,0 °C (HDD)", hdd.threshold());
+        assertTrue(hdd.description().startsWith("A temperatura informada pelo disco está dentro do limite"));
+        assertTrue(ssd.threshold().startsWith("Vida útil: Atenção ≤ 20,0%"));
+    }
+
+    @Test
+    void discoSemVidaUtilNemTemperaturaNaoEAvaliado() {
+        DiskHealth soHoras = new DiskHealth("Disco Y", 1, null, null, null, 1200L, null);
+        Alert a = diagnostic.evaluate(input(disks(soHoras)), NOW).get(0);
+        assertEquals(AlertKind.UNAVAILABLE, a.kind());
+        assertEquals(Severity.INFO, a.severity());
+        assertTrue(a.description().contains("NÃO foi avaliada"));
+        assertEquals("1.200 h ligado", a.observedValue());
     }
 
     @Test

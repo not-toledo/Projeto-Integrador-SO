@@ -59,10 +59,25 @@ public class DiskHealthDiagnostic implements Diagnostic {
                 + (mediaType != null ? " (" + mediaType + ")" : "");
         boolean hdd = "HDD".equals(mediaType);
         double tempLimit = hdd ? thresholds.hddTempWarningC() : thresholds.ssdTempWarningC();
-        String limits = "Vida útil: Atenção ≤ " + Formatting.percent(thresholds.lifeWarningPercent()) + ", Crítico ≤ "
-                + Formatting.percent(thresholds.lifeCriticalPercent()) + " · Temperatura: Atenção ≥ "
-                + Formatting.celsius(tempLimit) + (hdd ? " (HDD)" : mediaType == null ? " (tipo desconhecido)" : "");
         String observed = observed(d);
+        if (d.lifePercent() == null && d.temperatureCelsius() == null) {
+            return new Alert(id, component, Severity.INFO, AlertKind.UNAVAILABLE,
+                    "Indicadores de saúde não informados",
+                    "O disco não informou vida útil nem temperatura, então a saúde dele NÃO foi avaliada; isso não "
+                            + "significa que esteja saudável nem defeituoso.",
+                    observed, null, now);
+        }
+        // Só os limites dos indicadores que o disco informou (HDDs não informam vida útil).
+        List<String> limitParts = new ArrayList<>();
+        if (d.lifePercent() != null) {
+            limitParts.add("Vida útil: Atenção ≤ " + Formatting.percent(thresholds.lifeWarningPercent()) + ", Crítico ≤ "
+                    + Formatting.percent(thresholds.lifeCriticalPercent()));
+        }
+        if (d.temperatureCelsius() != null) {
+            limitParts.add("Temperatura: Atenção ≥ " + Formatting.celsius(tempLimit)
+                    + (hdd ? " (HDD)" : mediaType == null ? " (tipo desconhecido)" : ""));
+        }
+        String limits = String.join(" · ", limitParts);
 
         if (d.lifePercent() != null && d.lifePercent() <= thresholds.lifeCriticalPercent()) {
             return new Alert(id, component, Severity.CRITICAL, AlertKind.PREVENTIVE,
@@ -81,10 +96,15 @@ public class DiskHealthDiagnostic implements Diagnostic {
                     lowLife ? "Vida útil do SSD baixa" : "Disco com temperatura elevada",
                     "Atenção: " + String.join("; ", reasons) + ".", observed, limits, now);
         }
+        String evaluated = d.lifePercent() != null && d.temperatureCelsius() != null
+                ? "A vida útil e a temperatura informadas pelo disco estão dentro dos limites."
+                : d.lifePercent() != null ? "A vida útil informada pelo disco está dentro dos limites (o disco não "
+                        + "informou temperatura)."
+                : "A temperatura informada pelo disco está dentro do limite" + (hdd ? " (HDDs não informam vida útil)." : ".");
         return new Alert(id, component, Severity.INFO, AlertKind.NORMAL,
                 "Indicadores do disco normais",
-                "A vida útil e a temperatura informadas pelo disco estão dentro dos limites. O PCCheck não lê setores "
-                        + "realocados nem erros de leitura; por isso, isto não garante que o disco esteja livre de falhas.",
+                evaluated + " O PCCheck não lê setores realocados nem erros de leitura; por isso, isto não garante que "
+                        + "o disco esteja livre de falhas.",
                 observed, limits, now);
     }
 
