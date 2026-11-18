@@ -1636,6 +1636,45 @@ dd {
   gap: 1rem 1.5rem;
 }
 
+/* Destaque no topo dos cards do Hardware e do Monitor (mesmo padrão dos alertas da Saúde). */
+.grid-flow > .card,
+.grid-live > .card {
+  border-top: 3px solid var(--ok-border);
+  background: linear-gradient(180deg, rgb(124 255 178 / 0.035), var(--surface) 40%);
+}
+
+.spot {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px dashed var(--divider);
+}
+
+.spot-value {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 1.9rem;
+  font-weight: 500;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.spot-value.spot-missing {
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  color: var(--muted);
+}
+
+.spot-caption {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.spot .gauge {
+  margin: 0.8rem 0 0;
+}
+
 /* Grade fluida: os cards de cada linha dividem a largura toda, sem espaço vazio no fim da linha. */
 .grid-flow {
   display: flex;
