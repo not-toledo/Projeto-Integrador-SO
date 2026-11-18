@@ -2,13 +2,17 @@ import { ComponentCard } from '../../components/ComponentCard'
 import { FieldList } from '../../components/FieldList'
 import { UsageBar } from '../../components/UsageBar'
 import { bytes, count, duration, frequency, NOT_AVAILABLE, NOT_REPORTED, text } from './format'
+import { DataSources } from '../sources/DataSources'
+import type { Platform } from '../sources/sourceCatalog'
 import type { Inventory, MotherboardField, VirtualMemoryInfo } from './types'
 
 type Result<K extends keyof Inventory> = Inventory[K]
+/** platform: SO deste computador, para destacar a coluna correspondente em "De onde vêm estes dados?". */
+type CardProps<K extends keyof Inventory> = { result: Result<K>; platform?: Platform | null }
 
-export function OsCard({ result }: { result: Result<'os'> }) {
+export function OsCard({ result, platform }: CardProps<'os'>) {
   return (
-    <ComponentCard title="Sistema operacional" result={result}>
+    <ComponentCard title="Sistema operacional" result={result} footer={<DataSources section="os" platform={platform} />}>
       {(os) => (
         <FieldList
           fields={[
@@ -24,9 +28,9 @@ export function OsCard({ result }: { result: Result<'os'> }) {
   )
 }
 
-export function CpuCard({ result }: { result: Result<'cpu'> }) {
+export function CpuCard({ result, platform }: CardProps<'cpu'>) {
   return (
-    <ComponentCard title="CPU" result={result}>
+    <ComponentCard title="CPU" result={result} footer={<DataSources section="cpu" platform={platform} />}>
       {(cpu) => (
         <>
           <FieldList
@@ -61,9 +65,9 @@ function commitText(vm: VirtualMemoryInfo | null | undefined): string {
   return `${bytes(vm.commitUsedBytes)} de ${bytes(vm.commitLimitBytes)}${percent}`
 }
 
-export function MemoryCard({ result }: { result: Result<'memory'> }) {
+export function MemoryCard({ result, platform }: CardProps<'memory'>) {
   return (
-    <ComponentCard title="Memória RAM" result={result}>
+    <ComponentCard title="Memória RAM" result={result} footer={<DataSources section="memory" platform={platform} />}>
       {(memory) => (
         <>
           <FieldList
@@ -82,9 +86,9 @@ export function MemoryCard({ result }: { result: Result<'memory'> }) {
   )
 }
 
-export function GpuCard({ result }: { result: Result<'gpu'> }) {
+export function GpuCard({ result, platform }: CardProps<'gpu'>) {
   return (
-    <ComponentCard title="Placa de vídeo" result={result}>
+    <ComponentCard title="Placa de vídeo" result={result} footer={<DataSources section="gpu" platform={platform} />}>
       {(gpus) => (
         <>
           {gpus.map((gpu, index) => (
@@ -110,9 +114,9 @@ export function GpuCard({ result }: { result: Result<'gpu'> }) {
   )
 }
 
-export function MotherboardCard({ result }: { result: Result<'motherboard'> }) {
+export function MotherboardCard({ result, platform }: CardProps<'motherboard'>) {
   return (
-    <ComponentCard title="Placa-mãe" result={result}>
+    <ComponentCard title="Placa-mãe" result={result} footer={<DataSources section="motherboard" platform={platform} />}>
       {(board) => {
         const field = (name: MotherboardField) =>
           board[name] == null && board.notReportedFields?.includes(name) ? NOT_REPORTED : text(board[name])
@@ -133,9 +137,9 @@ export function MotherboardCard({ result }: { result: Result<'motherboard'> }) {
   )
 }
 
-export function StorageCard({ result }: { result: Result<'storage'> }) {
+export function StorageCard({ result, platform }: CardProps<'storage'>) {
   return (
-    <ComponentCard title="Armazenamento" result={result}>
+    <ComponentCard title="Armazenamento" result={result} footer={<DataSources section="storage" platform={platform} />}>
       {(storage) => (
         <>
           <h3>Unidades físicas</h3>

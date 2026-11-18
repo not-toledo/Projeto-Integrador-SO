@@ -1,5 +1,10 @@
 # Histórico de versões
 
+## V2.5 — De onde vêm os dados
+- Cada card da visão geral e cada painel do Live Monitor ganhou "De onde vêm estes dados?": a interface do sistema operacional que fornece cada campo, no Windows e no Linux (registro, WMI, contadores de desempenho, APIs do Kernel32/Psapi/PowrProf, `/proc`, `/sys`, `lspci`, `lshw`, `lsblk`). Na visão geral, a coluna do SO deste computador é destacada. Aparece também quando a coleta falha.
+- Fontes conferidas no bytecode do OSHI 6.6.5, no agente e no leitor de sensores; campos sem suporte aparecem como tal (ex.: telemetria da GPU no Linux). Catálogo único em `frontend/src/modules/sources/sourceCatalog.ts`.
+- Testes: `sourceCatalog.test.tsx` (cobertura de todos os campos exibidos, destaque da plataforma e exibição com falha de coleta).
+
 ## V2.4 — Pressão de memória e paginação
 - Agente: `MemoryInfo` ganhou `virtualMemory` (arquivo de paginação/swap e memória comprometida em relação ao limite) e, no Live Monitor, `paging` (páginas lidas/gravadas por segundo, pela diferença entre amostras). Dados do OSHI, sem dependência nova.
 - Health Check: novo `MemoryPressureDiagnostic`. `memory:commit` avisa com memória comprometida a partir de 90% do limite no Windows (no Linux é informativo, por causa do overcommit). `memory:paging` avisa somente quando a média de páginas gravadas no último minuto passa de 1 MiB/s **e** a RAM está acima do limite de aviso — um pico isolado ou paginação sem RAM cheia não geram aviso. Limites configuráveis (`pccheck.health.memory-pressure.*`).

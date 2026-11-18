@@ -112,6 +112,7 @@ Visão resumida; diagramas completos em [diagramas.md](diagramas.md).
 |---|---|
 | Consulta de uso de CPU e memória | Uso de CPU medido pela diferença entre contadores; RAM com total, usada, disponível e percentual. |
 | Memória virtual e paginação | Arquivo de paginação/swap, memória comprometida em relação ao limite (Windows: Commit Limit; Linux: `CommitLimit`/`Committed_AS` de `/proc/meminfo`, com overcommit) e páginas lidas/gravadas em disco por segundo (Linux: `/proc/vmstat`). O Health Check só aponta pressão de memória com evidência sustentada: paginação contínua **e** RAM cheia. |
+| Interfaces do SO para leitura de hardware | Cada card e painel tem "De onde vêm estes dados?", com a fonte de cada campo no Windows (registro, WMI, contadores de desempenho, APIs como `GetPerformanceInfo`) e no Linux (`/proc`, `/sys`, comandos como `lspci` e `lsblk`). A coluna do SO em uso é destacada. Catálogo único em `frontend/src/modules/sources/sourceCatalog.ts`, conferido no código do OSHI 6.6.5; um teste garante que todo campo exibido tenha fonte. |
 | Identificação do sistema operacional | Nome, versão, build, arquitetura e tempo de atividade (OSHI lê `/proc` no Linux e os contadores de desempenho do Windows). |
 | Recursos de hardware | Núcleos físicos e lógicos, frequências, placa de vídeo e placa-mãe. Valores inválidos (como `-1`) são descartados. |
 | Armazenamento e sistema de arquivos | Unidades físicas e volumes montados, com capacidade, espaço livre e percentual de uso. |

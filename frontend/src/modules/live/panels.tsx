@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { FieldList } from '../../components/FieldList'
 import { UsageBar } from '../../components/UsageBar'
 import type { ComponentResult, PagingActivity, VirtualMemoryInfo } from '../hardware/types'
+import { DataSources } from '../sources/DataSources'
 import { LineChart } from './LineChart'
 import {
   NO_READING,
@@ -47,10 +48,12 @@ function LiveCard<T>({
   title,
   result,
   children,
+  footer,
 }: {
   title: string
   result: ComponentResult<T> | undefined
   children: (data: T) => ReactNode
+  footer?: ReactNode
 }) {
   let body: ReactNode
   if (result && result.status === 'OK' && result.data !== null) {
@@ -75,6 +78,7 @@ function LiveCard<T>({
     <section className="card" aria-label={title}>
       <h2>{title}</h2>
       {body}
+      {footer}
     </section>
   )
 }
@@ -83,7 +87,7 @@ export function CpuPanel({ samples, maxGapMs }: PanelProps) {
   const latest = samples[samples.length - 1]
   const times = sampleTimes(samples)
   return (
-    <LiveCard title="CPU" result={latest?.cpu}>
+    <LiveCard title="CPU" result={latest?.cpu} footer={<DataSources section="live-cpu" />}>
       {(data) => (
         <>
           <UsageBar label="Uso total" value={data.totalPercent} />
@@ -125,7 +129,7 @@ export function MemoryPanel({ samples, maxGapMs }: PanelProps) {
   const latest = samples[samples.length - 1]
   const times = sampleTimes(samples)
   return (
-    <LiveCard title="Memória RAM" result={latest?.memory}>
+    <LiveCard title="Memória RAM" result={latest?.memory} footer={<DataSources section="live-memory" />}>
       {(data) => (
         <>
           <UsageBar label="Uso" value={data.usedPercent} />
@@ -152,7 +156,7 @@ export function GpuPanel({ samples, maxGapMs }: PanelProps) {
   const load = samples.map(gpuUtilization)
   const vram = samples.map(gpuVramPercent)
   return (
-    <LiveCard title="GPU" result={latest?.gpu}>
+    <LiveCard title="GPU" result={latest?.gpu} footer={<DataSources section="live-gpu" />}>
       {(data) => (
         <>
           <FieldList
@@ -190,7 +194,7 @@ export function DisksPanel({ samples, maxGapMs }: PanelProps) {
   const times = sampleTimes(samples)
   const names = driveNames(samples)
   return (
-    <LiveCard title="Discos" result={latest?.disks}>
+    <LiveCard title="Discos" result={latest?.disks} footer={<DataSources section="live-disks" />}>
       {(data) => (
         <>
           <h3>Atividade das unidades</h3>
@@ -257,7 +261,7 @@ export function SensorsPanel({ samples, maxGapMs }: PanelProps) {
   const temps = samples.map(cpuTemperature)
   const gpuTemps = samples.map(gpuTemperature)
   return (
-    <LiveCard title="Sensores" result={latest?.sensors}>
+    <LiveCard title="Sensores" result={latest?.sensors} footer={<DataSources section="live-sensors" />}>
       {(data) => (
         <>
           <FieldList

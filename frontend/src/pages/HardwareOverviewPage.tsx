@@ -1,10 +1,12 @@
 import { useInventory } from '../modules/hardware/useInventory'
 import { CpuCard, GpuCard, MemoryCard, MotherboardCard, OsCard, StorageCard } from '../modules/hardware/cards'
 import { dateTime } from '../modules/hardware/format'
+import { platformOf } from '../modules/sources/sourceCatalog'
 
 /** Módulo A — Hardware Overview. */
 export function HardwareOverviewPage() {
   const { inventory, loading, error, refresh } = useInventory()
+  const platform = platformOf(inventory?.os.status === 'OK' ? inventory.os.data?.name : null)
 
   return (
     <main className="page">
@@ -40,12 +42,12 @@ export function HardwareOverviewPage() {
 
       {inventory && (
         <div className="grid">
-          <OsCard result={inventory.os} />
-          <CpuCard result={inventory.cpu} />
-          <MemoryCard result={inventory.memory} />
-          <GpuCard result={inventory.gpu} />
-          <MotherboardCard result={inventory.motherboard} />
-          <StorageCard result={inventory.storage} />
+          <OsCard result={inventory.os} platform={platform} />
+          <CpuCard result={inventory.cpu} platform={platform} />
+          <MemoryCard result={inventory.memory} platform={platform} />
+          <GpuCard result={inventory.gpu} platform={platform} />
+          <MotherboardCard result={inventory.motherboard} platform={platform} />
+          <StorageCard result={inventory.storage} platform={platform} />
         </div>
       )}
     </main>
