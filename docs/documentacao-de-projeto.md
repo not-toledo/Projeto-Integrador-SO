@@ -31,7 +31,7 @@ Um usuário comum não tem uma forma simples de saber qual hardware o computador
 | C | Live Monitor | Atualizar métricas periodicamente e exibir gráficos de desempenho. |
 
 **Fora do escopo:** análise de processos, compatibilidade com jogos, exportação de relatórios, banco de dados
-(o histórico fica só em memória), SMART de discos, testes de estresse e qualquer ação que altere o computador.
+(o histórico fica só em memória), testes de estresse e qualquer ação que altere o computador.
 
 ## Requisitos funcionais
 
@@ -47,7 +47,7 @@ Um usuário comum não tem uma forma simples de saber qual hardware o computador
 - Temperatura da CPU: comparar a leitura real com limites configuráveis (Normal, Atenção ou Crítico).
 - Espaço em disco: espaço livre e percentual por volume.
 - Uso de RAM: aviso de uso elevado, sem classificar como defeito.
-- SMART: não suportado nesta versão; o relatório informa isso explicitamente.
+- Saúde dos discos (SMART): vida útil restante, temperatura, horas ligado e dados gravados, quando o leitor de sensores roda como administrador; sem leitura, o relatório informa o motivo e que a saúde física não foi avaliada.
 - Coleta incompleta: informar dado indisponível, não falha física.
 - Cada alerta contém identificador, componente, severidade, título, descrição, valor observado, limite e horário.
 - Severidades: Informação, Atenção e Crítico.
@@ -101,7 +101,7 @@ Visão resumida; diagramas completos em [diagramas.md](diagramas.md).
   iniciar) e o driver PawnIO; sem eles ficam "Sem leitura", com o motivo. Placas-mãe com chip de monitoramento não
   suportado pela LibreHardwareMonitorLib não informam ventoinhas.
 - **Limites do Health Check:** são padrões genéricos do projeto, não limites oficiais do fabricante.
-- **SMART:** não suportado (o OSHI não o expõe).
+- **SMART:** lido pelo leitor de sensores (LibreHardwareMonitorLib), que exige administrador. São avaliadas a vida útil restante (SSDs) e a temperatura; setores realocados, setores pendentes e erros de leitura não são lidos, então "indicadores normais" não garante ausência de falhas.
 - **Atualização:** Hardware Overview e Health Check atualizam apenas pelos botões **Atualizar** e **Reavaliar**; só o Live Monitor atualiza sozinho.
 - **Validação em hardware real:** as leituras de temperatura, GPU e sensores foram validadas com testes automatizados e
   dados de exemplo. O comportamento com sensores reais depende de teste na máquina de cada usuário.
@@ -115,6 +115,7 @@ Visão resumida; diagramas completos em [diagramas.md](diagramas.md).
 | Interfaces do SO para leitura de hardware | Cada card e painel tem "De onde vêm estes dados?", com a fonte de cada campo no Windows (registro, WMI, contadores de desempenho, APIs como `GetPerformanceInfo`) e no Linux (`/proc`, `/sys`, comandos como `lspci` e `lsblk`). A coluna do SO em uso é destacada. Catálogo único em `frontend/src/modules/sources/sourceCatalog.ts`, conferido no código do OSHI 6.6.5; um teste garante que todo campo exibido tenha fonte. |
 | Identificação do sistema operacional | Nome, versão, build, arquitetura e tempo de atividade (OSHI lê `/proc` no Linux e os contadores de desempenho do Windows). |
 | Recursos de hardware | Núcleos físicos e lógicos, frequências, placa de vídeo e placa-mãe. Valores inválidos (como `-1`) são descartados. |
+| Dispositivos de bloco e SMART | Tipo de cada disco informado pelo SO (Windows: WMI `MSFT_PhysicalDisk`; Linux: `/sys/block/<disco>/queue/rotational`, ignorando removíveis) e saúde pelo SMART, que exige privilégio de administrador para o acesso direto ao dispositivo. |
 | Armazenamento e sistema de arquivos | Unidades físicas e volumes montados, com capacidade, espaço livre e percentual de uso. |
 | Concorrência | Coleta periódica em thread de segundo plano, uma coleta por vez, sem bloquear a interface. |
 | Agendamento de tarefas e processos em segundo plano | `scripts/agendar-coleta` registra a coleta no agendador do SO (`schtasks` no Windows, `cron` no Linux). Cada execução é um processo de curta duração cujo código de saída fica registrado no agendador; o backend consulta o agendador executando `schtasks`/`crontab` com tempo limite. |

@@ -3,11 +3,16 @@ package com.pccheck.agent.collector;
 import com.pccheck.agent.model.DiskInfo;
 import com.pccheck.agent.model.StorageInfo;
 import com.pccheck.agent.model.VolumeInfo;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
+import oshi.PlatformEnum;
 import oshi.SystemInfo;
 import oshi.hardware.HWDiskStore;
 import oshi.software.os.OSFileStore;
+import oshi.util.Memoizer;
 
 /**
  * Coleta unidades físicas e volumes montados (com espaço livre).
@@ -15,7 +20,13 @@ import oshi.software.os.OSFileStore;
  */
 public class DiskCollector implements Collector<StorageInfo> {
 
+    private static final Path SYS_BLOCK = Path.of("/sys/block");
+    /** Discos podem ser conectados e removidos: o mapa do WMI é reaproveitado por 60 s. */
+    private static final long MEDIA_CACHE_NANOS = 60_000_000_000L;
+
     private final SystemInfo systemInfo;
+    private final Supplier<Map<String, DiskMediaTypes.Media>> windowsMedia =
+            Memoizer.memoize(DiskMediaTypes::queryWindows, MEDIA_CACHE_NANOS);
 
     public DiskCollector(SystemInfo systemInfo) {
         this.systemInfo = systemInfo;
@@ -57,7 +68,8 @@ public class DiskCollector implements Collector<StorageInfo> {
     private List<DiskInfo> readDrives() {
         List<DiskInfo> result = new ArrayList<>();
         for (HWDiskStore disk : systemInfo.getHardware().getDiskStores()) {
-            DiskInfo info = toDisk(disk.getName(), disk.getModel(), disk.getSize());
+            DiskMediaTypes.Media media = mediaOf(disk.getName());
+            DiskInfo info = toDisk(disk.getName(), disk.getModel(), disk.getSize(), media.mediaType(), media.busType());
             if (info != null) {
                 result.add(info);
             }
@@ -78,15 +90,36 @@ public class DiskCollector implements Collector<StorageInfo> {
         return result.isEmpty() ? null : result;
     }
 
+    /** Tipo e barramento informados pelo SO; nulos quando não informados ou se a leitura falhar. */
+    private DiskMediaTypes.Media mediaOf(String name) {
+        try {
+            if (SystemInfo.getCurrentPlatform() == PlatformEnum.WINDOWS) {
+                String number = DiskMediaTypes.windowsDriveNumber(name);
+                DiskMediaTypes.Media media = number == null ? null : windowsMedia.get().get(number);
+                return media == null ? new DiskMediaTypes.Media(null, null) : media;
+            }
+            if (SystemInfo.getCurrentPlatform() == PlatformEnum.LINUX) {
+                return DiskMediaTypes.linux(name, SYS_BLOCK);
+            }
+        } catch (RuntimeException e) {
+            // O tipo é complementar: sem ele, o disco continua listado.
+        }
+        return new DiskMediaTypes.Media(null, null);
+    }
+
     /** Conversão pura (testável). */
     static DiskInfo toDisk(String name, String model, long sizeBytes) {
+        return toDisk(name, model, sizeBytes, null, null);
+    }
+
+    static DiskInfo toDisk(String name, String model, long sizeBytes, String mediaType, String busType) {
         String n = Metrics.cleanText(name);
         String m = Metrics.cleanText(model);
         Long size = Metrics.positiveOrNull(sizeBytes);
         if (n == null && m == null && size == null) {
             return null;
         }
-        return new DiskInfo(n, m, size);
+        return new DiskInfo(n, m, size, mediaType, busType);
     }
 
     /** Conversão pura (testável): volumes sem capacidade válida são ignorados. */

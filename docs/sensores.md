@@ -16,6 +16,8 @@ O backend inicia, controla e encerra esse leitor sozinho. **O usuário não inst
 | Live Monitor → Sensores | temperatura da GPU, ventoinha da GPU | não |
 | Live Monitor → Sensores | temperatura da CPU, ventoinhas da placa-mãe | **sim** (e driver PawnIO) |
 | Health Check | temperatura da CPU avaliada com a leitura real | **sim** (e driver PawnIO) |
+| Health Check | saúde dos discos (SMART): vida útil restante, temperatura, horas ligado, dados gravados | **sim** (não precisa do PawnIO) |
+| Hardware Overview | tipo do disco (SSD/HDD) e barramento | não (vem do WMI `MSFT_PhysicalDisk`, não do leitor) |
 
 ## Como funciona
 
@@ -57,6 +59,7 @@ O sistema **nunca estima** valores. Cada situação tem uma mensagem própria:
 | "...exigem permissão de administrador" | o aviso do Windows foi recusado; reinicie o backend e aceite |
 | "O driver PawnIO não está instalado" | instale o PawnIO uma vez e reinicie o backend |
 | "Iniciando o leitor de sensores" / "está carregando" | primeiros segundos após iniciar o backend |
+| "O leitor de sensores não encontrou discos com dados SMART" | o disco ou o controlador (ex.: alguns adaptadores USB e RAID) não repassa o SMART |
 | "Nenhuma placa de vídeo com sensores foi encontrada" | driver da GPU ausente ou não suportado |
 
 ## Detalhes técnicos

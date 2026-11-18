@@ -1,9 +1,12 @@
 package com.pccheck.agent.sensors;
 
 import com.pccheck.agent.collector.Metrics;
+import com.pccheck.agent.model.DiskHealth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Converte a linha JSON do leitor de sensores ({@code sensor-host/}) em {@link SensorReading}.
@@ -25,6 +28,10 @@ public final class SensorHostParser {
             "O driver PawnIO não está instalado; sem ele o Windows não permite ler a temperatura da CPU e as "
                     + "ventoinhas da placa-mãe. Instale-o uma vez (https://pawnio.eu) e reinicie o PCCheck.";
 
+    public static final String DISKS_NOT_ELEVATED =
+            "A saúde dos discos (SMART) exige permissão de administrador. Reinicie o PCCheck e confirme o aviso do "
+                    + "Windows.";
+
     private static final String[] CPU_TEMPERATURE_NAMES = {
         "CPU Package", "Core (Tctl/Tdie)", "Core (Tdie)", "Core (Tctl)", "CPU (Tctl/Tdie)", "Tdie", "Tctl",
         "Core Max", "Core Average"
@@ -33,13 +40,14 @@ public final class SensorHostParser {
     private static final String[] GPU_TEMPERATURE_NAMES = {"GPU Core", "GPU Hot Spot"};
     private static final String[] GPU_MEMORY_USED_NAMES = {"GPU Memory Used", "D3D Dedicated Memory Used"};
     private static final String[] GPU_MEMORY_TOTAL_NAMES = {"GPU Memory Total", "D3D Dedicated Memory Total"};
+    private static final Pattern STORAGE_ID = Pattern.compile("^/[a-z]+/(\\d+)$");
     private static final long MIB = 1024L * 1024;
     private static final long GIB = MIB * 1024;
 
     private SensorHostParser() {
     }
 
-    private record Sensor(String type, String name, double value) {
+    record Sensor(String type, String name, double value) {
     }
 
     /** @throws IllegalArgumentException se o texto não for um JSON válido do leitor de sensores */
@@ -52,6 +60,7 @@ public final class SensorHostParser {
         boolean cpuSeen = false;
         List<GpuReading> gpus = new ArrayList<>();
         List<Integer> fans = new ArrayList<>();
+        List<DiskHealth> disks = new ArrayList<>();
 
         for (Object item : hardware) {
             if (!(item instanceof Map<?, ?> hw)) {
@@ -70,9 +79,14 @@ public final class SensorHostParser {
                 cpuTemperature = pickCpuTemperature(sensors);
             } else if (type != null && type.startsWith("Gpu")) {
                 gpus.add(toGpu(text(hw.get("name")), sensors));
+            } else if ("Storage".equals(type)) {
+                DiskHealth disk = toDisk(text(hw.get("id")), text(hw.get("name")), sensors);
+                if (disk != null) {
+                    disks.add(disk);
+                }
             }
         }
-        return new SensorReading(cpuTemperature, gpus, fans, limitation(map));
+        return new SensorReading(cpuTemperature, gpus, fans, limitation(map), disks, diskLimitation(map));
     }
 
     /** Explica o que falta para ler os sensores que dependem do driver (CPU e placa-mãe). */
@@ -88,6 +102,15 @@ public final class SensorHostParser {
             return NO_DRIVER;
         }
         return null;
+    }
+
+    /** O SMART dos discos depende só da elevação (não do driver PawnIO). */
+    private static String diskLimitation(Map<?, ?> root) {
+        String error = text(root.get("error"));
+        if (error != null) {
+            return "O leitor de sensores não conseguiu acessar o hardware: " + error;
+        }
+        return Boolean.TRUE.equals(root.get("elevated")) ? null : DISKS_NOT_ELEVATED;
     }
 
     private static List<Sensor> sensors(Object raw) {
@@ -137,6 +160,55 @@ public final class SensorHostParser {
         }
         return new GpuReading(Metrics.cleanText(name), load, temperature,
                 memoryBytes(sensors, GPU_MEMORY_USED_NAMES), memoryBytes(sensors, GPU_MEMORY_TOTAL_NAMES));
+    }
+
+    /**
+     * Disco (hardware "Storage"): sensores "Temperature", "Life" (vida útil restante, %), "Data Written" (GB),
+     * "Power On Hours" e "Power On Count". Espaço, atividade e taxas já vêm do inventário/Live Monitor e são
+     * ignorados aqui. Null se nenhum indicador de saúde foi lido.
+     */
+    static DiskHealth toDisk(String id, String name, List<Sensor> sensors) {
+        Double temperature = find(sensors, "Temperature", "Temperature");
+        if (temperature == null) {
+            temperature = firstValid(sensors, "Temperature");
+        }
+        if (temperature != null && Metrics.validTemperature(temperature) == null) {
+            temperature = null;
+        }
+        Double life = find(sensors, "Level", "Life");
+        if (life != null && (life < 0 || life > 100)) {
+            life = null;
+        }
+        Double written = find(sensors, "Data", "Data Written");
+        if (written != null && written < 0) {
+            written = null;
+        }
+        Long hours = count(find(sensors, "Factor", "Power On Hours"));
+        Long powerOns = count(find(sensors, "Factor", "Power On Count"));
+        if (temperature == null && life == null && written == null && hours == null && powerOns == null) {
+            return null;
+        }
+        return new DiskHealth(Metrics.cleanText(name), physicalIndex(id), temperature, life, written, hours, powerOns);
+    }
+
+    /** "/ssd/0", "/hdd/1", "/nvme/2" → número do disco físico; null se o formato for outro. */
+    static Integer physicalIndex(String id) {
+        if (id == null) return null;
+        Matcher m = STORAGE_ID.matcher(id);
+        return m.matches() ? Integer.valueOf(m.group(1)) : null;
+    }
+
+    private static Long count(Double value) {
+        return value == null || value < 0 ? null : Math.round(value);
+    }
+
+    private static Double firstValid(List<Sensor> sensors, String type) {
+        for (Sensor s : sensors) {
+            if (s.type().equals(type)) {
+                return s.value();
+            }
+        }
+        return null;
     }
 
     private static Double firstOf(List<Sensor> sensors, String type, String[] names) {

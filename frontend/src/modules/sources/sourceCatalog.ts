@@ -113,6 +113,11 @@ export const DATA_SOURCES: Record<SourceSection, DataSource[]> = {
     { field: 'Nome', windows: 'WMI Win32_DiskDrive (\\\\.\\PHYSICALDRIVEn)', linux: 'udev (/sys/block, /dev/sdX, /dev/nvmeXnY)' },
     { field: 'Modelo', windows: 'WMI Win32_DiskDrive: Model', linux: 'udev (atributos do dispositivo)' },
     { field: 'Capacidade', windows: 'WMI Win32_DiskDrive (disco); GetDiskFreeSpaceEx (volume)', linux: 'udev (disco); statvfs (volume)' },
+    {
+      field: 'Tipo',
+      windows: 'WMI MSFT_PhysicalDisk (ROOT\\Microsoft\\Windows\\Storage): MediaType e BusType (lido pelo agente)',
+      linux: '/sys/block/<disco>/queue/rotational e /sys/block/<disco>/removable (lido pelo agente)',
+    },
     { field: 'Ponto de montagem', windows: 'APIs FindFirstVolume e GetVolumePathNamesForVolumeName (Kernel32)', linux: '/proc/mounts' },
     { field: 'Rótulo', windows: 'API GetVolumeInformation (Kernel32)', linux: 'Comando lsblk -o mountpoint,label' },
     { field: 'Sistema de arquivos', windows: 'API GetVolumeInformation (Kernel32)', linux: '/proc/mounts' },

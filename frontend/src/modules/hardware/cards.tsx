@@ -137,6 +137,12 @@ export function MotherboardCard({ result, platform }: CardProps<'motherboard'>) 
   )
 }
 
+/** "SSD (SATA)", "HDD", "USB" ou "Não disponível": somente o que o SO informou. */
+function diskType(media: string | null | undefined, bus: string | null | undefined): string {
+  if (media && bus) return `${media} (${bus})`
+  return media ?? bus ?? NOT_AVAILABLE
+}
+
 export function StorageCard({ result, platform }: CardProps<'storage'>) {
   return (
     <ComponentCard title="Armazenamento" result={result} footer={<DataSources section="storage" platform={platform} />}>
@@ -153,6 +159,7 @@ export function StorageCard({ result, platform }: CardProps<'storage'>) {
                     ['Nome', text(drive.name)],
                     ['Modelo', text(drive.model)],
                     ['Capacidade', bytes(drive.sizeBytes)],
+                    ['Tipo', diskType(drive.mediaType, drive.busType)],
                   ]}
                 />
               </div>

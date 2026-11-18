@@ -58,7 +58,7 @@ Os requisitos funcionais descrevem as funcionalidades e operações que o sistem
 | RF17 | O sistema deve gerar alertas quando identificar situações que ultrapassem os limites configurados. |
 | RF18 | O sistema deve apresentar os alertas com identificador, componente, severidade, título, descrição, valor observado, limite e horário. |
 | RF19 | O sistema deve classificar os alertas nas severidades Informação, Atenção e Crítico. |
-| RF20 | O sistema deve informar explicitamente que a análise SMART dos dispositivos de armazenamento não é suportada nesta versão. |
+| RF20 | O sistema deve apresentar a saúde dos discos (SMART: vida útil restante, temperatura, horas ligado e dados gravados) quando disponível, e informar explicitamente quando não puder lê-la e por quê. |
 | RF21 | O sistema deve informar quando uma coleta estiver incompleta ou quando determinado dado estiver indisponível. |
 | RF22 | O sistema deve disponibilizar a funcionalidade de reavaliação do estado dos componentes por meio de uma ação do usuário. |
 | RF23 | O sistema deve informar quando houver utilização elevada de memória RAM, sem classificar automaticamente essa condição como defeito físico. |
@@ -162,7 +162,7 @@ As regras de negócio estabelecem critérios que devem ser respeitados durante o
 | RN05 | Os limites de temperatura e demais indicadores do Health Check devem seguir as configurações definidas no projeto. |
 | RN06 | Os limites utilizados no diagnóstico são genéricos e não representam necessariamente os limites oficiais estabelecidos pelos fabricantes. |
 | RN07 | O uso elevado de memória RAM deve ser tratado como uma condição de atenção, não como comprovação de defeito físico. |
-| RN08 | A funcionalidade SMART não deve apresentar resultados, pois não é suportada nesta versão. |
+| RN08 | A análise SMART considera apenas os indicadores informados pelo disco (vida útil e temperatura); "indicadores normais" não deve ser apresentado como garantia de ausência de falhas. |
 | RN09 | O histórico de monitoramento deve permanecer temporariamente em memória, sem persistência em banco de dados. |
 | RN10 | A coleta de GPU, temperaturas e ventoinhas pode depender da execução do LibreHardwareMonitor com permissões adequadas. |
 | RN11 | O Hardware Overview e o Health Check devem ser atualizados mediante solicitação do usuário. |
@@ -176,7 +176,6 @@ As funcionalidades abaixo não fazem parte da versão 1.0.0:
 - Compatibilidade automática com jogos.
 - Exportação de relatórios.
 - Persistência de histórico em banco de dados.
-- Consulta de informações SMART dos discos.
 - Testes de estresse de CPU, GPU ou memória.
 - Alteração automática de configurações do computador.
 - Controle remoto do hardware.

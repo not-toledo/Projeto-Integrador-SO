@@ -114,6 +114,8 @@ public final class SnapshotPrinter {
             line(sb, "    Nome", d.name());
             line(sb, "    Modelo", d.model());
             line(sb, "    Capacidade", gib(d.sizeBytes()));
+            line(sb, "    Tipo", d.mediaType());
+            line(sb, "    Barramento", d.busType());
         }
     }
 

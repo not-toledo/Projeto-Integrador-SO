@@ -84,6 +84,30 @@ describe('HardwareOverviewPage', () => {
     expect(card.getByText('15,00 GiB de 10,00 GiB (150,0%)')).toBeTruthy()
   })
 
+  it('armazenamento mostra o tipo do disco só quando o SO informa', async () => {
+    fetchMock.mockResolvedValue(
+      makeInventory({
+        storage: {
+          status: 'OK',
+          message: null,
+          data: {
+            drives: [
+              { name: '\\\\.\\PHYSICALDRIVE0', model: 'SSD-REDRAGON-SPARK-480', sizeBytes: 480e9, mediaType: 'SSD', busType: 'SATA' },
+              { name: '\\\\.\\PHYSICALDRIVE2', model: 'SanDisk Cruzer Blade', sizeBytes: 16e9, mediaType: null, busType: 'USB' },
+              { name: '/dev/sdc', model: 'Disco antigo', sizeBytes: 1e9 },
+            ],
+            volumes: [],
+          },
+        },
+      }),
+    )
+    render(<HardwareOverviewPage />)
+
+    const card = within(await screen.findByRole('region', { name: 'Armazenamento' }))
+    const tipos = card.getAllByText('Tipo').filter((el) => el.tagName === 'DT').map((dt) => dt.nextElementSibling?.textContent)
+    expect(tipos).toEqual(['SSD (SATA)', 'USB', 'Não disponível'])
+  })
+
   it('memória sem memória virtual informada mostra "Não disponível"', async () => {
     fetchMock.mockResolvedValue(makeInventory())
     render(<HardwareOverviewPage />)

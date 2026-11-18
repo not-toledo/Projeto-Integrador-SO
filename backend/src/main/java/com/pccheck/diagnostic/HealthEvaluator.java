@@ -15,16 +15,17 @@ public class HealthEvaluator {
     private final List<Diagnostic> diagnostics;
 
     public HealthEvaluator(HealthThresholds thresholds) {
-        this(thresholds, MemoryPressureThresholds.defaults());
+        this(thresholds, MemoryPressureThresholds.defaults(), DiskHealthThresholds.defaults());
     }
 
-    public HealthEvaluator(HealthThresholds thresholds, MemoryPressureThresholds memoryPressure) {
+    public HealthEvaluator(HealthThresholds thresholds, MemoryPressureThresholds memoryPressure,
+                           DiskHealthThresholds diskHealth) {
         this(thresholds, List.of(
                 new TemperatureDiagnostic(thresholds),
                 new DiskSpaceDiagnostic(thresholds),
                 new MemoryDiagnostic(thresholds),
                 new MemoryPressureDiagnostic(thresholds, memoryPressure),
-                new SmartDiagnostic(),
+                new DiskHealthDiagnostic(diskHealth),
                 new CollectionDiagnostic()));
     }
 

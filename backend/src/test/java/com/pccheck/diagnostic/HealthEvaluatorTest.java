@@ -23,7 +23,7 @@ class HealthEvaluatorTest {
         assertEquals(Severity.INFO, r.overall());
         assertEquals(0, r.warningCount());
         assertEquals(0, r.criticalCount());
-        assertTrue(r.infoCount() >= 4); // temperatura, disco, RAM e SMART
+        assertTrue(r.infoCount() >= 4); // temperatura, disco, RAM e saúde dos discos (sem leitura)
         assertEquals(NOW, r.collectedAt());
     }
 
@@ -49,7 +49,7 @@ class HealthEvaluatorTest {
     }
 
     @Test
-    void smartSempreInformaQueNaoEhSuportado() {
+    void semLeituraDosDiscosOSmartInformaQueNaoFoiAvaliado() {
         HealthReport r = evaluator.evaluate(TestData.input(TestData.memory(40), TestData.storage(),
                 TestData.temperature(45)), NOW);
         Alert smart = r.alerts().stream().filter(a -> a.id().equals("smart")).findFirst().orElseThrow();

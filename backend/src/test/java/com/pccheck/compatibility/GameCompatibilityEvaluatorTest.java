@@ -213,4 +213,41 @@ class GameCompatibilityEvaluatorTest {
         var result = evaluator.evaluate(game(ram, cpu), pc(16L * GIB, 20L * GIB, "AMD Ryzen 7 5800X", null, null));
         assertEquals("Nenhum item abaixo dos mínimos; revisar manualmente: CPU", result.overallMinimum());
     }
+
+    /** PC com os discos informados (nome, tipo, barramento). */
+    private InventoryDto pcWithDrives(com.pccheck.agent.model.DiskInfo... drives) {
+        InventoryDto base = pc(16L * GIB, 100L * GIB);
+        return new InventoryDto(base.collectedAt(), base.source(), base.os(), base.cpu(), base.memory(), base.gpu(),
+                base.motherboard(), new ComponentDto<>("OK", null, new StorageInfo(List.of(drives), List.of())));
+    }
+
+    private static com.pccheck.agent.model.DiskInfo drive(int n, String model, String media, String bus) {
+        return new com.pccheck.agent.model.DiskInfo("\\\\.\\PHYSICALDRIVE" + n, model, 500L * GIB, media, bus);
+    }
+
+    private static final RequirementFieldDto SSD = field("SSD", "Outras observações: SSD required.", null, "SSD");
+
+    @Test
+    void ssdExigidoAtendidoQuandoHaUmSsd() {
+        var r = first(game(SSD), pcWithDrives(drive(0, "SSD-REDRAGON-SPARK-480", "SSD", "SATA"),
+                drive(1, "ST1000DM003", "HDD", "SATA")));
+        assertEquals("COMPATIBLE", r.status());
+        assertEquals("SSD: SSD-REDRAGON-SPARK-480", r.detected());
+    }
+
+    @Test
+    void ssdExigidoAbaixoQuandoTodosOsDiscosInternosSaoHdd() {
+        // O pen drive USB (tipo desconhecido) não impede a conclusão nem conta como SSD.
+        var r = first(game(SSD), pcWithDrives(drive(0, "ST1000DM003", "HDD", "SATA"),
+                drive(2, "SanDisk Cruzer Blade", null, "USB")));
+        assertEquals("BELOW_MINIMUM", r.status());
+        assertEquals("NOT_RECOMMENDED", evaluator.evaluate(game(SSD), pcWithDrives(drive(0, "HD", "HDD", "SATA")))
+                .verdict().code());
+    }
+
+    @Test
+    void ssdExigidoSemTipoDeDiscoInternoFicaSemConfirmacao() {
+        assertEquals("UNKNOWN", first(game(SSD), pcWithDrives(drive(0, "HD", "HDD", "SATA"), drive(1, "X", null, "SATA"))).status());
+        assertEquals("UNKNOWN", first(game(SSD), pcWithDrives()).status());
+    }
 }

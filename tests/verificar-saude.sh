@@ -23,11 +23,11 @@ check "severidade geral" '"overall"'
 check "origem dos limites" '"thresholdsSource"'
 check "alerta de temperatura" '"id":"temperature:cpu"'
 check "alerta de memoria" '"id":"memory:usage"'
-check "alerta de SMART" '"id":"smart"'
+check "alerta de saude dos discos (SMART)" '"id":"smart'
 check "alerta de disco (ou indisponibilidade)" '"id":"disk-space'
 
 echo "Resumo: $(grep -o '"overall":"[A-Z]*"' <<<"$BODY")"
-echo "Obs.: temperatura e SMART podem constar como indisponiveis; isso e esperado em muitos computadores."
+echo "Obs.: temperatura e SMART podem constar como indisponiveis (exigem administrador); isso e esperado em muitos computadores."
 
 if [ "$FAIL" -eq 0 ]; then echo "RESULTADO: verificacao concluida com sucesso."; else echo "RESULTADO: verificacao FALHOU."; fi
 exit $FAIL

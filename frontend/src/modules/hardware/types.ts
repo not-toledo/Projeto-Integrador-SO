@@ -79,6 +79,10 @@ export interface DiskInfo {
   name: string | null
   model: string | null
   sizeBytes: number | null
+  /** "SSD" ou "HDD", somente quando o SO informa. */
+  mediaType?: string | null
+  /** Barramento informado pelo SO (ex.: "SATA", "NVMe", "USB"). */
+  busType?: string | null
 }
 
 export interface VolumeInfo {
