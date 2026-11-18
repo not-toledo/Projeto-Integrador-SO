@@ -1,5 +1,13 @@
 # Histórico de versões
 
+## V2.9 — Comparação de CPU e GPU por benchmark
+- Tabela `benchmarks/blender-opendata.csv` (Blender Open Data, CC0; 6.394 linhas, snapshot de 2026-11-18): mediana, quartis, execuções e núcleos por modelo, backend e versão do Blender. Gerada por `BlenderDatasetBuilder` (reaproveita as regras de `HardwareModels`) via `scripts/atualizar-benchmarks.sh/.bat`, que param se o backend estiver aberto.
+- `BenchmarkCatalog` + `GameCompatibilityEvaluator`: CPU/GPU de modelos diferentes passam a ser comparadas pela alternativa do mesmo fabricante, na mesma versão e backend, com confiança alta/média e margens próprias; resultado com o campo `benchmark` e a fonte na interface. Sem dado comparável, continua revisão manual.
+- Proteções conferidas com dados reais: GPUs só dentro da mesma geração (no Blender a RTX 2060 tem ≈ 5× a GTX 1050 Ti; em jogos, ≈ 2,5×); GTX × RTX fora do OptiX (núcleos de ray tracing); CPU por núcleo físico (por thread, o i7-4790K saía "mais fraco por núcleo" que o i5-6600 por causa do Hyper-Threading); AMD em CUDA (ZLUDA) e notebooks descartados.
+- Validado nesta máquina (i7-4790K, GTX 1050 Ti): GTX 1050 Ti × GTX 1060 = 59% (abaixo), × GTX 970 = 83% (abaixo), × GTX 950 = 182% (atende); i7-4790K × i5-6600 = 162% (atende), × i7-7700K = 87% (revisão).
+- `HardwareModels` e o construtor do catálogo com CSV passaram a ser públicos.
+- Testes: `BenchmarkTest` (gerador e catálogo) e `BenchmarkComparisonTest` (decisões), teste da fonte na tela de jogos.
+
 ## V2.8 — Jogos instalados e pré-checagem antes de jogar
 - Agente: `DiskInfo.mountPoints` liga cada volume ao disco físico (OSHI: WMI `Win32_DiskDriveToDiskPartition`/`Win32_LogicalDiskToPartition`; Linux: udev e `/proc/mounts`). Card de armazenamento mostra "Volumes neste disco".
 - `GET /api/games/installed`: jogos da Steam lidos de `libraryfolders.vdf` e `appmanifest_*.acf` (leitor VDF próprio, sem dependência nova), com volume, espaço livre e tipo SSD/HDD de cada biblioteca e estado da instalação. Pasta da Steam pelo registro, pastas padrão ou `PCCHECK_STEAM_DIR`. O ID da conta Steam não é lido.

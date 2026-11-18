@@ -15,7 +15,7 @@ O PCCheck coleta dados **reais** do próprio computador. Dados indisponíveis ap
 | A | Hardware Overview | Identifica sistema operacional, CPU, memória, GPU, placa-mãe e armazenamento. |
 | B | Health Check | Avalia temperatura, espaço em disco e uso de RAM, com alertas explicáveis. |
 | C | Live Monitor | Mostra CPU, RAM, GPU, sensores e discos em tempo real, com gráficos. |
-| D | Game Compatibility | Pesquisa jogos na Steam e compara requisitos publicados com o hardware local. Ver [plano](docs/plano-modulo-d.md) e [API](docs/api/api-games.md). |
+| D | Game Compatibility | Pesquisa jogos na Steam e compara requisitos publicados com o hardware local (CPU/GPU de modelos diferentes pelo benchmark do [Blender Open Data](https://opendata.blender.org), CC0), lista os jogos instalados e faz a pré-checagem antes de jogar. Ver [plano](docs/plano-modulo-d.md) e [API](docs/api/api-games.md). |
 
 ## Documentação
 

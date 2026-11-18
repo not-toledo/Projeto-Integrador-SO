@@ -10,6 +10,22 @@ export interface ComponentCompatibility {
   detected: string
   status: 'COMPATIBLE' | 'BELOW_MINIMUM' | 'UNKNOWN' | 'MANUAL_REVIEW'
   explanation: string
+  /** Comparação pelo benchmark do Blender, quando CPU/GPU são modelos diferentes. */
+  benchmark?: BenchmarkComparison | null
+}
+/** Pontuações do Blender Open Data (mesma versão e mesmo backend dos dois lados). */
+export interface BenchmarkComparison {
+  localModel: string
+  requiredModel: string
+  localScore: number
+  requiredScore: number
+  localSamples: number
+  requiredSamples: number
+  backend: string
+  blenderVersion: string
+  ratio: number
+  confidence: 'HIGH' | 'MEDIUM'
+  source: string
 }
 export interface GameCompatibility {
   appId: number

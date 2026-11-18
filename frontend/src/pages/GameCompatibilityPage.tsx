@@ -157,7 +157,7 @@ function CompatibilityTable({ rows }: { rows: ComponentCompatibility[] }) {
     <thead><tr><th>Componente</th><th>Requisito Steam</th><th>Detectado</th><th>Resultado</th></tr></thead>
     <tbody>{rows.map((row, i) => <tr key={`${row.component}-${i}`}>
       <td>{row.component}</td><td>{row.requirement}</td><td>{row.detected}</td>
-      <td><span className={`game-status ${statusClass(row.status)}`}>{statusLabel(row.status)}</span><small className="game-explanation">{row.explanation}</small></td>
+      <td><span className={`game-status ${statusClass(row.status)}`}>{statusLabel(row.status)}</span><small className="game-explanation">{row.explanation}</small>{row.benchmark && <small className="game-explanation">Comparado por benchmark ({row.benchmark.confidence === 'HIGH' ? 'confiança alta' : 'confiança média'}) · Fonte: {row.benchmark.source}</small>}</td>
     </tr>)}</tbody>
   </table></div>
 }

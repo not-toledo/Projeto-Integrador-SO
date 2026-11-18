@@ -62,6 +62,7 @@ temperatura da CPU e ventoinhas (detalhes em [sensores.md](sensores.md)). Compil
 | `tests/verificar-jogos.sh [appId]` | `/api/games/installed` (sem expor o ID da conta Steam) e os itens de `/api/games/{appId}/precheck` | Backend em execução |
 | `cd frontend && npm test` | Formatação, serviços, estados da interface, navegação | Node.js 22.22.2+ |
 | `npm run build` | Verificação de tipos e build de produção | Node.js 22.22.2+ |
+| `scripts/atualizar-benchmarks.sh` / `.bat [zip]` | Regenera a tabela do Blender Open Data (baixa ~100 MB; para se o backend estiver aberto). Revise o diff do CSV e rode os testes do backend antes do commit | JDK 21, Maven e curl |
 | `scripts/testes-documentacao.sh` | Documentos obrigatórios, links internos e marcadores pendentes | Bash |
 
 Os testes automatizados usam **dados fictícios** e não substituem a conferência em hardware real. Para isso, compare
