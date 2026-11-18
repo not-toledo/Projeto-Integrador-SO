@@ -5,6 +5,8 @@ import com.pccheck.dto.GameCompatibilityDto;
 import com.pccheck.dto.GameRequirementsDto;
 import com.pccheck.dto.GameSearchResultDto;
 import com.pccheck.dto.InstalledGamesDto;
+import com.pccheck.precheck.PrecheckDto;
+import com.pccheck.precheck.PrecheckService;
 import com.pccheck.service.InventoryService;
 import com.pccheck.steam.SteamGameSearchService;
 import com.pccheck.steam.SteamRequirementsService;
@@ -24,14 +26,17 @@ public class GameCompatibilityController {
     private final InventoryService inventory;
     private final GameCompatibilityEvaluator evaluator;
     private final InstalledGamesService installed;
+    private final PrecheckService precheck;
 
     public GameCompatibilityController(SteamGameSearchService search, SteamRequirementsService requirements,
-            InventoryService inventory, GameCompatibilityEvaluator evaluator, InstalledGamesService installed) {
+            InventoryService inventory, GameCompatibilityEvaluator evaluator, InstalledGamesService installed,
+            PrecheckService precheck) {
         this.search = search;
         this.requirements = requirements;
         this.inventory = inventory;
         this.evaluator = evaluator;
         this.installed = installed;
+        this.precheck = precheck;
     }
 
     @GetMapping("/search")
@@ -56,5 +61,14 @@ public class GameCompatibilityController {
             @RequestParam(defaultValue = "false") boolean refresh) {
         GameRequirementsDto game = requirements.get(appId, refresh);
         return evaluator.evaluate(game, inventory.collect());
+    }
+
+    /** Pré-checagem antes de jogar: estado do PC agora (memória, CPU, processos, disco do jogo, energia). */
+    @GetMapping("/{appId}/precheck")
+    public PrecheckDto precheck(@PathVariable long appId) {
+        if (appId <= 0) {
+            throw new IllegalArgumentException("AppID deve ser positivo.");
+        }
+        return precheck.check(appId);
     }
 }

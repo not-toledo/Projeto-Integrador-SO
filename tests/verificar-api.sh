@@ -22,6 +22,7 @@ check "origem dos dados" '"source"'
 for comp in os cpu memory gpu motherboard storage; do
   check "componente $comp" "\"$comp\":{\"status\":"
 done
+check "volumes de cada disco" '"mountPoints"'
 
 if grep -qF '"status":"ERROR"' <<<"$BODY"; then echo "AVISO: ha componente com status ERROR (veja acima)."; fi
 

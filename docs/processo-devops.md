@@ -59,6 +59,7 @@ temperatura da CPU e ventoinhas (detalhes em [sensores.md](sensores.md)). Compil
 | `tests/verificar-api.sh` | Cada componente do inventário tem estado próprio | Backend em execução |
 | `tests/verificar-saude.sh` | Estrutura de `/api/health-check` | Backend em execução |
 | `tests/verificar-live.sh` | Estrutura de `/api/live` após algumas coletas | Backend em execução |
+| `tests/verificar-jogos.sh [appId]` | `/api/games/installed` (sem expor o ID da conta Steam) e os itens de `/api/games/{appId}/precheck` | Backend em execução |
 | `cd frontend && npm test` | Formatação, serviços, estados da interface, navegação | Node.js 22.22.2+ |
 | `npm run build` | Verificação de tipos e build de produção | Node.js 22.22.2+ |
 | `scripts/testes-documentacao.sh` | Documentos obrigatórios, links internos e marcadores pendentes | Bash |

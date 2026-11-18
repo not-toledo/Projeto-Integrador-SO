@@ -68,3 +68,32 @@ export interface InstalledGames {
   problems: string[]
   scannedAt: string
 }
+
+/** Uma verificação da pré-checagem; UNAVAILABLE = não verificado (nunca tratado como ok). */
+export interface PrecheckItem {
+  id: string
+  label: string
+  status: 'OK' | 'ATTENTION' | 'INFO' | 'UNAVAILABLE'
+  observed: string | null
+  detail: string
+}
+
+/** Processos com o mesmo nome somados; cpuPercent é % do total da CPU. */
+export interface ProcessGroup {
+  name: string
+  processCount: number
+  cpuPercent: number
+  memoryBytes: number
+}
+
+export interface Precheck {
+  appId: number
+  gameName: string
+  overall: 'READY' | 'ATTENTION'
+  overallLabel: string
+  items: PrecheckItem[]
+  topCpu: ProcessGroup[]
+  topMemory: ProcessGroup[]
+  processError: string | null
+  checkedAt: string
+}

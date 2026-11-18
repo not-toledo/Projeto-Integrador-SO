@@ -1,5 +1,14 @@
 # Histórico de versões
 
+## V2.8 — Jogos instalados e pré-checagem antes de jogar
+- Agente: `DiskInfo.mountPoints` liga cada volume ao disco físico (OSHI: WMI `Win32_DiskDriveToDiskPartition`/`Win32_LogicalDiskToPartition`; Linux: udev e `/proc/mounts`). Card de armazenamento mostra "Volumes neste disco".
+- `GET /api/games/installed`: jogos da Steam lidos de `libraryfolders.vdf` e `appmanifest_*.acf` (leitor VDF próprio, sem dependência nova), com volume, espaço livre e tipo SSD/HDD de cada biblioteca e estado da instalação. Pasta da Steam pelo registro, pastas padrão ou `PCCHECK_STEAM_DIR`. O ID da conta Steam não é lido.
+- `GET /api/games/{appId}/precheck`: memória disponível agora × RAM mínima, uso de CPU e aplicativos que mais usam CPU e memória, atualização pendente, espaço no disco do jogo, jogo que pede SSD instalado num HDD, plano de energia e bateria.
+- Interface: bloco "Jogos instalados neste PC (Steam)" com "Verificar compatibilidade" e painel "Pré-checagem antes de jogar" na comparação.
+- `CommandRunner` (execução de comandos fixos com tempo limite) extraído do `SchedulerStatus` e reaproveitado pelo `powercfg`. `Formatting` passou a ser público.
+- Validado nesta máquina: 2 bibliotecas (C: SSD e D: HDD), 15 itens com tamanhos iguais aos da Steam; bateria fictícia do desktop ("System Battery", sem descarga) corretamente ignorada.
+- Testes: `InstalledGamesScannerTest`, `PrecheckTest` (backend), `InstalledGames.test.tsx`, `PrecheckPanel.test.tsx` e volumes no teste do card de armazenamento; novo `tests/verificar-jogos.sh` e `mountPoints` em `tests/verificar-api.sh`.
+
 ## V2.7.1 — Correções
 - `run-backend.bat`/`.sh`: param com mensagem clara se a porta 8080 já estiver em uso, **antes** de reinstalar o agente. Antes, rodar o script com outro backend aberto trocava o jar do agente embaixo do backend em execução (erro 500 no Histórico: `NoClassDefFoundError`) e o novo backend falhava por porta em uso.
 - Saúde dos discos: texto e limites citam só os indicadores que o disco informou (o alerta do HDD dizia "a vida útil e a temperatura" e mostrava limite de vida útil); disco sem vida útil nem temperatura passa a "não avaliado" em vez de "normal".

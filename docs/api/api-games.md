@@ -72,6 +72,24 @@ Campos: `reasons` (motivos em texto), `belowMinimum` e `belowRecommended` (compo
 `warnings` traz só limitações que afetaram o jogo consultado (por exemplo, CPU/GPU em revisão manual). O aviso de que a
 avaliação não garante FPS fica no rodapé fixo da interface.
 
+## Pré-checagem antes de jogar
+
+`GET /{appId}/precheck`
+
+Avalia o estado do PC **agora** para o jogo (a compatibilidade compara o hardware instalado). Leva cerca de 1 s (duas leituras de processos). Cada verificação tem `status` próprio: `OK`, `ATTENTION`, `INFO` (só informa) ou `UNAVAILABLE` (não verificado, nunca tratado como ok). `overall` é `ATTENTION` se alguma verificação for `ATTENTION`; senão `READY`.
+
+| `id` | Fonte | Regra (heurísticas do projeto) |
+|---|---|---|
+| `ram` | Memória disponível (OSHI) e RAM mínima publicada | `OK` se disponível ≥ mínimo; `INFO` entre 50% e 100% do mínimo; `ATTENTION` abaixo de 50%. Sem requisito interpretável ou sem Steam: `INFO`, sem comparar. |
+| `cpu` | Uso total da CPU entre duas leituras (~1 s) | `ATTENTION` a partir de 50%, citando os 3 aplicativos que mais usam CPU. |
+| `install` | Manifesto da Steam (`StateFlags`) | `ATTENTION` com atualização pendente ou instalação incompleta; `INFO` se o jogo não está instalado. |
+| `game-disk-space` | Volume da biblioteca do jogo | `ATTENTION` com espaço livre abaixo do limite do Health Check (`pccheck.health.disk-free-warning-percent`). |
+| `game-ssd` | Requisito "SSD" e tipo do disco do jogo | Só quando os requisitos pedem SSD: `ATTENTION` se o jogo está num HDD; `UNAVAILABLE` se o SO não informa o tipo. |
+| `power` | Windows: `powercfg /getactivescheme` (GUID dos planos padrão); Linux: `/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor` | `ATTENTION` no plano Economia de energia; Equilibrado e Alto desempenho `OK`; planos personalizados e o governador do Linux só `INFO`. |
+| `battery` | Fontes de energia (OSHI) | `ATTENTION` só se uma bateria informa que está descarregando (desktops podem informar uma bateria fictícia, que não conta). |
+
+`topCpu` e `topMemory`: até 5 aplicativos (processos com o mesmo nome somados), sem o processo ocioso e sem o próprio PCCheck. CPU em % do total (carga do OSHI dividida pelos processadores lógicos); memória é a soma do conjunto de trabalho (RSS), em que páginas compartilhadas podem ser contadas mais de uma vez. O PCCheck não encerra nem altera processos. Sem leitura de processos: `processError` com o motivo.
+
 ## Limitações e segurança
 
 - O backend monta URLs fixas da Steam a partir do AppID; não aceita URL arbitrária.
