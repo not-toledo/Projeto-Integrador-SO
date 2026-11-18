@@ -1,5 +1,11 @@
 # Histórico de versões
 
+## V2.7.1 — Correções
+- `run-backend.bat`/`.sh`: param com mensagem clara se a porta 8080 já estiver em uso, **antes** de reinstalar o agente. Antes, rodar o script com outro backend aberto trocava o jar do agente embaixo do backend em execução (erro 500 no Histórico: `NoClassDefFoundError`) e o novo backend falhava por porta em uso.
+- Saúde dos discos: texto e limites citam só os indicadores que o disco informou (o alerta do HDD dizia "a vida útil e a temperatura" e mostrava limite de vida útil); disco sem vida útil nem temperatura passa a "não avaliado" em vez de "normal".
+- Validado em hardware real com administrador: `smart:0` SSD (vida útil 70%, 48 °C) e `smart:1` HDD (35 °C, 50.475 h ligado).
+- Revisão de código sem uso (classes, métodos, construtores, exports, dependências, arquivos e classes CSS): removida a constante `NOT_SUPPORTED` do Live Monitor, que não era usada. O restante está em uso (classes do Spring são carregadas por anotação; construtores curtos de compatibilidade servem aos testes).
+
 ## V2.7 — Saúde dos discos e tipo SSD/HDD
 - Agente: tipo de mídia e barramento de cada disco informados pelo SO (Windows: WMI `MSFT_PhysicalDisk`, sem administrador; Linux: `/sys/block/<disco>/queue/rotational`, ignorando removíveis). Nunca deduzido do nome do modelo; pen drives ficam sem tipo.
 - Leitor de sensores: `IsStorageEnabled` ligado e campo `id` por hardware (ex.: `/ssd/0`), que liga a leitura ao disco físico. O parser Java lê temperatura, vida útil restante, dados gravados, horas ligado e quantidade de vezes ligado (nomes conferidos na LibreHardwareMonitorLib 0.9.6 e na saída real).
