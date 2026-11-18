@@ -43,11 +43,12 @@ export function PulseIcon() {
   )
 }
 
-export function HistoryIcon() {
+export function ProcessIcon() {
   return (
     <Icon>
-      <circle cx="12" cy="12" r="8.5" />
-      <path d="M12 7v5l3.5 2" />
+      <rect x="3" y="4" width="18" height="16" />
+      <path d="M3 9h18M7 13h6M7 16h9" />
+      <path d="M6 6.5h.01M8.5 6.5h.01" />
     </Icon>
   )
 }

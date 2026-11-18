@@ -11,6 +11,7 @@ export function SiteFooter() {
           <a href={hrefOf('hardware')}>Hardware</a>
           <a href={hrefOf('live')}>Monitor</a>
           <a href={hrefOf('games')}>Jogos</a>
+          <a href={hrefOf('history')}>Histórico</a>
           <a href={REPOSITORY_URL} target="_blank" rel="noreferrer">GitHub</a>
         </nav>
         <p className="footer-about">

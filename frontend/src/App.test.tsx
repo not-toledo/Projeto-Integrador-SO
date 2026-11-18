@@ -48,7 +48,7 @@ describe('App', () => {
     render(<App />)
     expect(screen.getByRole('heading', { level: 1, name: /Conheça/ })).toBeTruthy()
     expect(navLink('Início').getAttribute('aria-current')).toBe('page')
-    for (const name of ['Hardware', 'Saúde', 'Monitor', 'Histórico', 'Jogos']) {
+    for (const name of ['Hardware', 'Saúde', 'Monitor', 'Processos', 'Jogos']) {
       expect(screen.getByRole('link', { name: `Abrir ${name}` })).toBeTruthy()
     }
     expect(screen.getByRole('link', { name: /Abrir monitoramento/ }).getAttribute('href')).toBe('#/live')

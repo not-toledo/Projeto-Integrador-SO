@@ -579,7 +579,7 @@ dd {
 .installed-games > summary { cursor: pointer; font-weight: 700; }
 .installed-libraries { margin: .75rem 0; padding-left: 1.2rem; color: var(--muted); font-size: .85rem; overflow-wrap: anywhere; }
 .installed-toolbar { display: flex; align-items: center; gap: .5rem; margin-bottom: .75rem; flex-wrap: wrap; }
-.installed-toolbar input { flex: 1; min-width: 160px; padding: .5rem; border: 1px solid var(--field-border); border-radius: var(--radius); background: var(--surface); color: var(--text); font: inherit; }
+.installed-toolbar input:not([type='checkbox']) { flex: 1; min-width: 160px; padding: .5rem; border: 1px solid var(--field-border); border-radius: var(--radius); background: var(--surface); color: var(--text); font: inherit; }
 .precheck { margin-top: 1rem; }
 .precheck-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
 .precheck-header h2 { margin-bottom: .25rem; }
@@ -1886,6 +1886,179 @@ dd {
     text-transform: uppercase;
     color: var(--muted);
   }
+}
+
+/* ==== Processos ==== */
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.check input {
+  accent-color: var(--accent);
+  width: 1rem;
+  height: 1rem;
+}
+
+.process-tiles {
+  margin-bottom: 1rem;
+}
+
+.tile-value.tile-value-text {
+  font-family: var(--font-body);
+  font-size: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.top-lists {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.top-list ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.top-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.3rem 1rem;
+}
+
+.top-name small {
+  color: var(--muted);
+}
+
+.top-value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.meter {
+  grid-column: 1 / -1;
+  height: 6px;
+  background: var(--track);
+}
+
+.meter-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width 400ms ease;
+}
+
+.process-table {
+  margin-bottom: 1rem;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.5rem 0.6rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.data-table td:first-child {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.data-table .num {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.data-table th {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.data-table tbody tr:hover {
+  background: var(--surface-2);
+}
+
+.row-self {
+  background: rgb(124 255 178 / 0.05);
+}
+
+/* Cabeçalho ordenável: parece texto, mas é um botão (teclado e leitor de tela). */
+.sort,
+.sort:hover:not(:disabled) {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+
+.sort:hover:not(:disabled) {
+  color: var(--text);
+}
+
+th[aria-sort='ascending'] .sort,
+th[aria-sort='descending'] .sort {
+  color: var(--accent);
+}
+
+.chip {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--ok-border);
+  color: var(--ok-text);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.show-all {
+  margin-top: 1rem;
+}
+
+.concepts dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 1rem 2rem;
+  margin: 0;
+}
+
+.concepts dt {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.concepts dd {
+  margin: 0.2rem 0 0;
+  text-align: left;
+  font-size: 0.88rem;
+  color: var(--muted);
 }
 
 /* ==== Responsivo ==== */

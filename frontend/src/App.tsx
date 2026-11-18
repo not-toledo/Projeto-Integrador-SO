@@ -8,6 +8,7 @@ import { HealthCheckPage } from './pages/HealthCheckPage'
 import { HistoryPage } from './pages/HistoryPage'
 import { HomePage } from './pages/HomePage'
 import { LiveMonitorPage } from './pages/LiveMonitorPage'
+import { ProcessesPage } from './pages/ProcessesPage'
 
 function App() {
   const view = useView()
@@ -30,6 +31,7 @@ function App() {
         {view === 'hardware' && <HardwareOverviewPage />}
         {view === 'health' && <HealthCheckPage />}
         {view === 'live' && <LiveMonitorPage />}
+        {view === 'processes' && <ProcessesPage />}
         {view === 'history' && <HistoryPage />}
         {view === 'games' && <GameCompatibilityPage />}
       </div>

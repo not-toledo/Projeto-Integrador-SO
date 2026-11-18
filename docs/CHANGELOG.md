@@ -1,5 +1,12 @@
 # Histórico de versões
 
+## V3.1 — Processos
+- `GET /api/processes`: processos em execução lidos pelo OSHI em duas leituras com 1 s de intervalo. CPU por processo = tempo de CPU ganho ÷ tempo decorrido ÷ processadores lógicos (% da CPU inteira); processo novo ou PID reaproveitado fica sem medição (`null`), nunca zero. Processo ocioso (PID 0) omitido; o próprio backend vem marcado. Leituras seguidas em menos de 2 s são reaproveitadas. Somente leitura: não há rota para encerrar ou alterar processos.
+- Tela **Processos** (no lugar do Histórico no menu; o Histórico continua em `#/history` e no rodapé): totais de processos e threads, maiores consumos de CPU e memória, tabela com filtro, agrupamento por nome, ordenação por coluna e atualização a cada 5 s; prioridade com nome (Windows: classe pela prioridade base; Linux: nice); quadro "O que estes dados significam".
+- Limites mostrados na tela: no Windows o estado é sempre "em execução" (coluna Estado só no Linux) e o dono de processos do sistema exige administrador.
+- Validado nesta máquina: 262 processos, 3.397 threads; resposta em cerca de 1,5 s.
+- Testes: `ProcessSamplerTest` (backend), `table.test.ts` e `ProcessesPage.test.tsx` (frontend), `tests/verificar-processos.sh`.
+
 ## V3.0 — Nova interface
 - Identidade visual escura e minimalista: preto, cinzas e uma cor de destaque (verde) só para estados; divisórias finas tracejadas; fonte pixelada [Silkscreen](https://github.com/googlefonts/silkscreen) (licença OFL, incluída em `frontend/public/fonts/`, sem acesso à internet) apenas em títulos. O tema claro foi removido.
 - Cabeçalho fixo com as 6 telas e botão MENU em telas estreitas; cada tela tem endereço próprio (`#/hardware`, `#/live`...), sem biblioteca de rotas, e o botão Voltar do navegador funciona. Rodapé com atalhos, GitHub e créditos.

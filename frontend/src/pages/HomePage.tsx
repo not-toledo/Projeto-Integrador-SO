@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { ArrowIcon, ChipIcon, GamepadIcon, HealthIcon, HistoryIcon, PulseIcon } from '../components/Icons'
+import { ArrowIcon, ChipIcon, GamepadIcon, HealthIcon, ProcessIcon, PulseIcon } from '../components/Icons'
 import { ArchitectureStack } from '../components/illustrations/ArchitectureStack'
 import { IsoChip } from '../components/illustrations/IsoChip'
 import { REPOSITORY_URL } from '../components/SiteFooter'
@@ -21,8 +21,8 @@ const FEATURES: { view: View; name: string; icon: ReactNode; text: string }[] = 
     text: 'CPU, RAM, GPU, sensores e discos em tempo real, com gráficos dos últimos minutos.',
   },
   {
-    view: 'history', name: 'Histórico', icon: <HistoryIcon />,
-    text: 'Coletas agendadas pelo sistema operacional, mesmo com o PCCheck fechado, por até 7 dias.',
+    view: 'processes', name: 'Processos', icon: <ProcessIcon />,
+    text: 'Programas em execução com CPU, memória, threads e prioridade, como o sistema operacional os vê.',
   },
   {
     view: 'games', name: 'Jogos', icon: <GamepadIcon />,
