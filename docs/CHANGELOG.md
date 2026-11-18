@@ -1,5 +1,22 @@
 # Histórico de versões
 
+## V3.1 — Processos
+- `GET /api/processes`: processos em execução lidos pelo OSHI em duas leituras com 1 s de intervalo. CPU por processo = tempo de CPU ganho ÷ tempo decorrido ÷ processadores lógicos (% da CPU inteira); processo novo ou PID reaproveitado fica sem medição (`null`), nunca zero. Processo ocioso (PID 0) omitido; o próprio backend vem marcado. Leituras seguidas em menos de 2 s são reaproveitadas. Somente leitura: não há rota para encerrar ou alterar processos.
+- Tela **Processos** (no lugar do Histórico no menu; o Histórico continua em `#/history` e no rodapé): totais de processos e threads, maiores consumos de CPU e memória, tabela com filtro, agrupamento por nome, ordenação por coluna e atualização a cada 5 s; prioridade com nome (Windows: classe pela prioridade base; Linux: nice); quadro "O que estes dados significam".
+- Limites mostrados na tela: no Windows o estado é sempre "em execução" (coluna Estado só no Linux) e o dono de processos do sistema exige administrador.
+- Validado nesta máquina: 262 processos, 3.397 threads; resposta em cerca de 1,5 s.
+- Testes: `ProcessSamplerTest` (backend), `table.test.ts` e `ProcessesPage.test.tsx` (frontend), `tests/verificar-processos.sh`.
+
+## V3.0 — Nova interface
+- Identidade visual escura e minimalista: preto, cinzas e uma cor de destaque (verde) só para estados; divisórias finas tracejadas; fonte pixelada [Silkscreen](https://github.com/googlefonts/silkscreen) (licença OFL, incluída em `frontend/public/fonts/`, sem acesso à internet) apenas em títulos. O tema claro foi removido.
+- Cabeçalho fixo com as 6 telas e botão MENU em telas estreitas; cada tela tem endereço próprio (`#/hardware`, `#/live`...), sem biblioteca de rotas, e o botão Voltar do navegador funciona. Rodapé com atalhos, GitHub e créditos.
+- Nova tela **Início** (abre por padrão): apresentação, "Seu computador" (inventário real e números da máquina), funcionalidades, "Agora" (CPU, RAM, GPU e temperaturas ao vivo com minigráficos, "Sem leitura" quando falta sensor), "Vai rodar?" (passos e classificações do Módulo D) e "Sobre o projeto". Nenhum valor demonstrativo: tudo vem da API.
+- Ilustrações próprias em SVG isométrico (processador e camadas do sistema), geradas no código.
+- Telas internas com cabeçalho padrão (módulo, título, coleta e ações); cards, tabelas, gráficos, avisos e estados de carregamento no novo padrão. Serviços, regras e dados sem alteração.
+- Acessibilidade: atalho "Pular para o conteúdo", foco visível, campos com contraste 3:1, animações desligadas com "reduzir movimento".
+- `tests/verificar-live.sh`: a GPU pode ter leitura real desde o leitor de sensores (V1.5); a verificação aceita leitura real ou indisponível e continua rejeitando outro estado.
+- Testes: navegação por endereço e menu (`App.test.tsx`, `navigation.test.ts`) e tela Início (`HomePage.test.tsx`).
+
 ## V2.9 — Comparação de CPU e GPU por benchmark
 - Tabela `benchmarks/blender-opendata.csv` (Blender Open Data, CC0; 6.394 linhas, snapshot de 2026-11-18): mediana, quartis, execuções e núcleos por modelo, backend e versão do Blender. Gerada por `BlenderDatasetBuilder` (reaproveita as regras de `HardwareModels`) via `scripts/atualizar-benchmarks.sh/.bat`, que param se o backend estiver aberto.
 - `BenchmarkCatalog` + `GameCompatibilityEvaluator`: CPU/GPU de modelos diferentes passam a ser comparadas pela alternativa do mesmo fabricante, na mesma versão e backend, com confiança alta/média e margens próprias; resultado com o campo `benchmark` e a fonte na interface. Sem dado comparável, continua revisão manual.

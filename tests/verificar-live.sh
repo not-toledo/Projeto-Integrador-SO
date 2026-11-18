@@ -30,7 +30,12 @@ for group in cpu memory gpu disks sensors; do
   check "grupo $group" "$BODY" "\"$group\":{\"status\":"
 done
 check "historico retorna amostras" "$HIST" '"samples":[{'
-check "GPU informa nao suportado (sem inventar valor)" "$BODY" '"gpu":{"status":"UNAVAILABLE"'
+# Com o leitor de sensores (V1.5) a GPU pode ter leitura real; sem ele, deve vir indisponivel, nunca inventada.
+if grep -qE '"gpu":\{"status":"(OK|UNAVAILABLE)"' <<<"$BODY"; then
+  echo "OK    GPU com leitura real ou indisponivel (sem inventar valor)"
+else
+  echo "FALHA GPU com estado inesperado"; FAIL=1
+fi
 
 N="$(grep -o '"collectedAt"' <<<"$HIST" | wc -l)"
 if [ "$N" -le 3 ] && [ "$N" -ge 1 ]; then echo "OK    limite do historico respeitado ($N amostras)"; else echo "FALHA limite do historico ($N)"; FAIL=1; fi

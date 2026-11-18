@@ -10,11 +10,14 @@ O PCCheck coleta dados **reais** do próprio computador. Dados indisponíveis ap
 
 ## Módulos
 
+A tela **Início** apresenta o PCCheck com um resumo real do computador e leituras ao vivo, e leva a cada módulo:
+
 | Módulo | Nome | O que faz |
 |---|---|---|
 | A | Hardware Overview | Identifica sistema operacional, CPU, memória, GPU, placa-mãe e armazenamento. |
 | B | Health Check | Avalia temperatura, espaço em disco e uso de RAM, com alertas explicáveis. |
 | C | Live Monitor | Mostra CPU, RAM, GPU, sensores e discos em tempo real, com gráficos. |
+| — | Processos | Lista os programas em execução com CPU, memória, threads e prioridade, como o sistema operacional informa (somente leitura). Ver [API](docs/api/api-processos.md). |
 | D | Game Compatibility | Pesquisa jogos na Steam e compara requisitos publicados com o hardware local (CPU/GPU de modelos diferentes pelo benchmark do [Blender Open Data](https://opendata.blender.org), CC0), lista os jogos instalados e faz a pré-checagem antes de jogar. Ver [plano](docs/plano-modulo-d.md) e [API](docs/api/api-games.md). |
 
 ## Documentação
@@ -36,6 +39,7 @@ O PCCheck coleta dados **reais** do próprio computador. Dados indisponíveis ap
 - Spring Boot 3.3.5 (API local)
 - React 19 com TypeScript, Vite, Vitest e Testing Library (interface)
 - Maven, JUnit 5, Shell Script
+- Fonte [Silkscreen](https://github.com/googlefonts/silkscreen) (OFL) nos títulos da interface
 
 ## Requisitos
 
@@ -76,7 +80,8 @@ npm install
 npm run dev
 ```
 
-Abra o endereço exibido pelo Vite (normalmente `http://localhost:5173`). Em desenvolvimento, o Vite encaminha `/api`
+Abra o endereço exibido pelo Vite (normalmente `http://localhost:5173`). Cada tela tem endereço próprio
+(ex.: `http://localhost:5173/#/live`). Em desenvolvimento, o Vite encaminha `/api`
 para o backend, sem configuração de CORS. Para outro endereço de API, defina `VITE_API_BASE`.
 
 ### Agente isolado
@@ -119,7 +124,7 @@ Em `backend/src/main/resources/application.properties`:
 1. **Agente:** `mvn -pl agent test`.
 2. **Backend:** `mvn -pl backend -am test`.
 3. **Ponta a ponta do agente:** `mvn -pl agent package` e depois `tests/verificar-agente.sh` (Git Bash ou WSL no Windows).
-4. **API, com o backend em execução:** `tests/verificar-api.sh`, `tests/verificar-saude.sh`, `tests/verificar-live.sh` e `tests/verificar-jogos.sh` (jogos instalados e pré-checagem).
+4. **API, com o backend em execução:** `tests/verificar-api.sh`, `tests/verificar-saude.sh`, `tests/verificar-live.sh`, `tests/verificar-jogos.sh` (jogos instalados e pré-checagem) e `tests/verificar-processos.sh`.
 5. **Frontend:** `cd frontend && npm test` e `npm run build`.
 6. **Documentação:** `scripts/testes-documentacao.sh`.
 7. **Conferência manual:** compare os valores com o Gerenciador de Tarefas e o Gerenciador de Dispositivos (Windows)

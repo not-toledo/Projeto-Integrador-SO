@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { FieldList } from '../../components/FieldList'
+import { Spot } from '../../components/Spot'
 import { UsageBar } from '../../components/UsageBar'
 import type { ComponentResult, PagingActivity, VirtualMemoryInfo } from '../hardware/types'
 import { DataSources } from '../sources/DataSources'
@@ -49,11 +50,14 @@ function LiveCard<T>({
   result,
   children,
   footer,
+  wide = false,
 }: {
   title: string
   result: ComponentResult<T> | undefined
   children: (data: T) => ReactNode
   footer?: ReactNode
+  /** Ocupa a linha inteira da grade (ex.: discos, com uma coluna por unidade). */
+  wide?: boolean
 }) {
   let body: ReactNode
   if (result && result.status === 'OK' && result.data !== null) {
@@ -75,7 +79,7 @@ function LiveCard<T>({
     )
   }
   return (
-    <section className="card" aria-label={title}>
+    <section className={wide ? 'card card-wide' : 'card'} aria-label={title}>
       <h2>{title}</h2>
       {body}
       {footer}
@@ -90,7 +94,12 @@ export function CpuPanel({ samples, maxGapMs }: PanelProps) {
     <LiveCard title="CPU" result={latest?.cpu} footer={<DataSources section="live-cpu" />}>
       {(data) => (
         <>
-          <UsageBar label="Uso total" value={data.totalPercent} />
+          <Spot
+            value={livePercent(data.totalPercent)}
+            missing={!isReading(data.totalPercent)}
+            caption={data.perCorePercent ? `uso total · ${data.perCorePercent.length} processadores lógicos` : 'uso total'}
+            gauge={{ label: 'Uso total', percent: data.totalPercent, text: 'agora' }}
+          />
           <LineChart title="Uso da CPU" unit="%" times={times} series={[{ name: 'Uso total', values: samples.map(cpuTotal) }]} yMax={100} maxGapMs={maxGapMs} />
           <h3>Por processador lógico</h3>
           {data.perCorePercent === null ? (
@@ -132,7 +141,12 @@ export function MemoryPanel({ samples, maxGapMs }: PanelProps) {
     <LiveCard title="Memória RAM" result={latest?.memory} footer={<DataSources section="live-memory" />}>
       {(data) => (
         <>
-          <UsageBar label="Uso" value={data.usedPercent} />
+          <Spot
+            value={livePercent(data.usedPercent)}
+            missing={!isReading(data.usedPercent)}
+            caption="da memória RAM em uso"
+            gauge={{ label: 'Uso', percent: data.usedPercent, text: 'agora' }}
+          />
           <FieldList
             fields={[
               ['Usada', liveBytes(data.usedBytes)],
@@ -159,10 +173,15 @@ export function GpuPanel({ samples, maxGapMs }: PanelProps) {
     <LiveCard title="GPU" result={latest?.gpu} footer={<DataSources section="live-gpu" />}>
       {(data) => (
         <>
+          <Spot
+            value={livePercent(data.utilizationPercent)}
+            missing={!isReading(data.utilizationPercent)}
+            caption="de utilização da placa de vídeo"
+            gauge={{ label: 'Utilização', percent: data.utilizationPercent, text: 'agora' }}
+          />
           <FieldList
             fields={[
               ['Placa', data.name ?? NO_READING],
-              ['Utilização', livePercent(data.utilizationPercent)],
               ['Memória de vídeo em uso', liveBytes(data.vramUsedBytes)],
               ['Memória de vídeo total', liveBytes(data.vramTotalBytes)],
               ['Temperatura', celsius(data.temperatureCelsius)],
@@ -194,14 +213,15 @@ export function DisksPanel({ samples, maxGapMs }: PanelProps) {
   const times = sampleTimes(samples)
   const names = driveNames(samples)
   return (
-    <LiveCard title="Discos" result={latest?.disks} footer={<DataSources section="live-disks" />}>
+    <LiveCard title="Discos" result={latest?.disks} footer={<DataSources section="live-disks" />} wide>
       {(data) => (
         <>
           <h3>Atividade das unidades</h3>
           {names.length === 0 ? (
             <p className="muted">{NO_READING}: o sistema não informou a atividade das unidades.</p>
           ) : (
-            names.map((name) => {
+            <div className="drives">
+            {names.map((name) => {
               const current = data.drives?.find((d) => d.name === name)
               const read = samples.map((s) => driveRateMiB(s, name, 'read'))
               const write = samples.map((s) => driveRateMiB(s, name, 'write'))
@@ -232,7 +252,8 @@ export function DisksPanel({ samples, maxGapMs }: PanelProps) {
                   />
                 </div>
               )
-            })
+            })}
+            </div>
           )}
           <h3>Espaço livre dos volumes</h3>
           {data.volumes === null || data.volumes.length === 0 ? (
@@ -264,9 +285,13 @@ export function SensorsPanel({ samples, maxGapMs }: PanelProps) {
     <LiveCard title="Sensores" result={latest?.sensors} footer={<DataSources section="live-sensors" />}>
       {(data) => (
         <>
+          <Spot
+            value={celsius(data.cpuTemperatureCelsius)}
+            missing={!isReading(data.cpuTemperatureCelsius)}
+            caption="temperatura da CPU"
+          />
           <FieldList
             fields={[
-              ['Temperatura da CPU', celsius(data.cpuTemperatureCelsius)],
               ['Temperatura da GPU', celsius(data.gpuTemperatureCelsius)],
               ['Ventoinhas', fans(data.fanSpeedsRpm)],
             ]}
