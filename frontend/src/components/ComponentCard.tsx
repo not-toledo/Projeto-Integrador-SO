@@ -9,6 +9,8 @@ interface ComponentCardProps<T> {
   children: (data: T) => ReactNode
   /** Exibido abaixo do conteúdo em qualquer estado (por exemplo, de onde vêm os dados). */
   footer?: ReactNode
+  /** Ocupa a linha inteira da grade, com os itens internos em colunas. */
+  wide?: boolean
 }
 
 /**
@@ -16,7 +18,7 @@ interface ComponentCardProps<T> {
  * OK (dados), UNAVAILABLE (o sistema não informou) e ERROR (a coleta falhou).
  * Indisponibilidade e falha de coleta não são apresentadas como defeito do hardware.
  */
-export function ComponentCard<T>({ title, result, children, footer }: ComponentCardProps<T>) {
+export function ComponentCard<T>({ title, result, children, footer, wide = false }: ComponentCardProps<T>) {
   let body: ReactNode
   if (result.status === 'OK' && result.data !== null) {
     body = children(result.data)
@@ -38,7 +40,7 @@ export function ComponentCard<T>({ title, result, children, footer }: ComponentC
   }
 
   return (
-    <section className="card" aria-label={title}>
+    <section className={wide ? 'card card-wide' : 'card'} aria-label={title}>
       <h2>{title}</h2>
       {body}
       {footer}

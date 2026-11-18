@@ -1564,6 +1564,330 @@ dd {
   transition: background var(--ease);
 }
 
+/* ==== Ajustes pedidos na revisão (V3.0) ==== */
+
+/* Cards da mesma linha com a mesma altura em todo o site; o "De onde vêm estes dados?" fica no rodapé do card. */
+.grid {
+  align-items: stretch;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+}
+
+.card > .data-sources {
+  margin-top: auto;
+}
+
+.card > .usage,
+.card > .chart {
+  flex: none;
+}
+
+/* Jogos: requisitos mínimos e recomendados, um bloco por linha, sem rolagem lateral. */
+.requirements {
+  display: grid;
+  gap: 1rem;
+}
+
+.game-table {
+  table-layout: fixed;
+}
+
+.game-table th:nth-child(1) { width: 16%; }
+.game-table th:nth-child(2) { width: 30%; }
+.game-table th:nth-child(3) { width: 20%; }
+.game-table th:nth-child(4) { width: 34%; }
+
+.game-table td {
+  overflow-wrap: anywhere;
+}
+
+.game-table td:first-child {
+  font-weight: 600;
+}
+
+/* Discos no Monitor: card na largura toda, uma coluna por unidade e volumes lado a lado. */
+.card-wide {
+  grid-column: 1 / -1;
+}
+
+.drives {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 1.5rem;
+}
+
+.drives .drive + .drive {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.drive-now strong {
+  display: block;
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.card-wide .volumes {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 1rem 1.5rem;
+}
+
+/* Grade fluida: os cards de cada linha dividem a largura toda, sem espaço vazio no fim da linha. */
+.grid-flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.grid-flow > .card {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.grid-flow > .card-wide {
+  flex-basis: 100%;
+}
+
+/* Itens de um card largo (discos e volumes do Hardware) em colunas. */
+.subgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 1rem 2rem;
+}
+
+.subgrid > .subitem + .subitem {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+/* ==== Saúde ==== */
+
+.summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.5rem 3rem;
+  align-items: center;
+  padding: 2rem;
+  border-left-width: 1px;
+  border-top: 3px solid var(--ok-border);
+  margin-bottom: 1.5rem;
+}
+
+.summary-info { border-top-color: var(--accent); background: linear-gradient(180deg, var(--ok-bg), var(--surface) 70%); }
+.summary-warning { border-top-color: var(--warn-text); background: linear-gradient(180deg, var(--warn-bg), var(--surface) 70%); }
+.summary-critical { border-top-color: var(--error-text); background: linear-gradient(180deg, var(--error-bg), var(--surface) 70%); }
+
+.summary-headline {
+  margin: 0 0 1rem;
+  font-size: clamp(1.6rem, 4vw, 2.8rem);
+}
+
+.summary-info .summary-headline { color: var(--accent); }
+.summary-warning .summary-headline { color: var(--warn-text); }
+.summary-critical .summary-headline { color: var(--error-text); }
+
+.summary-status {
+  margin: 0;
+}
+
+.summary-counts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(90px, 1fr));
+  gap: 0;
+  border: 1px solid var(--border);
+}
+
+.count {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.count + .count {
+  border-left: 1px solid var(--border);
+}
+
+.summary-counts .count strong {
+  margin: 0 0 0.25rem;
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.count-zero strong { color: var(--muted); }
+.count-info strong { color: var(--accent); }
+.count-warning strong { color: var(--warn-text); }
+.count-critical strong { color: var(--error-text); }
+
+.alert-list {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 1rem;
+}
+
+.alert {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem;
+  border-left-width: 1px;
+  border-top: 3px solid var(--border);
+}
+
+.alert-info { border-top-color: var(--ok-border); }
+.alert-warning { border-top-color: var(--warn-text); background: linear-gradient(180deg, var(--warn-bg), var(--surface) 55%); }
+.alert-critical { border-top-color: var(--error-text); background: linear-gradient(180deg, var(--error-bg), var(--surface) 55%); }
+.alert-kind-unavailable { border-top-style: dashed; }
+
+.alert-head {
+  justify-content: space-between;
+}
+
+.alert-component {
+  text-align: right;
+}
+
+.alert-title {
+  margin: 0.9rem 0 0.4rem;
+  font-size: 0.8rem;
+}
+
+.alert-value {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 1.9rem;
+  font-weight: 500;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+
+.alert-value-info { color: var(--text); }
+.alert-value-warning { color: var(--warn-text); }
+.alert-value-critical { color: var(--error-text); }
+
+.alert-value-text {
+  font-size: 1rem;
+}
+
+.alert-value-missing {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--muted);
+}
+
+.alert-facts {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.alert-facts li {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.gauge {
+  margin-bottom: 0.9rem;
+}
+
+.gauge-track {
+  position: relative;
+  height: 10px;
+  background: var(--track);
+}
+
+.gauge-fill {
+  height: 100%;
+  transition: width 500ms ease;
+}
+
+.gauge-fill-info { background: var(--accent); }
+.gauge-fill-warning { background: var(--warn-text); }
+.gauge-fill-critical { background: var(--error-text); }
+
+.gauge-mark {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--text);
+}
+
+.gauge-legend {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.45rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.alert-description {
+  color: var(--muted);
+}
+
+.alert-fields {
+  margin-top: auto;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--divider);
+}
+
+.alert-fields .field {
+  font-size: 0.82rem;
+}
+
+@media (max-width: 700px) {
+  .summary {
+    grid-template-columns: 1fr;
+    padding: 1.25rem;
+  }
+
+  /* Tabela de requisitos: cada linha vira um bloco com os rótulos das colunas. */
+  .game-table thead {
+    display: none;
+  }
+
+  .game-table,
+  .game-table tbody,
+  .game-table tr,
+  .game-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .game-table tr {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .game-table td {
+    border: 0;
+    padding: 0.25rem 0;
+  }
+
+  .game-table td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+}
+
 /* ==== Responsivo ==== */
 
 @media (max-width: 900px) {

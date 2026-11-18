@@ -49,11 +49,14 @@ function LiveCard<T>({
   result,
   children,
   footer,
+  wide = false,
 }: {
   title: string
   result: ComponentResult<T> | undefined
   children: (data: T) => ReactNode
   footer?: ReactNode
+  /** Ocupa a linha inteira da grade (ex.: discos, com uma coluna por unidade). */
+  wide?: boolean
 }) {
   let body: ReactNode
   if (result && result.status === 'OK' && result.data !== null) {
@@ -75,7 +78,7 @@ function LiveCard<T>({
     )
   }
   return (
-    <section className="card" aria-label={title}>
+    <section className={wide ? 'card card-wide' : 'card'} aria-label={title}>
       <h2>{title}</h2>
       {body}
       {footer}
@@ -194,14 +197,15 @@ export function DisksPanel({ samples, maxGapMs }: PanelProps) {
   const times = sampleTimes(samples)
   const names = driveNames(samples)
   return (
-    <LiveCard title="Discos" result={latest?.disks} footer={<DataSources section="live-disks" />}>
+    <LiveCard title="Discos" result={latest?.disks} footer={<DataSources section="live-disks" />} wide>
       {(data) => (
         <>
           <h3>Atividade das unidades</h3>
           {names.length === 0 ? (
             <p className="muted">{NO_READING}: o sistema não informou a atividade das unidades.</p>
           ) : (
-            names.map((name) => {
+            <div className="drives">
+            {names.map((name) => {
               const current = data.drives?.find((d) => d.name === name)
               const read = samples.map((s) => driveRateMiB(s, name, 'read'))
               const write = samples.map((s) => driveRateMiB(s, name, 'write'))
@@ -232,7 +236,8 @@ export function DisksPanel({ samples, maxGapMs }: PanelProps) {
                   />
                 </div>
               )
-            })
+            })}
+            </div>
           )}
           <h3>Espaço livre dos volumes</h3>
           {data.volumes === null || data.volumes.length === 0 ? (

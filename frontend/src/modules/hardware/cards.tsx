@@ -145,14 +145,15 @@ function diskType(media: string | null | undefined, bus: string | null | undefin
 
 export function StorageCard({ result, platform }: CardProps<'storage'>) {
   return (
-    <ComponentCard title="Armazenamento" result={result} footer={<DataSources section="storage" platform={platform} />}>
+    <ComponentCard title="Armazenamento" result={result} footer={<DataSources section="storage" platform={platform} />} wide>
       {(storage) => (
         <>
           <h3>Unidades físicas</h3>
           {storage.drives === null ? (
             <p className="muted">{NOT_AVAILABLE}</p>
           ) : (
-            storage.drives.map((drive, index) => (
+            <div className="subgrid">
+            {storage.drives.map((drive, index) => (
               <div className="subitem" key={`${drive.name ?? 'drive'}-${index}`}>
                 <FieldList
                   fields={[
@@ -164,14 +165,16 @@ export function StorageCard({ result, platform }: CardProps<'storage'>) {
                   ]}
                 />
               </div>
-            ))
+            ))}
+            </div>
           )}
 
           <h3>Volumes</h3>
           {storage.volumes === null ? (
             <p className="muted">{NOT_AVAILABLE}</p>
           ) : (
-            storage.volumes.map((volume, index) => (
+            <div className="subgrid">
+            {storage.volumes.map((volume, index) => (
               <div className="subitem" key={`${volume.mountPoint ?? 'volume'}-${index}`}>
                 <FieldList
                   fields={[
@@ -185,9 +188,10 @@ export function StorageCard({ result, platform }: CardProps<'storage'>) {
                 />
                 <UsageBar label="Utilização" value={volume.usedPercent} />
               </div>
-            ))
+            ))}
+            </div>
           )}
-          <p className="muted">O tipo da unidade (SSD/HDD) não é informado por não haver evidência confiável.</p>
+          <p className="muted">O tipo (SSD/HDD) aparece somente quando o sistema operacional o informa; nunca é deduzido do nome do modelo.</p>
         </>
       )}
     </ComponentCard>

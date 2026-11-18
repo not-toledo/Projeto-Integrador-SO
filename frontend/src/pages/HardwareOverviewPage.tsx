@@ -44,7 +44,7 @@ export function HardwareOverviewPage() {
       )}
 
       {inventory && (
-        <div className="grid">
+        <div className="grid-flow">
           <OsCard result={inventory.os} platform={platform} />
           <CpuCard result={inventory.cpu} platform={platform} />
           <MemoryCard result={inventory.memory} platform={platform} />

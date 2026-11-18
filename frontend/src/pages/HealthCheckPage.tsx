@@ -45,7 +45,7 @@ export function HealthCheckPage() {
       {report && (
         <>
           <HealthSummary report={report} />
-          <AlertList alerts={report.alerts} />
+          <AlertList alerts={report.alerts} thresholds={report.thresholds} />
           <p className="muted">
             Limites: {report.thresholdsSource} O Health Check apenas informa; alertas preventivos e dados indisponíveis
             não comprovam defeito.

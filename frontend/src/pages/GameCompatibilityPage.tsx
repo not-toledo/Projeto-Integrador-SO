@@ -108,7 +108,8 @@ export function GameCompatibilityPage() {
             <button type="button" onClick={() => void choose(selected, true)} disabled={loading}>Atualizar requisitos</button>
           </div>
           <VerdictBanner verdict={comparison.verdict} />
-          <div className="grid">
+          {/* Um bloco por linha, na largura toda: a tabela cabe sem rolagem lateral. */}
+          <div className="requirements">
             <article className="card">
               <h2>Requisitos mínimos</h2>
               <p className="game-overall">{comparison.overallMinimum}</p>
@@ -154,11 +155,12 @@ function VerdictBanner({ verdict }: { verdict: CompatibilityVerdict }) {
 
 function CompatibilityTable({ rows }: { rows: ComponentCompatibility[] }) {
   if (rows.length === 0) return <p className="muted">A loja não publicou requisitos interpretáveis para esta seção.</p>
-  return <div className="table-scroll"><table className="game-table">
+  // data-label: em telas estreitas cada linha vira um bloco e o rótulo da coluna aparece antes do valor.
+  return <table className="game-table">
     <thead><tr><th>Componente</th><th>Requisito Steam</th><th>Detectado</th><th>Resultado</th></tr></thead>
     <tbody>{rows.map((row, i) => <tr key={`${row.component}-${i}`}>
-      <td>{row.component}</td><td>{row.requirement}</td><td>{row.detected}</td>
-      <td><span className={`game-status ${statusClass(row.status)}`}>{statusLabel(row.status)}</span><small className="game-explanation">{row.explanation}</small>{row.benchmark && <small className="game-explanation">Comparado por benchmark ({row.benchmark.confidence === 'HIGH' ? 'confiança alta' : 'confiança média'}) · Fonte: {row.benchmark.source}</small>}</td>
+      <td data-label="Componente">{row.component}</td><td data-label="Requisito Steam">{row.requirement}</td><td data-label="Detectado">{row.detected}</td>
+      <td data-label="Resultado"><span className={`game-status ${statusClass(row.status)}`}>{statusLabel(row.status)}</span><small className="game-explanation">{row.explanation}</small>{row.benchmark && <small className="game-explanation">Comparado por benchmark ({row.benchmark.confidence === 'HIGH' ? 'confiança alta' : 'confiança média'}) · Fonte: {row.benchmark.source}</small>}</td>
     </tr>)}</tbody>
-  </table></div>
+  </table>
 }
