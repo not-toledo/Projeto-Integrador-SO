@@ -27,7 +27,8 @@ else
 fi
 
 # 3. Marcadores de conteúdo pendente não resolvidos (TODO, TBD, XXX, LOREM).
-PENDENTES=$(grep -rnE '\b(TODO|TBD|XXX|LOREM)\b' README.md CONTRIBUTING.md SECURITY.md docs templates --include='*.md' 2>/dev/null)
+# node_modules (dependências locais, fora do Git) não é documentação do projeto.
+PENDENTES=$(grep -rnE '\b(TODO|TBD|XXX|LOREM)\b' README.md CONTRIBUTING.md SECURITY.md docs templates --include='*.md' --exclude-dir=node_modules 2>/dev/null)
 if [ -n "$PENDENTES" ]; then
   falha "marcadores pendentes encontrados:"
   echo "$PENDENTES"
@@ -48,12 +49,12 @@ while IFS= read -r doc; do
       LINKS_QUEBRADOS=$((LINKS_QUEBRADOS + 1))
     fi
   done < <(grep -oE '\]\([^)]+\)' "$doc" | sed -E 's/^\]\(//; s/\)$//')
-done < <(find . -name '*.md' -not -path './frontend/node_modules/*' -not -path '*/target/*' -not -path './templates/*' | sed 's#^\./##')
+done < <(find . -name '*.md' -not -path '*/node_modules/*' -not -path '*/target/*' -not -path './templates/*' | sed 's#^\./##')
 # templates/ é copiado para a raiz de outro projeto; seus links são relativos à raiz e não são verificados aqui.
 [ "$LINKS_QUEBRADOS" -eq 0 ] && ok "links internos válidos"
 
 # 5. Nenhum segredo óbvio na documentação.
-if grep -rniE '(password|senha|token|api[_-]?key|secret)[[:space:]]*[:=][[:space:]]*[^[:space:]<]{6,}' README.md docs templates --include='*.md' 2>/dev/null; then
+if grep -rniE '(password|senha|token|api[_-]?key|secret)[[:space:]]*[:=][[:space:]]*[^[:space:]<]{6,}' README.md docs templates --include='*.md' --exclude-dir=node_modules 2>/dev/null; then
   falha "possível segredo em texto (verifique as linhas acima)"
 else
   ok "nenhum segredo óbvio"
