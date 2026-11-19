@@ -10,8 +10,8 @@ export function SiteFooter() {
         <nav className="footer-links" aria-label="Atalhos">
           <a href={hrefOf('hardware')}>Hardware</a>
           <a href={hrefOf('live')}>Monitor</a>
+          <a href={hrefOf('processes')}>Processos</a>
           <a href={hrefOf('games')}>Jogos</a>
-          <a href={hrefOf('history')}>Histórico</a>
           <a href={REPOSITORY_URL} target="_blank" rel="noreferrer">GitHub</a>
         </nav>
         <p className="footer-about">

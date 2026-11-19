@@ -100,5 +100,26 @@ describe('GameCompatibilityPage', () => {
 
     expect(await screen.findByText(/83% do exigido/)).toBeTruthy()
     expect(screen.getByText(/Comparado por benchmark \(confiança alta\) · Fonte: Blender Open Data/)).toBeTruthy()
+    expect(screen.getByText('O exigido é melhor: o seu processador rende 83%')).toBeTruthy()
+    expect(screen.getByText('73,7 pts')).toBeTruthy()
+    expect(screen.getByText('88,9 pts')).toBeTruthy()
+  })
+
+  it('diferença pequena aparece como "Próximo do exigido" e diz quem é melhor', async () => {
+    compatibilityMock.mockResolvedValue(comparison({
+      minimumResults: [{
+        component: 'CPU', requirement: 'Processador: Intel Core i5-8400', detected: 'i7-4790K',
+        status: 'NEAR_REQUIRED', explanation: 'Seu processador rende 94% do exigido (Intel Core i5-8400): 6% a menos.',
+        benchmark: {
+          localModel: 'Intel Core i7-4790K', requiredModel: 'Intel Core i5-8400', localScore: 75.8,
+          requiredScore: 80.5, localSamples: 44, requiredSamples: 18, backend: 'CPU', blenderVersion: '3.1.0',
+          ratio: 0.94, confidence: 'HIGH', source: 'Blender Open Data',
+        },
+      }],
+    }))
+    await selectGame()
+
+    expect(await screen.findByText('Próximo do exigido')).toBeTruthy()
+    expect(screen.getByText('O exigido é melhor: o seu processador rende 94%')).toBeTruthy()
   })
 })

@@ -8,7 +8,8 @@ export interface ComponentCompatibility {
   component: string
   requirement: string
   detected: string
-  status: 'COMPATIBLE' | 'BELOW_MINIMUM' | 'UNKNOWN' | 'MANUAL_REVIEW'
+  /** NEAR_REQUIRED: benchmark com confiança alta e diferença pequena (85% a 99% do exigido). */
+  status: 'COMPATIBLE' | 'BELOW_MINIMUM' | 'NEAR_REQUIRED' | 'UNKNOWN' | 'MANUAL_REVIEW'
   explanation: string
   /** Comparação pelo benchmark do Blender, quando CPU/GPU são modelos diferentes. */
   benchmark?: BenchmarkComparison | null

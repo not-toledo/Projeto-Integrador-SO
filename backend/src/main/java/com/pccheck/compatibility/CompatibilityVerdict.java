@@ -13,7 +13,8 @@ import java.util.Set;
  *   <li>{@code NOT_RECOMMENDED}: algum item ficou comprovadamente abaixo do mínimo;</li>
  *   <li>{@code COMPATIBLE}: todos os itens dos mínimos e dos recomendados foram confirmados (ou a Steam não
  *       publicou recomendados);</li>
- *   <li>{@code LIMITED}: os mínimos foram confirmados, mas os recomendados não (abaixo ou não verificáveis);</li>
+ *   <li>{@code LIMITED}: os mínimos foram confirmados, mas os recomendados não (abaixo ou não verificáveis); ou
+ *       algum item ficou próximo do exigido ({@code NEAR_REQUIRED}: diferença pequena, com confiança alta);</li>
  *   <li>{@code INSUFFICIENT_DATA}: nenhum item abaixo do mínimo, mas algum item dos mínimos não pôde ser
  *       confirmado. Falta de dado nunca é tratada como incompatibilidade nem como compatibilidade.</li>
  * </ul>
@@ -45,6 +46,8 @@ public record CompatibilityVerdict(String code, String label, List<String> reaso
         List<String> belowRec = components(recommended, GameCompatibilityEvaluator.BELOW);
         List<String> pendingMin = pending(minimum);
         List<String> pendingRec = pending(recommended);
+        List<String> nearMin = components(minimum, GameCompatibilityEvaluator.NEAR);
+        List<String> nearRec = components(recommended, GameCompatibilityEvaluator.NEAR);
         Set<String> pendingAll = new LinkedHashSet<>(pendingMin);
         pendingAll.addAll(pendingRec);
         List<String> pendingList = List.copyOf(pendingAll);
@@ -58,7 +61,7 @@ public record CompatibilityVerdict(String code, String label, List<String> reaso
         if (!belowMin.isEmpty()) {
             for (ComponentCompatibilityDto r : minimum) {
                 if (GameCompatibilityEvaluator.BELOW.equals(r.status())) {
-                    reasons.add("Não atende ao mínimo de " + r.component() + ": " + r.explanation());
+                    reasons.add("Não atende ao mínimo de " + r.component() + ": " + firstSentence(r.explanation()));
                 }
             }
             if (!pendingMin.isEmpty()) {
@@ -76,6 +79,16 @@ public record CompatibilityVerdict(String code, String label, List<String> reaso
             return new CompatibilityVerdict(INSUFFICIENT_DATA, "Dados insuficientes", reasons, belowMin, belowRec,
                     pendingList);
         }
+        if (!nearMin.isEmpty()) {
+            for (ComponentCompatibilityDto r : minimum) {
+                if (GameCompatibilityEvaluator.NEAR.equals(r.status())) {
+                    reasons.add("Próximo do mínimo em " + r.component() + ": " + firstSentence(r.explanation()));
+                }
+            }
+            reasons.add("O jogo deve rodar, mas com pouca folga nesse item.");
+            return new CompatibilityVerdict(LIMITED, "Compatibilidade limitada", reasons, belowMin, belowRec,
+                    pendingList);
+        }
         reasons.add("Todos os itens comparáveis dos requisitos mínimos foram atendidos.");
         if (recommended.isEmpty()) {
             reasons.add("A Steam não publicou requisitos recomendados comparáveis.");
@@ -84,19 +97,33 @@ public record CompatibilityVerdict(String code, String label, List<String> reaso
         if (!belowRec.isEmpty()) {
             for (ComponentCompatibilityDto r : recommended) {
                 if (GameCompatibilityEvaluator.BELOW.equals(r.status())) {
-                    reasons.add("Abaixo do recomendado em " + r.component() + ": " + r.explanation());
+                    reasons.add("Abaixo do recomendado em " + r.component() + ": " + firstSentence(r.explanation()));
                 }
             }
             return new CompatibilityVerdict(LIMITED, "Compatibilidade limitada", reasons, belowMin, belowRec,
                     pendingList);
+        }
+        if (!nearRec.isEmpty()) {
+            reasons.add("Próximo do recomendado em " + String.join(", ", nearRec)
+                    + ": desempenho parecido com o recomendado, um pouco abaixo.");
         }
         if (!pendingRec.isEmpty()) {
             reasons.add("Não foi possível confirmar os recomendados de: " + String.join(", ", pendingRec) + ".");
             return new CompatibilityVerdict(LIMITED, "Compatibilidade limitada", reasons, belowMin, belowRec,
                     pendingList);
         }
+        if (!nearRec.isEmpty()) {
+            return new CompatibilityVerdict(LIMITED, "Compatibilidade limitada", reasons, belowMin, belowRec,
+                    pendingList);
+        }
         reasons.add("Todos os itens comparáveis dos requisitos recomendados foram atendidos.");
         return new CompatibilityVerdict(COMPATIBLE, "Compatível", reasons, belowMin, belowRec, pendingList);
+    }
+
+    /** Primeira frase da explicação: a frase direta (os detalhes ficam na linha do componente). */
+    private static String firstSentence(String text) {
+        int end = text.indexOf(". ");
+        return end < 0 ? text : text.substring(0, end + 1);
     }
 
     private static List<String> components(List<ComponentCompatibilityDto> results, String status) {
@@ -107,7 +134,8 @@ public record CompatibilityVerdict(String code, String label, List<String> reaso
     private static List<String> pending(List<ComponentCompatibilityDto> results) {
         return results.stream()
                 .filter(r -> !GameCompatibilityEvaluator.COMPATIBLE.equals(r.status())
-                        && !GameCompatibilityEvaluator.BELOW.equals(r.status()))
+                        && !GameCompatibilityEvaluator.BELOW.equals(r.status())
+                        && !GameCompatibilityEvaluator.NEAR.equals(r.status()))
                 .map(ComponentCompatibilityDto::component).distinct().toList();
     }
 }

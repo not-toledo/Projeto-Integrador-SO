@@ -3,7 +3,7 @@ import { useSyncExternalStore } from 'react'
 /** Telas do PCCheck. O endereço usa o fragmento (#/live) para o botão Voltar do navegador funcionar sem biblioteca de rotas. */
 export type View = 'home' | 'hardware' | 'health' | 'live' | 'processes' | 'history' | 'games'
 
-/** Telas do menu principal. O Histórico (coleta agendada) continua acessível pelo rodapé e por #/history. */
+/** Telas do menu principal. O Histórico (coleta agendada) continua acessível pelo endereço #/history. */
 export const VIEWS: { id: View; label: string }[] = [
   { id: 'home', label: 'Início' },
   { id: 'hardware', label: 'Hardware' },

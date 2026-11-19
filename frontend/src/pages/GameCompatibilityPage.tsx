@@ -3,21 +3,25 @@ import { useEffect, useState } from 'react'
 import type {
   CompatibilityVerdict, ComponentCompatibility, GameCompatibility, GameSearchResult,
 } from '../modules/games/types'
+import { BenchmarkDuel } from '../modules/games/BenchmarkDuel'
 import { InstalledGames } from '../modules/games/InstalledGames'
 import { PrecheckPanel } from '../modules/games/PrecheckPanel'
 import { fetchGameCompatibility, searchGames } from '../services/gameService'
 
-function statusLabel(status: ComponentCompatibility['status']) {
+/** Na tabela dos recomendados, "abaixo" é do recomendado (a API usa o mesmo código para as duas tabelas). */
+function statusLabel(status: ComponentCompatibility['status'], recommended = false) {
   return ({
     COMPATIBLE: 'Atendido',
-    BELOW_MINIMUM: 'Abaixo do mínimo',
+    BELOW_MINIMUM: recommended ? 'Abaixo do recomendado' : 'Abaixo do mínimo',
+    NEAR_REQUIRED: 'Próximo do exigido',
     UNKNOWN: 'Dados insuficientes',
     MANUAL_REVIEW: 'Revisão manual',
   })[status]
 }
 function statusClass(status: ComponentCompatibility['status']) {
   return status === 'COMPATIBLE' ? 'game-status-ok'
-    : status === 'BELOW_MINIMUM' ? 'game-status-bad' : 'game-status-unknown'
+    : status === 'BELOW_MINIMUM' ? 'game-status-bad'
+      : status === 'NEAR_REQUIRED' ? 'game-status-unknown' : 'game-status-neutral'
 }
 
 export function GameCompatibilityPage() {
@@ -118,7 +122,7 @@ export function GameCompatibilityPage() {
             <article className="card">
               <h2>Requisitos recomendados</h2>
               <p className="game-overall">{comparison.overallRecommended}</p>
-              <CompatibilityTable rows={comparison.recommendedResults} />
+              <CompatibilityTable rows={comparison.recommendedResults} recommended />
             </article>
           </div>
           <PrecheckPanel appId={comparison.appId} />
@@ -153,14 +157,23 @@ function VerdictBanner({ verdict }: { verdict: CompatibilityVerdict }) {
   )
 }
 
-function CompatibilityTable({ rows }: { rows: ComponentCompatibility[] }) {
+function CompatibilityTable({ rows, recommended = false }: { rows: ComponentCompatibility[]; recommended?: boolean }) {
   if (rows.length === 0) return <p className="muted">A loja não publicou requisitos interpretáveis para esta seção.</p>
   // data-label: em telas estreitas cada linha vira um bloco e o rótulo da coluna aparece antes do valor.
   return <table className="game-table">
     <thead><tr><th>Componente</th><th>Requisito Steam</th><th>Detectado</th><th>Resultado</th></tr></thead>
     <tbody>{rows.map((row, i) => <tr key={`${row.component}-${i}`}>
       <td data-label="Componente">{row.component}</td><td data-label="Requisito Steam">{row.requirement}</td><td data-label="Detectado">{row.detected}</td>
-      <td data-label="Resultado"><span className={`game-status ${statusClass(row.status)}`}>{statusLabel(row.status)}</span><small className="game-explanation">{row.explanation}</small>{row.benchmark && <small className="game-explanation">Comparado por benchmark ({row.benchmark.confidence === 'HIGH' ? 'confiança alta' : 'confiança média'}) · Fonte: {row.benchmark.source}</small>}</td>
+      <td data-label="Resultado"><span className={`game-status ${statusClass(row.status)}`}>{statusLabel(row.status, recommended)}</span>
+        {row.benchmark ? <>
+          <BenchmarkDuel benchmark={row.benchmark} component={row.component} />
+          <details className="game-details">
+            <summary>Como foi comparado</summary>
+            <small className="game-explanation">{row.explanation}</small>
+            <small className="game-explanation">Comparado por benchmark ({row.benchmark.confidence === 'HIGH' ? 'confiança alta' : 'confiança média'}) · Fonte: {row.benchmark.source}</small>
+          </details>
+        </> : <small className="game-explanation">{row.explanation}</small>}
+      </td>
     </tr>)}</tbody>
   </table>
 }
