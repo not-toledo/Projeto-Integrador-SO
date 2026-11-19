@@ -1,185 +1,200 @@
-<p align="center"><img src="branding/png/nexcore-128.png" width="96" height="96" alt="Logotipo do NEXCORE"></p>
+<p align="center">
+  <img src="branding/png/nexcore-128.png" width="112" height="112" alt="Logotipo do NEXCORE">
+</p>
 
-# NEXCORE
+<h1 align="center">NEXCORE</h1>
 
-Aplicação local de identificação, diagnóstico básico e monitoramento de hardware.
-Projeto Integrador de Sistemas Operacionais.
+<p align="center">
+  <strong>Conheça o seu hardware.</strong><br>
+  Identificação de componentes, saúde do computador, monitoramento em tempo real, processos e compatibilidade com
+  jogos, tudo lido do próprio sistema, sem valores simulados.
+</p>
 
-**Versão 4.0.0.** Até a V3.2 o projeto se chamava **PCCheck**; a partir da 4.0.0 o produto passou a se chamar NEXCORE
-(as variáveis de ambiente `PCCHECK_*` continuam aceitas e as coletas da pasta antiga são copiadas para a nova).
-Histórico de mudanças em [docs/CHANGELOG.md](docs/CHANGELOG.md).
+<p align="center">
+  <a href="https://github.com/not-toledo/Projeto-Integrador-SO/releases/latest"><img alt="Versão" src="https://img.shields.io/github/v/release/not-toledo/Projeto-Integrador-SO?label=vers%C3%A3o&color=7cffb2&labelColor=000000"></a>
+  <a href="LICENSE"><img alt="Licença MIT" src="https://img.shields.io/badge/licen%C3%A7a-MIT-f2f2f2?labelColor=000000"></a>
+  <img alt="Windows 10/11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-f2f2f2?labelColor=000000">
+  <img alt="Java 21" src="https://img.shields.io/badge/Java-21-f2f2f2?labelColor=000000">
+  <img alt="React 19" src="https://img.shields.io/badge/React-19-f2f2f2?labelColor=000000">
+</p>
 
-O NEXCORE coleta dados **reais** do próprio computador. Dados indisponíveis aparecem como "Não disponível" ou
-"Sem leitura": o sistema nunca simula nem estima valores.
+<p align="center">
+  <a href="https://github.com/not-toledo/Projeto-Integrador-SO/releases/latest"><strong>⬇ Baixar o instalador</strong></a>
+  ·
+  <a href="#funcionalidades">Funcionalidades</a>
+  ·
+  <a href="#desenvolvimento">Desenvolvimento</a>
+  ·
+  <a href="docs/CHANGELOG.md">Novidades</a>
+</p>
 
-## Módulos
+<p align="center">
+  <img src="docs/img/inicio.png" alt="Tela inicial do NEXCORE" width="900">
+</p>
 
-A tela **Início** apresenta o NEXCORE com um resumo real do computador e leituras ao vivo, e leva a cada módulo:
+> Projeto Integrador da disciplina de **Sistemas Operacionais**. Até a versão 3.2 o projeto se chamava **PCCheck**.
 
-| Módulo | Nome | O que faz |
-|---|---|---|
-| A | Hardware Overview | Identifica sistema operacional, CPU, memória, GPU, placa-mãe e armazenamento. |
-| B | Health Check | Avalia temperatura, espaço em disco e uso de RAM, com alertas explicáveis. |
-| C | Live Monitor | Mostra CPU, RAM, GPU, sensores e discos em tempo real, com gráficos. |
-| — | Processos | Lista os programas em execução com CPU, memória, threads e prioridade, como o sistema operacional informa (somente leitura). Ver [API](docs/api/api-processos.md). |
-| D | Game Compatibility | Pesquisa jogos na Steam e compara requisitos publicados com o hardware local (CPU/GPU de modelos diferentes pelo benchmark do [Blender Open Data](https://opendata.blender.org), CC0), lista os jogos instalados e faz a pré-checagem antes de jogar. Ver [plano](docs/plano-modulo-d.md) e [API](docs/api/api-games.md). |
+## Instalar no Windows
 
-## Documentação
-
-- [Documentação de projeto](docs/documentacao-de-projeto.md): objetivo, escopo, requisitos, arquitetura e limitações.
-- [Documentação de APIs](docs/documentacao-api.md): endpoints e convenções de resposta.
-- [API de compatibilidade](docs/api/api-games.md): pesquisa Steam, requisitos e comparação.
-- [Relatório da implementação do Módulo D](docs/RELATORIO_IMPLEMENTACAO_MODULO_D.md): revisão, entregas e validações pendentes.
-- [Processo de desenvolvimento](docs/processo-devops.md): ambiente, versionamento, testes e solução de problemas.
-- [Diagramas](docs/diagramas.md): arquitetura, fluxo do Live Monitor e estados das métricas.
-- [GPU e sensores](docs/sensores.md): leitor de sensores interno (temperatura da CPU, ventoinhas e GPU).
-- [Checklist de revisão](docs/checklist-documentacao.md).
-- [Como contribuir](CONTRIBUTING.md) e [Política de segurança](SECURITY.md).
-
-## Tecnologias
-
-- Java 21 e [OSHI](https://github.com/oshi/oshi) 6.6.5 (agente de coleta)
-- C# (.NET Framework 4.8) e [LibreHardwareMonitorLib](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) 0.9.6 (leitor de sensores interno)
-- Spring Boot 3.3.5 (API local)
-- React 19 com TypeScript, Vite, Vitest e Testing Library (interface)
-- Maven, JUnit 5, Shell Script
-- Fonte [Silkscreen](https://github.com/googlefonts/silkscreen) (OFL) nos títulos da interface
-
-## Requisitos
-
-- **JDK 21**
-- **Maven 3.9+**
-- **.NET SDK 8+** (somente para compilar o leitor de sensores; para executar basta o .NET Framework 4.8 do Windows)
-- **Node.js 22.22.2 ou superior** (o `npm run dev` aceita 20.19+, mas as dependências de teste atuais exigem 22.22.2+)
-
-Funciona em Windows e Linux; a primeira versão prioriza o Windows.
-
-## Instalar no Windows (usuário final)
-
-1. Baixe `NEXCORE-Setup-<versão>.exe` (e, se quiser conferir, o `.sha256` do mesmo release).
-2. Execute e escolha **Instalar para todos os usuários** (pede administrador) ou **Instalar só para mim**.
-3. Abra o **NEXCORE** pelo Menu Iniciar ou pela Área de Trabalho: ele abre no navegador e fica na bandeja do Windows
+1. Baixe **`NEXCORE-Setup-<versão>.exe`** na [página de releases](https://github.com/not-toledo/Projeto-Integrador-SO/releases/latest).
+2. Execute. Como o instalador não tem certificado de assinatura de código, o Windows pode mostrar
+   *"O Windows protegeu o computador"*: clique em **Mais informações → Executar assim mesmo**.
+3. Escolha **Instalar para todos os usuários** (pede administrador) ou **Instalar só para mim**.
+4. Abra o **NEXCORE** pelo Menu Iniciar ou pela Área de Trabalho. Ele abre no navegador e fica na bandeja do Windows
    (ao lado do relógio), com **Abrir NEXCORE** e **Sair**.
 
-Não é preciso instalar Java, Node.js nem outras ferramentas. Requisitos: Windows 10 1903 ou mais novo, 64 bits.
-Para temperatura da CPU e ventoinhas, marque o **driver PawnIO** durante a instalação (instalador oficial do PawnIO) e
-aceite o aviso de administrador ao abrir o NEXCORE. Configuração e logs ficam em `%LOCALAPPDATA%\NEXCORE`.
-Como o instalador é gerado: [installer/README.md](installer/README.md).
+Não é preciso instalar Java, Node.js nem outras ferramentas: tudo vai dentro do instalador.
 
-## Instalação e execução (desenvolvimento)
+| | |
+|---|---|
+| **Requisitos** | Windows 10 1903 ou mais novo, 64 bits, cerca de 95 MB livres |
+| **Temperaturas e ventoinhas** | Marque o **driver PawnIO** na instalação (abre o instalador oficial do PawnIO) e aceite o aviso de administrador ao abrir o NEXCORE |
+| **Seus dados** | Configuração, logs e histórico em `%LOCALAPPDATA%\NEXCORE`, preservados em atualizações |
+| **Conferir o download** | Compare `Get-FileHash .\NEXCORE-Setup-<versão>.exe` com o `.sha256` da release |
 
-### 1. Sensores (nada para abrir)
+## Funcionalidades
 
-O backend inicia sozinho o leitor de sensores do NEXCORE e o Windows pede permissão de administrador: aceite para ter
-temperatura da CPU e ventoinhas. Para esses dois dados é preciso também o driver PawnIO, instalado uma única vez.
-Detalhes em [docs/sensores.md](docs/sensores.md).
+| Tela | O que mostra |
+|---|---|
+| **Início** | Resumo real do computador, leituras ao vivo e acesso a cada módulo. |
+| **Hardware** | Sistema operacional, processador, memória, placas de vídeo, placa-mãe, discos e volumes, com a origem de cada dado no Windows e no Linux. |
+| **Saúde** | Temperatura, espaço em disco, memória, pressão de memória e saúde SMART dos discos, com régua até o limite e alertas explicados. |
+| **Monitor** | CPU (total e por processador lógico), RAM, paginação, GPU, temperaturas, ventoinhas e discos em tempo real, com gráficos. |
+| **Processos** | Programas em execução com CPU, memória, threads e prioridade, agrupados por nome, com filtro e ordenação (somente leitura). |
+| **Jogos** | Requisitos da Steam comparados com o seu hardware. CPU e GPU de modelos diferentes são comparadas pelo benchmark do [Blender Open Data](https://opendata.blender.org) (CC0), dizendo qual é melhor e por quanto. Também lista os jogos instalados e faz a pré-checagem antes de jogar. |
 
-### 2. Backend (terminal 1)
+<p align="center">
+  <img src="docs/img/saude.png" alt="Saúde do computador" width="440">
+  <img src="docs/img/monitor.png" alt="Monitor em tempo real" width="440">
+</p>
+<p align="center">
+  <img src="docs/img/jogos.png" alt="Compatibilidade com jogos: quem é melhor, seu hardware ou o exigido" width="600">
+</p>
 
-Na raiz do projeto:
+### Princípios
+
+- **Dados reais:** nada é simulado ou estimado. O que o sistema não informa aparece como *Não disponível*; falha de
+  coleta aparece como falha, e nenhum dos dois é tratado como defeito do hardware.
+- **Local:** a API só aceita conexões deste computador (`127.0.0.1`). Só a pesquisa de jogos usa a internet (Steam).
+- **Somente leitura:** o NEXCORE observa o sistema; não muda configurações nem encerra programas.
+
+## Como funciona
 
 ```
-scripts\run-backend.bat        (Windows)
-scripts/run-backend.sh         (Linux)
+Navegador (React)  ──►  API local (Spring Boot, 127.0.0.1)  ──►  Agente (Java + OSHI)  ──►  Sistema operacional
+                                      │                                                       (WMI, contadores, /proc, /sys)
+                                      └──►  Leitor de sensores (C# + LibreHardwareMonitorLib)  ──►  sensores e SMART
 ```
 
-Os scripts compilam o leitor de sensores na primeira vez, instalam o agente no repositório Maven local e iniciam a API em `http://127.0.0.1:8080`.
-Se a porta 8080 já estiver em uso (outro backend aberto), o script para antes de recompilar o agente: trocar o agente com o backend aberto causaria erro 500 nas telas ainda não abertas. Feche o outro backend e rode de novo.
+Na versão instalada, um único `NEXCORE.exe` (com Java 21 embutido) serve a interface e a API, inicia o leitor de
+sensores e abre o navegador. Detalhes em [docs/documentacao-de-projeto.md](docs/documentacao-de-projeto.md) e
+[docs/diagramas.md](docs/diagramas.md).
 
-Teste: `http://127.0.0.1:8080/api/ping` deve responder `{"status":"UP","app":"NEXCORE","version":"4.0.0"}`.
+| Camada | Tecnologia |
+|---|---|
+| Interface | React 19, TypeScript, Vite, Vitest, Testing Library |
+| API | Spring Boot 3.3.5 (Java 21) |
+| Coleta | [OSHI](https://github.com/oshi/oshi) 6.6.5 |
+| Sensores | C# (.NET Framework 4.8) e [LibreHardwareMonitorLib](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) 0.9.6 |
+| Distribuição | `jpackage`/`jlink` e [Inno Setup](https://jrsoftware.org/isinfo.php) |
 
-### 3. Frontend (terminal 2)
+## Desenvolvimento
 
-```
+Requisitos: **JDK 21**, **Maven 3.9+**, **Node.js 22.22.2+** e **.NET SDK 8+** (só para compilar o leitor de
+sensores). Funciona em Windows e Linux; o Windows é a plataforma principal.
+
+```bash
+# Terminal 1 — API em http://127.0.0.1:8080 (compila o leitor de sensores e o agente na primeira vez)
+scripts\run-backend.bat          # Windows
+scripts/run-backend.sh           # Linux
+
+# Terminal 2 — interface em http://localhost:5173
 cd frontend
 npm install
 npm run dev
 ```
 
-Abra o endereço exibido pelo Vite (normalmente `http://localhost:5173`). Cada tela tem endereço próprio
-(ex.: `http://localhost:5173/#/live`). Em desenvolvimento, o Vite encaminha `/api`
-para o backend, sem configuração de CORS. Para outro endereço de API, defina `VITE_API_BASE`.
+- Ao iniciar, o Windows pede permissão de administrador para o leitor de sensores: aceite para ter temperaturas,
+  ventoinhas e SMART (veja [docs/sensores.md](docs/sensores.md)).
+- Se a porta 8080 já estiver em uso, o script para antes de recompilar o agente (trocar o agente com outro backend
+  aberto causaria erro 500). Feche o outro backend e rode de novo.
+- Teste rápido: `http://127.0.0.1:8080/api/ping` → `{"status":"UP","app":"NEXCORE","version":"4.0.0"}`.
+- Cada tela tem endereço próprio (ex.: `http://localhost:5173/#/live`). O Vite encaminha `/api` para o backend; para
+  outro endereço de API, defina `VITE_API_BASE`.
 
-### Agente isolado
+### Gerar o instalador
 
-```
-mvn -pl agent package
-java -jar agent/target/nexcore-agent-4.0.0-all.jar
-```
-
-### Coleta agendada (histórico com o NEXCORE fechado)
-
-Registra uma coleta a cada N minutos no agendador do sistema operacional, sem precisar de administrador. O resultado
-aparece na página **Histórico**. Detalhes em [docs/api/api-historico.md](docs/api/api-historico.md).
-
-```
-scripts\agendar-coleta.bat instalar 15     (Windows: Agendador de Tarefas, tarefa "NEXCORE\Coleta")
-scripts/agendar-coleta.sh instalar 15      (Linux: crontab do usuário)
+```powershell
+powershell -ExecutionPolicy Bypass -File installer\build.ps1     # testes, interface, backend, NEXCORE.exe e instalador
 ```
 
-Outros comandos: `status` (tarefa e arquivos), `agora` (uma coleta imediata) e `remover` (apaga a tarefa e mantém as
-coletas). As coletas ficam em `%LOCALAPPDATA%\NEXCORE\coletas` (Windows) ou `~/.local/state/nexcore/coletas` (Linux),
-um arquivo por dia, por 7 dias. Variáveis: `NEXCORE_DATA_DIR` (pasta) e `NEXCORE_RETENCAO_DIAS` (retenção).
+Gera `build\instalador\NEXCORE-Setup-<versão>.exe` e o `.sha256`. Requer também o Inno Setup 6.7+. Detalhes em
+[installer/README.md](installer/README.md).
 
-## Configuração
+### Testes
 
-Em `backend/src/main/resources/application.properties`:
+| O quê | Comando |
+|---|---|
+| Agente e backend | `mvn test` |
+| Interface | `cd frontend && npm test && npm run build` |
+| API (com o backend aberto) | `tests/verificar-api.sh`, `verificar-saude.sh`, `verificar-live.sh`, `verificar-jogos.sh`, `verificar-processos.sh` |
+| Agente de ponta a ponta | `mvn -pl agent package` e `tests/verificar-agente.sh` |
+| Documentação | `scripts/testes-documentacao.sh` |
+
+Detalhes em [docs/processo-devops.md](docs/processo-devops.md).
+
+### Configuração
+
+Desenvolvimento: `backend/src/main/resources/application.properties`. Versão instalada:
+`%LOCALAPPDATA%\NEXCORE\config\nexcore.properties` (criado na primeira execução e nunca sobrescrito).
 
 | Chave | Padrão | Função |
 |---|---|---|
-| `nexcore.health.*` | ver arquivo | Limites do Health Check (temperatura, disco, RAM). |
-| `nexcore.monitor.interval-ms` | `2000` | Intervalo entre coletas do Live Monitor (mínimo 500). |
+| `server.port` | `8080` (instalado: `47820`) | Porta local da interface e da API. |
+| `nexcore.health.*` | ver arquivo | Limites do Health Check (temperatura, disco, RAM, SMART). |
+| `nexcore.monitor.interval-ms` | `2000` | Intervalo entre coletas do Monitor (mínimo 500). |
 | `nexcore.monitor.history-size` | `300` | Amostras mantidas em memória (10 a 3600). |
-| `nexcore.sensors.enabled` | `true` | Liga/desliga o leitor de sensores interno. |
-| `nexcore.sensors.elevate` | `true` | Pede permissão de administrador ao iniciar (temperatura da CPU e ventoinhas). |
-| `nexcore.sensors.host-path` | (vazio) | Caminho do `NEXCORE.SensorHost.exe`; vazio procura em `sensor-host/dist/`. |
-| `nexcore.history.data-dir` | (vazio) | Pasta de dados do histórico; vazio usa `NEXCORE_DATA_DIR` ou o padrão do SO. |
+| `nexcore.sensors.enabled` | `true` | Liga ou desliga o leitor de sensores. |
+| `nexcore.sensors.elevate` | `true` | Pede permissão de administrador ao iniciar (temperaturas, ventoinhas, SMART). |
+| `nexcore.history.data-dir` | (vazio) | Pasta do histórico; vazio usa `NEXCORE_DATA_DIR` ou o padrão do SO. |
 
-## Testes
+### Coleta agendada (opcional)
 
-1. **Agente:** `mvn -pl agent test`.
-2. **Backend:** `mvn -pl backend -am test`.
-3. **Ponta a ponta do agente:** `mvn -pl agent package` e depois `tests/verificar-agente.sh` (Git Bash ou WSL no Windows).
-4. **API, com o backend em execução:** `tests/verificar-api.sh`, `tests/verificar-saude.sh`, `tests/verificar-live.sh`, `tests/verificar-jogos.sh` (jogos instalados e pré-checagem) e `tests/verificar-processos.sh`.
-5. **Frontend:** `cd frontend && npm test` e `npm run build`.
-6. **Documentação:** `scripts/testes-documentacao.sh`.
-7. **Conferência manual:** compare os valores com o Gerenciador de Tarefas e o Gerenciador de Dispositivos (Windows)
-   ou com `lscpu`, `free -h` e `df -h` (Linux).
-
-Detalhes de cada teste em [docs/processo-devops.md](docs/processo-devops.md).
+Registra uma coleta a cada N minutos no agendador do sistema, mesmo com o NEXCORE fechado (página `#/history`):
+`scripts\agendar-coleta.bat instalar 15` (Windows) ou `scripts/agendar-coleta.sh instalar 15` (Linux). Também:
+`status`, `agora` e `remover`. Detalhes em [docs/api/api-historico.md](docs/api/api-historico.md).
 
 ## Estrutura do repositório
 
 ```
-NEXCORE/
-├── README.md
-├── CONTRIBUTING.md
-├── SECURITY.md
-├── agent/        # Agente local (Java 21 + OSHI): collector/, sensors/, model/ e testes
-├── backend/      # API Spring Boot (127.0.0.1:8080): controller/, service/, dto/, diagnostic/, monitor/, config/
-├── sensor-host/ # Leitor de sensores interno (C# + LibreHardwareMonitorLib), iniciado pelo backend
-├── frontend/     # React + TypeScript (Vite): components/, modules/, pages/, services/
-├── docs/         # Documentação de projeto, API, processo, diagramas e histórico
-│   └── api/      # Documentos de cada endpoint
-├── scripts/      # Execução (run-agent, run-backend, build-sensor-host), coleta agendada (agendar-coleta) e testes de documentação
-├── templates/    # Modelo de README para novos projetos
-└── tests/        # Verificação ponta a ponta (agente, API, Health Check, Live Monitor)
+├── agent/        Agente de coleta (Java 21 + OSHI)
+├── backend/      API Spring Boot e NexcoreLauncher (versão instalada)
+├── sensor-host/  Leitor de sensores (C# + LibreHardwareMonitorLib)
+├── frontend/     Interface (React + TypeScript + Vite)
+├── installer/    Build da versão instalável e instalador (Inno Setup)
+├── branding/     Logotipo oficial e recursos gerados (ícone, PNGs, imagens do instalador)
+├── docs/         Documentação de projeto, APIs, processo, diagramas e histórico de versões
+├── scripts/      Execução, coleta agendada, benchmarks e testes de documentação
+└── tests/        Verificações ponta a ponta (agente e API)
 ```
 
-## Solução de problemas
+## Documentação
 
-Problemas comuns estão em [docs/processo-devops.md](docs/processo-devops.md#solução-de-problemas).
+- [Documentação de projeto](docs/documentacao-de-projeto.md): objetivo, escopo, requisitos, arquitetura e [limitações conhecidas](docs/documentacao-de-projeto.md#limitações-conhecidas).
+- [APIs](docs/documentacao-api.md): endpoints e convenções de resposta.
+- [Processo de desenvolvimento](docs/processo-devops.md): ambiente, versionamento, testes e [solução de problemas](docs/processo-devops.md#solução-de-problemas).
+- [Sensores](docs/sensores.md), [diagramas](docs/diagramas.md) e [histórico de versões](docs/CHANGELOG.md).
 
-## Limitações conhecidas
+## Contribuindo
 
-Lista completa em [docs/documentacao-de-projeto.md](docs/documentacao-de-projeto.md#limitações-conhecidas).
-Destaques: temperatura da CPU e ventoinhas exigem permissão de administrador e o driver PawnIO; a saúde dos discos (SMART) exige permissão de administrador e não inclui setores realocados; os limites do Health Check são
-genéricos; e a leitura com sensores reais depende de teste na sua máquina.
+Contribuições são bem-vindas. Leia o [guia de contribuição](CONTRIBUTING.md) e o [código de conduta](CODE_OF_CONDUCT.md).
+Para relatar uma vulnerabilidade, siga a [política de segurança](SECURITY.md) (relato privado, não em Issues públicas).
 
 ## Integrantes
 
-- Gabriel — *Pendente: sobrenome, RA e demais integrantes do grupo.*
+- Gabriel — *pendente: sobrenome, RA e demais integrantes do grupo.*
 
 ## Licença
 
-Pendente: definir a licença do projeto (o repositório de referência usa MIT).
+Distribuído sob a [licença MIT](LICENSE). Componentes de terceiros incluídos na versão instalada e suas licenças:
+[installer/TERCEIROS.txt](installer/TERCEIROS.txt).

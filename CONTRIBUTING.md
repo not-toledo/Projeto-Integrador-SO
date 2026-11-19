@@ -1,5 +1,7 @@
 # Como contribuir
 
+Obrigado pelo interesse. Ao participar, você concorda com o [Código de Conduta](CODE_OF_CONDUCT.md).
+
 Obrigado pelo interesse. Antes de contribuir, leia a [documentação de projeto](docs/documentacao-de-projeto.md) e o
 [processo de desenvolvimento](docs/processo-devops.md).
 
@@ -18,3 +20,6 @@ Obrigado pelo interesse. Antes de contribuir, leia a [documentação de projeto]
 - Atualize a documentação e o `CHANGELOG.md` quando o comportamento mudar.
 - Não adicione dependências sem justificar no Pull Request.
 - Antes de abrir o PR, rode `scripts/testes-documentacao.sh` se alterou documentos.
+- Mudanças que afetam a versão instalada: gere e teste o instalador com `installeruild.ps1` (veja
+  [installer/README.md](installer/README.md)).
+- Ao contribuir, você concorda que sua contribuição seja distribuída sob a [licença MIT](LICENSE) do projeto.
