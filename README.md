@@ -54,7 +54,19 @@ A tela **Início** apresenta o NEXCORE com um resumo real do computador e leitur
 
 Funciona em Windows e Linux; a primeira versão prioriza o Windows.
 
-## Instalação e execução
+## Instalar no Windows (usuário final)
+
+1. Baixe `NEXCORE-Setup-<versão>.exe` (e, se quiser conferir, o `.sha256` do mesmo release).
+2. Execute e escolha **Instalar para todos os usuários** (pede administrador) ou **Instalar só para mim**.
+3. Abra o **NEXCORE** pelo Menu Iniciar ou pela Área de Trabalho: ele abre no navegador e fica na bandeja do Windows
+   (ao lado do relógio), com **Abrir NEXCORE** e **Sair**.
+
+Não é preciso instalar Java, Node.js nem outras ferramentas. Requisitos: Windows 10 1903 ou mais novo, 64 bits.
+Para temperatura da CPU e ventoinhas, marque o **driver PawnIO** durante a instalação (instalador oficial do PawnIO) e
+aceite o aviso de administrador ao abrir o NEXCORE. Configuração e logs ficam em `%LOCALAPPDATA%\NEXCORE`.
+Como o instalador é gerado: [installer/README.md](installer/README.md).
+
+## Instalação e execução (desenvolvimento)
 
 ### 1. Sensores (nada para abrir)
 

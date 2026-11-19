@@ -3,13 +3,15 @@
     1. interface (frontend/dist) e testes do frontend;
     2. leitor de sensores (sensor-host/dist);
     3. backend com a interface embutida e o NexcoreLauncher como entrada (perfil Maven "distribuicao");
-    4. build\app-image\NEXCORE: NEXCORE.exe (sem janela de terminal) + Java reduzido (jlink) + leitor de sensores.
+    4. build\app-image\NEXCORE: NEXCORE.exe (sem janela de terminal) + Java reduzido (jlink) + leitor de sensores;
+    5. build\instalador\NEXCORE-Setup-<versao>.exe (Inno Setup) e o arquivo .sha256 dele.
   Uso, na raiz do projeto:
-    powershell -ExecutionPolicy Bypass -File installer\build.ps1 [-PularTestes]
-  Requer (somente nesta maquina de build): JDK 21 (jpackage), Maven, Node.js, .NET SDK.
+    powershell -ExecutionPolicy Bypass -File installer\build.ps1 [-PularTestes] [-SemPawnIO]
+  Requer (somente nesta maquina de build): JDK 21 (jpackage), Maven, Node.js, .NET SDK e Inno Setup 6.7+.
+  O instalador oficial do PawnIO e baixado do GitHub do autor e so e usado se o SHA-256 conferir.
   Tudo o que e gerado fica em build\ (fora do Git).
 #>
-param([switch]$PularTestes)
+param([switch]$PularTestes, [switch]$SemPawnIO)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
@@ -88,4 +90,43 @@ Invoke-Step 'NEXCORE.exe e Java reduzido (jpackage)' {
 }
 
 $size = (Get-ChildItem (Join-Path $image 'NEXCORE') -Recurse -File | Measure-Object Length -Sum).Sum / 1MB
-Write-Host ("Pronto: {0} ({1:N1} MB)" -f (Join-Path $image 'NEXCORE\NEXCORE.exe'), $size)
+Write-Host ("Aplicativo: {0} ({1:N1} MB)" -f (Join-Path $image 'NEXCORE\NEXCORE.exe'), $size)
+
+# ---------------------------------------------------------------------------------------------------------------
+# Instalador (Inno Setup 6.7+)
+# ---------------------------------------------------------------------------------------------------------------
+$iscc = @("$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe", "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
+  "$env:ProgramFiles\Inno Setup 6\ISCC.exe") | Where-Object { Test-Path $_ } | Select-Object -First 1
+if (-not $iscc) { throw 'Inno Setup 6 nao encontrado (winget install JRSoftware.InnoSetup).' }
+
+$isccArgs = @("/DVersion=$version", "/DAppImage=$(Join-Path $image 'NEXCORE')")
+if (-not $SemPawnIO) {
+  # Instalador oficial do PawnIO (GitHub de namazso), baixado so nesta maquina de build e conferido pelo SHA-256
+  # publicado no release. O usuario final nao baixa nada: ele vai dentro do instalador do NEXCORE.
+  $pawnVersion = '2.2.0'
+  $pawnSha = '1f519a22e47187f70a1379a48ca604981c4fcf694f4e65b734aaa74a9fba3032'
+  $pawnUrl = "https://github.com/namazso/PawnIO.Setup/releases/download/$pawnVersion/PawnIO_setup.exe"
+  $deps = Join-Path $build 'deps'
+  $pawn = Join-Path $deps "PawnIO_setup-$pawnVersion.exe"
+  New-Item -ItemType Directory -Force $deps | Out-Null
+  if (-not (Test-Path $pawn)) {
+    Write-Host "==> Baixando PawnIO $pawnVersion (fonte oficial)"
+    Invoke-WebRequest -UseBasicParsing $pawnUrl -OutFile "$pawn.part"
+    Move-Item "$pawn.part" $pawn -Force
+  }
+  $actual = (Get-FileHash $pawn -Algorithm SHA256).Hash.ToLowerInvariant()
+  if ($actual -ne $pawnSha) {
+    Remove-Item $pawn -Force
+    throw "SHA-256 do PawnIO diferente do oficial ($actual). Arquivo descartado; instalador nao gerado."
+  }
+  Write-Host "    PawnIO $pawnVersion conferido (SHA-256 $pawnSha)"
+  $isccArgs += "/DPawnIO=$pawn"
+}
+
+Invoke-Step 'Instalador (Inno Setup)' { & $iscc /Q @isccArgs (Join-Path $PSScriptRoot 'nexcore.iss') }
+
+$setup = Join-Path $build "instalador\NEXCORE-Setup-$version.exe"
+$hash = (Get-FileHash $setup -Algorithm SHA256).Hash.ToLowerInvariant()
+"$hash  NEXCORE-Setup-$version.exe" | Set-Content -Encoding ascii "$setup.sha256"
+Write-Host ("Instalador: {0} ({1:N1} MB)" -f $setup, ((Get-Item $setup).Length / 1MB))
+Write-Host "SHA-256:    $hash"

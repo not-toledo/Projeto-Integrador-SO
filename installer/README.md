@@ -12,8 +12,9 @@ powershell -ExecutionPolicy Bypass -File installer\build.ps1            (com tod
 powershell -ExecutionPolicy Bypass -File installer\build.ps1 -PularTestes
 ```
 
-Ferramentas necessárias só na máquina de build: JDK 21 (inclui `jpackage` e `jlink`), Maven 3.9+, Node.js 22.22.2+ e
-.NET SDK 8+. Tudo o que é gerado fica em `build\` (ignorado pelo Git).
+Ferramentas necessárias só na máquina de build: JDK 21 (inclui `jpackage` e `jlink`), Maven 3.9+, Node.js 22.22.2+,
+.NET SDK 8+ e Inno Setup 6.7+ (`winget install JRSoftware.InnoSetup`). Tudo o que é gerado fica em `build\` (ignorado
+pelo Git). Resultado: `build\instalador\NEXCORE-Setup-<versão>.exe` e `NEXCORE-Setup-<versão>.exe.sha256`.
 
 | Passo | O que faz | Saída |
 |---|---|---|
@@ -21,6 +22,32 @@ Ferramentas necessárias só na máquina de build: JDK 21 (inclui `jpackage` e `
 | Leitor de sensores | `scripts\build-sensor-host.bat` | `sensor-host\dist\NEXCORE.SensorHost.exe` |
 | Backend | `mvn -pl backend -am -Pdistribuicao package`: a interface entra no jar como recurso estático e a entrada passa a ser o `NexcoreLauncher` | `backend\target\nexcore-backend-<versão>.jar` |
 | Executável | `jpackage --type app-image`: `NEXCORE.exe` sem janela de terminal, com o ícone oficial, e um Java reduzido pelo `jlink` (só os módulos usados) | `build\app-image\NEXCORE` |
+| PawnIO (opcional) | Baixa o instalador oficial 2.2.0 do GitHub do autor e confere o SHA-256 publicado; se não conferir, o build para. `-SemPawnIO` gera sem ele | `build\deps` |
+| Instalador | `ISCC installer\nexcore.iss` (Inno Setup) | `build\instalador` |
+
+## O instalador (`nexcore.iss`)
+
+- **Visual:** modo escuro, logotipo oficial na tela inicial e no canto das páginas (imagens de
+  `branding\instalador`, em várias escalas de tela), ícone oficial no instalador, no programa e nos atalhos.
+- **Onde instalar:** a primeira janela pergunta **"Instalar para todos os usuários"** (`C:\Program Files\NEXCORE`, pede
+  administrador; recomendado) ou **"Instalar só para mim"** (`%LOCALAPPDATA%\Programs\NEXCORE`, sem administrador). A
+  pasta pode ser alterada.
+- **Requisitos:** Windows 10 1903 ou mais novo, 64 bits; espaço em disco (calculado e mostrado pelo instalador);
+  .NET Framework 4.8 para o leitor de sensores (se faltar, avisa e permite continuar sem sensores).
+- **Atalhos:** Menu Iniciar e, se marcado, Área de Trabalho. Registro em "Aplicativos instalados" (nome, versão,
+  ícone, links do projeto).
+- **PawnIO (opcional):** só aparece se o driver ainda não estiver instalado. Abre o instalador **oficial** do PawnIO,
+  com a tela e os termos dele (não é instalado em silêncio).
+- **Atualização:** o mesmo identificador de aplicativo (`AppId`) faz um instalador novo atualizar a instalação
+  existente, na mesma pasta. O NEXCORE aberto é fechado antes de trocar os arquivos. A configuração e os dados em
+  `%LOCALAPPDATA%\NEXCORE` não são tocados.
+- **Desinstalação:** fecha o NEXCORE, remove arquivos, atalhos e o registro, remove a tarefa `NEXCORE\Coleta` se
+  existir e **pergunta** se deve apagar configurações, logs e histórico (padrão: manter). O PawnIO não é removido.
+- **Log da instalação:** `%TEMP%\Setup Log *.txt`.
+- **Instalação silenciosa** (testes, implantação): `NEXCORE-Setup-<versão>.exe /VERYSILENT /CURRENTUSER` (ou
+  `/ALLUSERS`), `/TASKS="desktopicon"`. Desinstalação: `unins000.exe /VERYSILENT` (mantém os dados).
+- **Aviso do SmartScreen:** sem certificado de assinatura de código, o Windows mostra "Editor desconhecido" ao abrir
+  o instalador. Para conferir que o arquivo é o oficial, compare o SHA-256 com o do arquivo `.sha256` publicado.
 
 ## O que vai na instalação
 
