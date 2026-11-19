@@ -180,6 +180,7 @@ Registra uma coleta a cada N minutos no agendador do sistema, mesmo com o NEXCOR
 
 ## Documentação
 
+- **[Documentação completa do NEXCORE](docs/NEXCORE-documentacao.md)** (também em [Word](docs/NEXCORE-documentacao.docx), no modelo da FATEC): problema, conceitos de Sistemas Operacionais aplicados, funcionalidades, arquitetura, testes, limitações e evolução.
 - [Documentação de projeto](docs/documentacao-de-projeto.md): objetivo, escopo, requisitos, arquitetura e [limitações conhecidas](docs/documentacao-de-projeto.md#limitações-conhecidas).
 - [APIs](docs/documentacao-api.md): endpoints e convenções de resposta.
 - [Processo de desenvolvimento](docs/processo-devops.md): ambiente, versionamento, testes e [solução de problemas](docs/processo-devops.md#solução-de-problemas).
@@ -192,7 +193,8 @@ Para relatar uma vulnerabilidade, siga a [política de segurança](SECURITY.md) 
 
 ## Integrantes
 
-- Gabriel — *pendente: sobrenome, RA e demais integrantes do grupo.*
+Gabriel, Karl, Marcos, Enzo e Vinicius — Análise e Desenvolvimento de Sistemas, FATEC Itapetininga. Disciplina de
+Sistemas Operacionais, orientador (a): Deivison S. Takatu.
 
 ## Licença
 

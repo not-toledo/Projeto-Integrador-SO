@@ -13,3 +13,6 @@ sensor-host/obj/
 
 # Empacotamento e instalador (installer/build.ps1)
 build/
+
+# Geracao da documentacao em Word (docs/doc-build)
+docs/doc-build/.cache/
