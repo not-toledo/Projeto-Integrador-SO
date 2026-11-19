@@ -6,6 +6,7 @@
 - Interface: duelo do benchmark em cada linha (seu × exigido, mesma escala, vencedor destacado e manchete "O exigido é melhor..."/"O seu ... é melhor"); detalhes técnicos em "Como foi comparado". "Revisão manual" passou a neutro (cinza) e "Próximo do exigido" usa o âmbar. Na tabela dos recomendados, "Abaixo do recomendado" no lugar de "Abaixo do mínimo".
 - Validado com Elden Ring nesta máquina: i7-4790K × i5-8400 = 94% → "Próximo do exigido".
 - Testes: `BenchmarkComparisonTest` (próximo do exigido e frase direta), `duel.test.ts` e testes da tela de jogos.
+- Rodapé: o atalho "Histórico" deu lugar a "Processos". A página do Histórico (coleta agendada) segue no endereço `#/history`.
 
 ## V3.1 — Processos
 - `GET /api/processes`: processos em execução lidos pelo OSHI em duas leituras com 1 s de intervalo. CPU por processo = tempo de CPU ganho ÷ tempo decorrido ÷ processadores lógicos (% da CPU inteira); processo novo ou PID reaproveitado fica sem medição (`null`), nunca zero. Processo ocioso (PID 0) omitido; o próprio backend vem marcado. Leituras seguidas em menos de 2 s são reaproveitadas. Somente leitura: não há rota para encerrar ou alterar processos.
