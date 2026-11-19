@@ -34,6 +34,7 @@ class BenchmarkComparisonTest {
             CPU,amd-fx-8350,CPU,4.5.0,80.00,78.00,82.00,30,8,AMD FX(tm)-8350 Eight-Core Processor
             CPU,amd-ryzen-9-5950x,CPU,4.5.0,600.00,590.00,610.00,300,16,AMD Ryzen 9 5950X 16-Core Processor
             CPU,intel-core-i9-9900k,CPU,4.5.0,200.00,195.00,205.00,100,8,Intel Core i9-9900K CPU @ 3.60GHz
+            CPU,intel-core-i5-8400,CPU,4.5.0,78.00,76.00,80.00,30,6,Intel Core i5-8400 CPU @ 2.80GHz
             GPU,nvidia-gtx-1050-ti,OPTIX,4.5.0,228.44,214.99,233.59,25,,NVIDIA GeForce GTX 1050 Ti
             GPU,nvidia-gtx-1060,OPTIX,4.5.0,382.97,359.29,395.06,108,,NVIDIA GeForce GTX 1060 6GB
             GPU,nvidia-gtx-960,OPTIX,4.5.0,150.00,145.00,155.00,40,,NVIDIA GeForce GTX 960
@@ -138,6 +139,31 @@ class BenchmarkComparisonTest {
         var r = first(field("CPU", "Processor: Intel Core i5-4460", null), pc("Intel Core i7-4790K CPU @ 4.00GHz", null));
         assertEquals("COMPATIBLE", r.status());
         assertTrue(!r.explanation().contains("por núcleo"));
+    }
+
+    @Test
+    void diferencaPequenaComConfiancaAltaFicaProximoDoExigido() {
+        // 73,67 ÷ 78,00 = 94%: abaixo de 100%, mas acima de 85% com confiança alta; por núcleo, o i7 (4) é maior.
+        RequirementFieldDto cpu = field("CPU", "Processador: Intel Core i5-8400 or AMD Ryzen 3 3300X", null);
+        InventoryDto local = pc("Intel(R) Core(TM) i7-4790K CPU @ 4.00GHz", null);
+        var r = first(cpu, local);
+        assertEquals("NEAR_REQUIRED", r.status());
+        assertTrue(r.explanation().startsWith("Seu processador rende 94% do exigido (Intel Core i5-8400"),
+                r.explanation());
+        assertTrue(r.explanation().contains(": 6% a menos."), r.explanation());
+        GameCompatibilityDto all = evaluator.evaluate(game(cpu), local);
+        assertEquals("LIMITED", all.verdict().code(), "deve rodar, com pouca folga");
+        assertTrue(all.verdict().pendingReview().isEmpty(), "próximo do exigido não é falta de dado");
+        assertTrue(all.overallMinimum().startsWith("Praticamente atende"), all.overallMinimum());
+    }
+
+    @Test
+    void fraseDiretaDizQuemEMelhor() {
+        assertEquals("Seu processador é 62% mais rápido que o exigido (X).", GameCompatibilityEvaluator.plain("CPU", 1.62, "X"));
+        assertEquals("Sua placa de vídeo rende 59% do exigido (Y): 41% a menos.",
+                GameCompatibilityEvaluator.plain("GPU", 0.59, "Y"));
+        assertEquals("Seu processador e o exigido (Z) são praticamente iguais em desempenho.",
+                GameCompatibilityEvaluator.plain("CPU", 0.98, "Z"));
     }
 
     @Test

@@ -37,6 +37,11 @@ public class GameCompatibilityEvaluator {
     static final String COMPATIBLE = "COMPATIBLE";
     static final String BELOW = "BELOW_MINIMUM";
     static final String MANUAL = "MANUAL_REVIEW";
+    /**
+     * Benchmark com confiança alta e diferença pequena (85% a 99% do exigido): desempenho parecido. Não é
+     * "atende" (fica abaixo), nem "abaixo" (a diferença é pequena), nem falta de dado.
+     */
+    static final String NEAR = "NEAR_REQUIRED";
     static final String UNKNOWN = "UNKNOWN";
     private static final String NOT_AVAILABLE = "Não disponível";
     /**
@@ -277,7 +282,7 @@ public class GameCompatibilityEvaluator {
         double ratio = m.ratio();
         boolean high = "HIGH".equals(m.confidence());
         String status = ratio >= (high ? HIGH_OK : MEDIUM_OK) ? COMPATIBLE
-                : ratio < (high ? HIGH_BELOW : MEDIUM_BELOW) ? BELOW : MANUAL;
+                : ratio < (high ? HIGH_BELOW : MEDIUM_BELOW) ? BELOW : high ? NEAR : MANUAL;
         String numbers = String.format(Locale.forLanguageTag("pt-BR"),
                 "Benchmark do Blender %s (%s): %s %.1f pontos (%d execuções) × %s %.1f pontos (%d execuções) = %.0f%% "
                         + "do exigido. Confiança %s.",
@@ -287,8 +292,10 @@ public class GameCompatibilityEvaluator {
         String verdict = switch (status) {
             case COMPATIBLE -> " O desempenho de renderização é igual ou maior que o do modelo exigido.";
             case BELOW -> " O desempenho de renderização fica claramente abaixo do modelo exigido.";
-            default -> ratio >= 1 ? " Acima do exigido, mas com poucos dados para confirmar; revise manualmente."
-                    : " Próximo do exigido ou com poucos dados para decidir; revise manualmente.";
+            case NEAR -> " Diferença pequena: na prática o desempenho é parecido, e o jogo deve rodar, com um pouco "
+                    + "menos de folga que no modelo exigido.";
+            default -> ratio >= 1 ? " O seu parece mais rápido, mas há poucos dados para garantir; revise manualmente."
+                    : " O seu parece um pouco mais lento, mas há poucos dados para decidir; revise manualmente.";
         };
         String extra = "";
         // A renderização usa todos os núcleos; jogos dependem mais do desempenho por núcleo. Quando o total e o
@@ -309,27 +316,51 @@ public class GameCompatibilityEvaluator {
                         + "processador local pode atender; revise manualmente.";
             } else if (perCore < PER_CORE_WARNING && !BELOW.equals(status)) {
                 extra = " Atenção: " + detail + "; jogos que dependem de poucos núcleos podem ser limitados.";
+                // Total pouco abaixo e por núcleo também abaixo: a diferença pode ser maior em jogos.
+                if (NEAR.equals(status)) {
+                    status = MANUAL;
+                    verdict = " A diferença no total é pequena, mas o desempenho por núcleo também fica abaixo; "
+                            + "revise manualmente.";
+                }
             }
         }
         String shown = detected;
         if (gpu != null && f.parsedBytes() != null) {
             if (gpu.vramBytes() == null) {
                 extra += " A memória de vídeo detectada não está disponível para comparar com a publicada.";
-                if (COMPATIBLE.equals(status)) status = MANUAL;
+                if (COMPATIBLE.equals(status) || NEAR.equals(status)) status = MANUAL;
             } else {
                 shown = detected + " — " + bytes(gpu.vramBytes());
                 if (gpu.vramBytes() < f.parsedBytes()) {
                     extra += " A memória de vídeo detectada é menor que a publicada; revise manualmente (o Windows "
                             + "pode informar até 4 GiB para placas com mais memória).";
-                    if (COMPATIBLE.equals(status)) status = MANUAL;
+                    if (COMPATIBLE.equals(status) || NEAR.equals(status)) status = MANUAL;
                 }
             }
         }
         BenchmarkDto benchmark = new BenchmarkDto(m.local().deviceName(), m.required().deviceName(),
                 m.local().median(), m.required().median(), m.local().samples(), m.required().samples(),
                 m.local().backend(), m.local().version(), ratio, m.confidence(), m.source());
-        return new ComponentCompatibilityDto(component, f.rawText(), shown, status, numbers + verdict + extra,
-                benchmark);
+        return new ComponentCompatibilityDto(component, f.rawText(), shown, status,
+                plain(component, ratio, m.required().deviceName()) + " " + numbers + verdict + extra, benchmark);
+    }
+
+    /**
+     * Frase direta de quem é melhor, antes dos números: "Seu processador é 62% mais rápido que o exigido (...)" ou
+     * "Seu processador rende 94% do exigido (...): 6% a menos". Diferenças abaixo de 3% contam como iguais.
+     */
+    static String plain(String component, double ratio, String required) {
+        String subject = "GPU".equals(component) ? "Sua placa de vídeo" : "Seu processador";
+        Locale pt = Locale.forLanguageTag("pt-BR");
+        if (Math.abs(ratio - 1) < 0.03) {
+            return String.format(pt, "%s e o exigido (%s) são praticamente iguais em desempenho.", subject, required);
+        }
+        if (ratio > 1) {
+            return String.format(pt, "%s é %.0f%% mais rápido que o exigido (%s).", subject, (ratio - 1) * 100,
+                    required);
+        }
+        return String.format(pt, "%s rende %.0f%% do exigido (%s): %.0f%% a menos.", subject, ratio * 100, required,
+                (1 - ratio) * 100);
     }
 
     /** Windows: compara a versão numérica (Windows 11 atende a "Windows 10") e a exigência de 64 bits. */
@@ -366,12 +397,16 @@ public class GameCompatibilityEvaluator {
         if (results.isEmpty()) return "Análise incompleta";
         if (results.stream().anyMatch(r -> BELOW.equals(r.status()))) return "Abaixo dos " + label;
         Set<String> pending = new LinkedHashSet<>();
+        Set<String> near = new LinkedHashSet<>();
         boolean anyConfirmed = false;
         for (ComponentCompatibilityDto r : results) {
             if (COMPATIBLE.equals(r.status())) anyConfirmed = true;
+            else if (NEAR.equals(r.status())) near.add(r.component());
             else pending.add(r.component());
         }
-        if (pending.isEmpty()) return "Atende aos " + label;
+        if (pending.isEmpty() && near.isEmpty()) return "Atende aos " + label;
+        if (pending.isEmpty()) return "Praticamente atende aos " + label + " (próximo do exigido: "
+                + String.join(", ", near) + ")";
         if (!anyConfirmed) return "Análise incompleta";
         return "Nenhum item abaixo dos " + label + "; revisar manualmente: " + String.join(", ", pending);
     }

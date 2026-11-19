@@ -39,7 +39,7 @@ Base: `http://127.0.0.1:8080/api/games`. As consultas Steam são feitas pelo bac
 
 - Obtém os requisitos e coleta novamente o inventário local através do `InventoryService` existente.
 - Retorna avaliação independente de mínimos e recomendados, com estado por componente.
-- Estados: `COMPATIBLE`, `BELOW_MINIMUM`, `UNKNOWN`, `MANUAL_REVIEW`.
+- Estados: `COMPATIBLE`, `BELOW_MINIMUM`, `NEAR_REQUIRED` (benchmark com confiança alta e diferença pequena), `UNKNOWN`, `MANUAL_REVIEW`.
 - Um estado desconhecido ou revisão manual nunca é convertido em compatível.
 
 ### Regras de comparação
@@ -69,7 +69,7 @@ Fonte: [Blender Open Data](https://opendata.blender.org) (licença CC0), tabela 
 | GTX × RTX não usa o OptiX (só o CUDA). | No OptiX, os núcleos de ray tracing das RTX aceleram a renderização, não os jogos. |
 | Execuções de notebook ("Laptop", "Mobile", "Max-Q"), com mais de uma GPU, com mais de um soquete e placas fora do backend nativo (ex.: AMD em CUDA via ZLUDA) são descartadas. | Mesmo nome, outra potência ou configuração fora do padrão. |
 
-Decisão pela razão local ÷ exigido (heurística do projeto): confiança **alta** (10+ execuções de cada lado e intervalo interquartil até 25% da mediana) atende com ≥ 1,0 e fica abaixo com < 0,85; confiança **média**, com ≥ 1,15 e < 0,70. Entre as margens: revisão manual. CPU: a renderização usa todos os núcleos e os jogos dependem mais do desempenho por **núcleo físico** (não por thread, para não penalizar Hyper-Threading/SMT): total maior mas por núcleo abaixo de 85% → revisão manual; total menor mas por núcleo maior → revisão manual. GPU com desempenho suficiente e VRAM detectada menor que a publicada → revisão manual.
+Decisão pela razão local ÷ exigido (heurística do projeto): confiança **alta** (10+ execuções de cada lado e intervalo interquartil até 25% da mediana) atende com ≥ 1,0, fica **próximo do exigido** (`NEAR_REQUIRED`) de 0,85 a 0,99 e abaixo com < 0,85; confiança **média**, atende com ≥ 1,15 e fica abaixo com < 0,70, e entre as margens vai para revisão manual. Próximo do exigido nos mínimos leva a classificação geral a "Compatibilidade limitada" (deve rodar, com pouca folga), e não a "Dados insuficientes". Toda explicação de benchmark começa com uma frase direta de quem é melhor ("Seu processador é 62% mais rápido que o exigido", "Sua placa de vídeo rende 59% do exigido: 41% a menos"; diferença menor que 3% = "praticamente iguais"), e a interface mostra as duas pontuações lado a lado com o vencedor destacado. Se o total está próximo mas o desempenho por núcleo também fica abaixo de 85%, vai para revisão manual. CPU: a renderização usa todos os núcleos e os jogos dependem mais do desempenho por **núcleo físico** (não por thread, para não penalizar Hyper-Threading/SMT): total maior mas por núcleo abaixo de 85% → revisão manual; total menor mas por núcleo maior → revisão manual. GPU com desempenho suficiente e VRAM detectada menor que a publicada → revisão manual.
 
 Cada resultado comparado traz `benchmark` (`localModel`, `requiredModel`, `localScore`, `requiredScore`, `localSamples`, `requiredSamples`, `backend`, `blenderVersion`, `ratio`, `confidence`, `source`). A pontuação mede renderização, não desempenho em jogos.
 

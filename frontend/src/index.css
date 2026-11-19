@@ -2100,6 +2100,93 @@ th[aria-sort='descending'] .sort {
   color: var(--muted);
 }
 
+/* ==== Jogos: quem é melhor (duelo do benchmark) ==== */
+
+/* Revisão manual e dado ausente: neutro, para não parecer um alerta. "Próximo do exigido" usa o âmbar. */
+.game-status-neutral {
+  color: var(--text);
+  background: var(--surface-2);
+  border-color: var(--field-border);
+}
+
+.duel {
+  margin-top: 0.6rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  min-width: 220px;
+}
+
+.duel-headline {
+  margin: 0 0 0.55rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.duel-local .duel-headline { color: var(--ok-text); }
+.duel-required .duel-headline { color: var(--warn-text); }
+.duel-tie .duel-headline { color: var(--text); }
+
+.duel-row {
+  display: grid;
+  grid-template-columns: 4.2rem minmax(0, 1fr) auto;
+  gap: 0.15rem 0.5rem;
+  align-items: baseline;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.duel-row + .duel-row {
+  margin-top: 0.45rem;
+}
+
+.duel-who {
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.duel-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.duel-score {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.duel-track {
+  grid-column: 1 / -1;
+  height: 6px;
+  background: var(--track);
+}
+
+.duel-fill {
+  display: block;
+  height: 100%;
+  background: #6a6a70;
+}
+
+.duel-winner {
+  color: var(--text);
+}
+
+.duel-winner .duel-fill {
+  background: var(--accent);
+}
+
+.game-details {
+  margin-top: 0.5rem;
+}
+
+.game-details summary {
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: var(--accent);
+}
+
 /* ==== Responsivo ==== */
 
 @media (max-width: 900px) {

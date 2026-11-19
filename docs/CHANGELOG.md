@@ -1,5 +1,12 @@
 # Histórico de versões
 
+## V3.2 — Quem é melhor, sem precisar interpretar números
+- Novo estado `NEAR_REQUIRED` ("Próximo do exigido"): benchmark com confiança alta e 85% a 99% do exigido. Antes ia para "Revisão manual"; agora diz que o desempenho é parecido e que o jogo deve rodar com pouca folga, e a classificação geral fica "Compatibilidade limitada" em vez de "Dados insuficientes". Com o desempenho por núcleo também abaixo de 85%, continua revisão manual.
+- Toda comparação por benchmark começa com uma frase direta: "Seu processador rende 94% do exigido (Intel Core i5-8400): 6% a menos", "é 62% mais rápido" ou "praticamente iguais" (diferença < 3%). Os motivos da classificação geral mostram só essa frase.
+- Interface: duelo do benchmark em cada linha (seu × exigido, mesma escala, vencedor destacado e manchete "O exigido é melhor..."/"O seu ... é melhor"); detalhes técnicos em "Como foi comparado". "Revisão manual" passou a neutro (cinza) e "Próximo do exigido" usa o âmbar. Na tabela dos recomendados, "Abaixo do recomendado" no lugar de "Abaixo do mínimo".
+- Validado com Elden Ring nesta máquina: i7-4790K × i5-8400 = 94% → "Próximo do exigido".
+- Testes: `BenchmarkComparisonTest` (próximo do exigido e frase direta), `duel.test.ts` e testes da tela de jogos.
+
 ## V3.1 — Processos
 - `GET /api/processes`: processos em execução lidos pelo OSHI em duas leituras com 1 s de intervalo. CPU por processo = tempo de CPU ganho ÷ tempo decorrido ÷ processadores lógicos (% da CPU inteira); processo novo ou PID reaproveitado fica sem medição (`null`), nunca zero. Processo ocioso (PID 0) omitido; o próprio backend vem marcado. Leituras seguidas em menos de 2 s são reaproveitadas. Somente leitura: não há rota para encerrar ou alterar processos.
 - Tela **Processos** (no lugar do Histórico no menu; o Histórico continua em `#/history` e no rodapé): totais de processos e threads, maiores consumos de CPU e memória, tabela com filtro, agrupamento por nome, ordenação por coluna e atualização a cada 5 s; prioridade com nome (Windows: classe pela prioridade base; Linux: nice); quadro "O que estes dados significam".
