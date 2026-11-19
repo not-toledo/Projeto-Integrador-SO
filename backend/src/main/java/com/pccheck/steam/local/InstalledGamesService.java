@@ -18,7 +18,7 @@ import oshi.SystemInfo;
 public class InstalledGamesService {
 
     static final String NOT_FOUND = "Pasta da Steam não encontrada. Se a Steam está instalada em outro local, "
-            + "defina a variável de ambiente PCCHECK_STEAM_DIR com a pasta dela e reinicie o backend.";
+            + "defina a variável de ambiente NEXCORE_STEAM_DIR com a pasta dela e reinicie o backend.";
 
     private final Supplier<Path> locator;
     private final Supplier<StorageInfo> storage;

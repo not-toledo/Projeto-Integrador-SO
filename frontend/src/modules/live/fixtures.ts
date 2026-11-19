@@ -6,7 +6,7 @@ const OK = <T>(data: T): ComponentResult<T> => ({ status: 'OK', message: null, d
 
 export const GPU_UNAVAILABLE: LiveSample['gpu'] = {
   status: 'UNAVAILABLE',
-  message: 'O leitor de sensores (PCCheck.SensorHost.exe) não foi encontrado.',
+  message: 'O leitor de sensores (NEXCORE.SensorHost.exe) não foi encontrado.',
   data: null,
 }
 

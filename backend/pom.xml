@@ -12,9 +12,9 @@
   </parent>
 
   <groupId>com.pccheck</groupId>
-  <artifactId>pccheck-backend</artifactId>
-  <version>1.0.0</version>
-  <name>PCCheck Backend</name>
+  <artifactId>nexcore-backend</artifactId>
+  <version>4.0.0</version>
+  <name>NEXCORE Backend</name>
 
   <properties>
     <java.version>21</java.version>
@@ -24,7 +24,7 @@
     <!-- Coletores do agente (mesmo processo). Instale antes: mvn -pl agent install -->
     <dependency>
       <groupId>com.pccheck</groupId>
-      <artifactId>pccheck-agent</artifactId>
+      <artifactId>nexcore-agent</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

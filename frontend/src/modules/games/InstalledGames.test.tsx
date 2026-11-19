@@ -71,10 +71,10 @@ describe('InstalledGames', () => {
 
   it('sem Steam mostra como configurar; erro da API aparece', async () => {
     fetchMock.mockResolvedValueOnce({ ...DATA, steamFound: false, steamPath: null, libraries: [], games: [],
-      problems: ['Pasta da Steam não encontrada. Defina PCCHECK_STEAM_DIR.'] })
+      problems: ['Pasta da Steam não encontrada. Defina NEXCORE_STEAM_DIR.'] })
     render(<InstalledGames onSelect={() => {}} />)
     open()
-    expect(await screen.findByText(/PCCHECK_STEAM_DIR/)).toBeTruthy()
+    expect(await screen.findByText(/NEXCORE_STEAM_DIR/)).toBeTruthy()
     cleanup()
 
     fetchMock.mockRejectedValueOnce(new Error('Não foi possível conectar ao backend local.'))

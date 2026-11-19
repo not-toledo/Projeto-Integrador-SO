@@ -2,7 +2,7 @@ package com.pccheck.diagnostic;
 
 /**
  * Limites usados pelo Health Check. São configuráveis (application.properties, prefixo
- * {@code pccheck.health.}).
+ * {@code nexcore.health.}).
  *
  * <p>Origem dos valores padrão: limites genéricos e conservadores definidos pelo projeto, usados na
  * ausência de um limite do fabricante. NÃO são limites oficiais do seu modelo de processador ou disco:
@@ -19,8 +19,8 @@ public record HealthThresholds(double cpuTempWarningC, double cpuTempCriticalC,
                                double ramUsedWarningPercent) {
 
     public static final String SOURCE =
-            "Valores padrão do projeto PCCheck (genéricos e conservadores; não são limites oficiais do fabricante). "
-                    + "Configuráveis em application.properties (pccheck.health.*).";
+            "Valores padrão do projeto NEXCORE (genéricos e conservadores; não são limites oficiais do fabricante). "
+                    + "Configuráveis em application.properties (nexcore.health.*).";
 
     public HealthThresholds {
         if (!(cpuTempWarningC > 0 && cpuTempCriticalC > cpuTempWarningC)) {

@@ -1,5 +1,6 @@
 package com.pccheck.steam.local;
 
+import com.pccheck.agent.Env;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.WinReg;
 import java.nio.file.Files;
@@ -11,7 +12,7 @@ import java.util.function.Predicate;
 /**
  * Encontra a pasta da Steam. Windows: registro ({@code HKCU\Software\Valve\Steam\SteamPath}, depois
  * {@code HKLM\SOFTWARE\WOW6432Node\Valve\Steam\InstallPath}) e a pasta padrão. Linux: as pastas usadas pelo
- * pacote nativo e pelo Flatpak. A variável {@code PCCHECK_STEAM_DIR} tem prioridade (Steam em local não padrão).
+ * pacote nativo e pelo Flatpak. A variável {@code NEXCORE_STEAM_DIR} tem prioridade (Steam em local não padrão).
  */
 public final class SteamLocator {
 
@@ -55,7 +56,7 @@ public final class SteamLocator {
         List<String> registry = windows ? List.of(
                 registry(WinReg.HKEY_CURRENT_USER, "Software\\Valve\\Steam", "SteamPath"),
                 registry(WinReg.HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Valve\\Steam", "InstallPath")) : List.of();
-        return find(candidates(windows, System.getenv("PCCHECK_STEAM_DIR"), System.getProperty("user.home"),
+        return find(candidates(windows, Env.get(System.getenv(), "NEXCORE_STEAM_DIR"), System.getProperty("user.home"),
                 registry), Files::isDirectory);
     }
 

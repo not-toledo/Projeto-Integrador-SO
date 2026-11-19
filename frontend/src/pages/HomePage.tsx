@@ -55,14 +55,14 @@ const PRINCIPLES: { title: string; text: string }[] = [
     text: '"Não disponível" (o sistema não informou) é diferente de falha de coleta, e nenhum dos dois vira defeito.',
   },
   { title: 'Local', text: 'A API só aceita conexões deste computador (127.0.0.1). Só a pesquisa de jogos usa a internet.' },
-  { title: 'Somente leitura', text: 'O PCCheck observa o sistema. Ele não muda configurações nem encerra programas.' },
+  { title: 'Somente leitura', text: 'O NEXCORE observa o sistema. Ele não muda configurações nem encerra programas.' },
 ]
 
 function scrollToFeatures() {
   document.getElementById('funcionalidades')?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })
 }
 
-/** Início: o que é o PCCheck, um resumo real deste computador e o acesso a cada módulo. */
+/** Início: o que é o NEXCORE, um resumo real deste computador e o acesso a cada módulo. */
 export function HomePage() {
   return (
     <main className="home">
@@ -73,7 +73,7 @@ export function HomePage() {
             Conheça<br />seu<br />hardware
           </h1>
           <p className="hero-lead">
-            O PCCheck identifica os componentes, acompanha a saúde e o uso do computador em tempo real e compara o seu
+            O NEXCORE identifica os componentes, acompanha a saúde e o uso do computador em tempo real e compara o seu
             hardware com os requisitos dos jogos. Tudo lido do próprio sistema, sem valores simulados.
           </p>
           <div className="actions">
@@ -141,7 +141,7 @@ export function HomePage() {
           <h2 id="about-title" className="section-title display">Sobre o projeto</h2>
           <p className="section-lead">
             Saber o que existe dentro do computador, se ele está saudável e se aguenta um jogo costuma exigir várias
-            ferramentas e conhecimento técnico. O PCCheck reúne essas respostas numa interface só, explicando de onde
+            ferramentas e conhecimento técnico. O NEXCORE reúne essas respostas numa interface só, explicando de onde
             vem cada dado. É o Projeto Integrador da disciplina de Sistemas Operacionais.
           </p>
           <dl className="principles">
@@ -158,7 +158,7 @@ export function HomePage() {
         </div>
         <figure className="architecture">
           <ArchitectureStack className="architecture-art" />
-          <figcaption className="muted">Camadas do PCCheck: a interface fala com a API local, que lê o sistema.</figcaption>
+          <figcaption className="muted">Camadas do NEXCORE: a interface fala com a API local, que lê o sistema.</figcaption>
         </figure>
       </section>
     </main>

@@ -7,14 +7,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Fonte de GPU e sensores: servidor web local do LibreHardwareMonitor (pccheck.lhm.url).
+ * Fonte de GPU e sensores: servidor web local do LibreHardwareMonitor (nexcore.lhm.url).
  * Só endereços locais são aceitos; URL em branco desativa a integração.
  */
 @Configuration
 public class LhmConfig {
 
     @Bean
-    public LhmSource lhmSource(@Value("${pccheck.lhm.url:" + LhmClient.DEFAULT_URL + "}") String url) {
+    public LhmSource lhmSource(@Value("${nexcore.lhm.url:" + LhmClient.DEFAULT_URL + "}") String url) {
         return LhmClient.create(url);
     }
 }

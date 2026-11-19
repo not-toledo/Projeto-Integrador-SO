@@ -10,11 +10,11 @@ using System.Threading;
 using LibreHardwareMonitor.Hardware;
 using Microsoft.Win32;
 
-namespace PCCheck.SensorHost
+namespace NEXCORE.SensorHost
 {
     /// <summary>
-    /// Leitor de sensores do PCCheck. Iniciado pelo backend Java com:
-    ///   PCCheck.SensorHost.exe --pipe pccheck-sensors-&lt;id&gt; --parent &lt;pid do backend&gt;
+    /// Leitor de sensores do NEXCORE. Iniciado pelo backend Java com:
+    ///   NEXCORE.SensorHost.exe --pipe nexcore-sensors-&lt;id&gt; --parent &lt;pid do backend&gt;
     ///
     /// A cada conexão no pipe nomeado, escreve UMA linha JSON com os sensores e desconecta. O pipe é somente
     /// de saída: o cliente apenas lê, então não há comandos a interpretar. Nenhuma porta de rede é aberta.
@@ -25,7 +25,7 @@ namespace PCCheck.SensorHost
     /// </summary>
     internal static class Program
     {
-        private const string PipePrefix = "pccheck-sensors-";
+        private const string PipePrefix = "nexcore-sensors-";
         private const int MinRefreshMs = 500;
 
         private static int Main(string[] args)

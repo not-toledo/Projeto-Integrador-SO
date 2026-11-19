@@ -7,7 +7,7 @@ import com.pccheck.agent.sensors.SensorsUnavailableException;
 import oshi.SystemInfo;
 
 /**
- * Lê a temperatura da CPU. A fonte preferida é o leitor de sensores do PCCheck (sensor-host), que lê o
+ * Lê a temperatura da CPU. A fonte preferida é o leitor de sensores do NEXCORE (sensor-host), que lê o
  * sensor real da CPU; sem ele, tenta o que o sistema operacional expõe via OSHI (útil no Linux; no
  * Windows quase sempre sem leitura). Sem nenhuma das fontes o resultado é "não disponível", com o
  * motivo, nunca um valor estimado.

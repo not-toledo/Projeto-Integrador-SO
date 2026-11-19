@@ -41,15 +41,15 @@ public class LiveMonitorService {
     private ScheduledExecutorService executor;
     private LiveSampler sampler;
 
-    public LiveMonitorService(@Value("${pccheck.monitor.interval-ms:2000}") long intervalMs,
-                              @Value("${pccheck.monitor.history-size:300}") int historySize,
+    public LiveMonitorService(@Value("${nexcore.monitor.interval-ms:2000}") long intervalMs,
+                              @Value("${nexcore.monitor.history-size:300}") int historySize,
                               SensorSource sensors) {
         if (intervalMs < MIN_INTERVAL_MS) {
-            throw new IllegalArgumentException("pccheck.monitor.interval-ms deve ser pelo menos " + MIN_INTERVAL_MS + ".");
+            throw new IllegalArgumentException("nexcore.monitor.interval-ms deve ser pelo menos " + MIN_INTERVAL_MS + ".");
         }
         if (historySize < MIN_HISTORY || historySize > MAX_HISTORY) {
             throw new IllegalArgumentException(
-                    "pccheck.monitor.history-size deve estar entre " + MIN_HISTORY + " e " + MAX_HISTORY + ".");
+                    "nexcore.monitor.history-size deve estar entre " + MIN_HISTORY + " e " + MAX_HISTORY + ".");
         }
         this.intervalMs = intervalMs;
         this.sensors = sensors;
@@ -63,7 +63,7 @@ public class LiveMonitorService {
             return;
         }
         executor = Executors.newSingleThreadScheduledExecutor(runnable -> {
-            Thread thread = new Thread(runnable, "pccheck-live-monitor");
+            Thread thread = new Thread(runnable, "nexcore-live-monitor");
             thread.setDaemon(true);
             return thread;
         });

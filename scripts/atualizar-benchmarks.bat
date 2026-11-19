@@ -3,17 +3,17 @@ REM Atualiza a tabela de benchmarks de CPU e GPU (backend\src\main\resources\ben
 REM a partir do snapshot diario do Blender Open Data (https://opendata.blender.org, licenca CC0).
 REM   scripts\atualizar-benchmarks.bat [opendata-latest.zip]
 REM Sem argumento, baixa o snapshot (~100 MB) para uma pasta temporaria e o apaga no fim.
-REM Requer JDK 21, Maven e curl (incluso no Windows 10 1803+). Nao e executado durante o uso do PCCheck.
+REM Requer JDK 21, Maven e curl (incluso no Windows 10 1803+). Nao e executado durante o uso do NEXCORE.
 setlocal
 cd /d "%~dp0\.."
 REM O agente e reinstalado abaixo: com um backend aberto, isso quebraria o backend em execucao.
 netstat -ano -p tcp | findstr /r /c:":8080 .*LISTENING" >nul
 if not errorlevel 1 (
-  echo A porta 8080 esta em uso ^(backend do PCCheck aberto^). Feche o backend e rode este script de novo.
+  echo A porta 8080 esta em uso ^(backend do NEXCORE aberto^). Feche o backend e rode este script de novo.
   exit /b 1
 )
 set "OUT=backend\src\main\resources\benchmarks\blender-opendata.csv"
-set "TMPDIR=%TEMP%\pccheck-benchmarks-%RANDOM%%RANDOM%"
+set "TMPDIR=%TEMP%\nexcore-benchmarks-%RANDOM%%RANDOM%"
 mkdir "%TMPDIR%" || exit /b 1
 set "ZIP=%~1"
 if "%ZIP%"=="" (

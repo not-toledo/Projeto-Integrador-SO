@@ -1,10 +1,10 @@
-# Documentação de projeto — PCCheck
+# Documentação de projeto — NEXCORE
 
 ## Objetivo
 
-O PCCheck é uma aplicação **local** de identificação, diagnóstico básico e monitoramento de hardware. Ele coleta
+O NEXCORE é uma aplicação **local** de identificação, diagnóstico básico e monitoramento de hardware. Ele coleta
 informações reais do computador onde o agente está em execução e as apresenta de forma compreensível para um usuário
-comum. Projeto da disciplina Projeto Integrador de Sistemas Operacionais (versão atual: **1.0.0**).
+comum. Projeto da disciplina Projeto Integrador de Sistemas Operacionais (versão atual: **4.0.0**; até a V3.2 o produto se chamava PCCheck).
 
 Uma aplicação hospedada na nuvem não consegue inspecionar o hardware de quem a visita; por isso a coleta sempre ocorre
 na máquina do usuário.
@@ -98,7 +98,7 @@ Visão resumida; diagramas completos em [diagramas.md](diagramas.md).
 - **Armazenamento:** o tipo (SSD/HDD) só aparece quando o SO informa (Windows: `MSFT_PhysicalDisk`; Linux: `/sys/block`); pen drives e discos em que o SO não informa ficam "Não disponível". Nunca é deduzido do nome do modelo.
 - **Comparação por benchmark:** o Blender Open Data mede renderização, não jogos. Por isso GPUs só são comparadas dentro da mesma geração, e CPUs com diferença entre o total e o desempenho por núcleo ficam para revisão manual. Placas sem resultado no benchmark atual (ex.: AMD Polaris, como RX 480/580) e notebooks não são comparados. A GTX 1060 de 3 GB e a de 6 GB têm a mesma chave de modelo. A tabela é um retrato do snapshot usado; é atualizada por `scripts/atualizar-benchmarks`.
 - **Pré-checagem antes de jogar:** os limites (50% do mínimo de RAM livre, 50% de CPU) são heurísticas do projeto. Mede um instante (~1 s): um pico passageiro pode aparecer ou passar despercebido. O plano de energia só é avaliado para os três planos padrão do Windows; no Linux o governador é só informado.
-- **Jogos instalados:** só a Steam é lida (outras lojas não). A lista vem dos arquivos da própria Steam e inclui ferramentas (ex.: redistribuíveis). Steam em local não padrão exige `PCCHECK_STEAM_DIR`.
+- **Jogos instalados:** só a Steam é lida (outras lojas não). A lista vem dos arquivos da própria Steam e inclui ferramentas (ex.: redistribuíveis). Steam em local não padrão exige `NEXCORE_STEAM_DIR`.
 - **Placa-mãe:** textos genéricos de fabricantes (como "To be filled by O.E.M.") e placeholders (como `x.x`) são descartados e aparecem como "Não informado pelo fabricante" (diferente de "Não disponível", quando o dado não pôde ser lido). No Windows, o modelo vem de `Win32_BaseBoard.Product` quando o OSHI não o informa (o OSHI lê `Win32_BaseBoard.Model`, que quase nunca é preenchido). O modelo do computador nunca é usado como modelo da placa.
 - **Sensores:** temperatura da CPU e ventoinhas da placa-mãe exigem permissão de administrador (aviso do Windows ao
   iniciar) e o driver PawnIO; sem eles ficam "Sem leitura", com o motivo. Placas-mãe com chip de monitoramento não
@@ -124,5 +124,5 @@ Visão resumida; diagramas completos em [diagramas.md](diagramas.md).
 | Arquivos e diretórios de outros programas | Jogos instalados lidos dos arquivos da Steam (`libraryfolders.vdf` e `appmanifest_*.acf`), só leitura, com caminhos por SO (registro do Windows ou pastas do Linux/Flatpak), limite de tamanho por arquivo e arquivos inválidos listados sem esconder os demais. |
 | Concorrência | Coleta periódica em thread de segundo plano, uma coleta por vez, sem bloquear a interface. |
 | Agendamento de tarefas e processos em segundo plano | `scripts/agendar-coleta` registra a coleta no agendador do SO (`schtasks` no Windows, `cron` no Linux). Cada execução é um processo de curta duração cujo código de saída fica registrado no agendador; o backend consulta o agendador executando `schtasks`/`crontab` com tempo limite. |
-| Arquivos, travas, permissões e variáveis de ambiente | Histórico em JSON Lines com rotação diária e retenção; gravação sob trava exclusiva de arquivo (concorrência entre agendador e backend); no Linux, pasta `700` e arquivos `600`; pasta e retenção configuráveis por `PCCHECK_DATA_DIR` e `PCCHECK_RETENCAO_DIAS`. |
+| Arquivos, travas, permissões e variáveis de ambiente | Histórico em JSON Lines com rotação diária e retenção; gravação sob trava exclusiva de arquivo (concorrência entre agendador e backend); no Linux, pasta `700` e arquivos `600`; pasta e retenção configuráveis por `NEXCORE_DATA_DIR` e `NEXCORE_RETENCAO_DIAS`. |
 | Shell Script e automação | `scripts/` compila e executa agente e backend; `tests/` confere a saída. |

@@ -1,6 +1,6 @@
-# PCCheck — Frontend
+# NEXCORE — Frontend
 
-Interface web do PCCheck (React 19 + TypeScript, empacotada com Vite). Mostra os três módulos: **Hardware Overview**, **Health Check** e **Live Monitor**, consumindo a API local do backend. Visão geral do projeto no [README principal](../README.md).
+Interface web do NEXCORE (React 19 + TypeScript, empacotada com Vite). Mostra os três módulos: **Hardware Overview**, **Health Check** e **Live Monitor**, consumindo a API local do backend. Visão geral do projeto no [README principal](../README.md).
 
 ## Requisitos
 

@@ -23,7 +23,7 @@ import java.util.zip.ZipFile;
 
 /**
  * Gera {@code benchmarks/blender-opendata.csv} a partir do snapshot do Blender Open Data (licença CC0).
- * Executado pelo script {@code scripts/atualizar-benchmarks}, nunca durante o uso do PCCheck.
+ * Executado pelo script {@code scripts/atualizar-benchmarks}, nunca durante o uso do NEXCORE.
  *
  * <p>Regras (as mesmas do site do Blender Open Data, versão 4 do formato):
  * <ul>

@@ -7,7 +7,7 @@ import java.util.List;
  *
  * @param cpuTemperatureCelsius temperatura da CPU em °C
  * @param fanSpeedsRpm          rotação das ventoinhas em RPM (somente leituras válidas); nula = não disponível
- * @param gpuTemperatureCelsius temperatura da GPU em °C (via leitor de sensores do PCCheck)
+ * @param gpuTemperatureCelsius temperatura da GPU em °C (via leitor de sensores do NEXCORE)
  */
 public record SensorLive(Double cpuTemperatureCelsius, List<Integer> fanSpeedsRpm, Double gpuTemperatureCelsius) {
 

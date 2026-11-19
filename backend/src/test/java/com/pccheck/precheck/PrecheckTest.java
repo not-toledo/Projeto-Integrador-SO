@@ -157,9 +157,9 @@ class PrecheckTest {
                 new ProcessLoad(5628, "java", 0.717, 119L << 20),
                 new ProcessLoad(10124, "brave", 0.255, 1093L << 20),
                 new ProcessLoad(17424, "Brave", 0.134, 88L << 20),
-                new ProcessLoad(42, "pccheck-backend", 0.5, 400L << 20));
+                new ProcessLoad(42, "nexcore-backend", 0.5, 400L << 20));
         List<ProcessGroup> groups = SystemProbe.group(loads, 8, 42, true);
-        assertEquals(2, groups.size(), "sem o processo ocioso e sem o próprio PCCheck");
+        assertEquals(2, groups.size(), "sem o processo ocioso e sem o próprio NEXCORE");
         assertEquals("java", groups.get(0).name());
         assertEquals(0.717 / 8 * 100, groups.get(0).cpuPercent(), 1e-9);
         ProcessGroup brave = groups.get(1);

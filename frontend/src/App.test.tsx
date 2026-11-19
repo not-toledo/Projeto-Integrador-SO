@@ -16,7 +16,7 @@ vi.mock('./services/healthService', () => ({ fetchHealthReport: vi.fn() }))
 vi.mock('./services/liveService', () => ({ fetchLive: vi.fn(), fetchLiveHistory: vi.fn() }))
 
 function navLink(name: string) {
-  return within(screen.getByRole('navigation', { name: 'Telas do PCCheck' })).getByRole('link', { name })
+  return within(screen.getByRole('navigation', { name: 'Telas do NEXCORE' })).getByRole('link', { name })
 }
 
 /** Segue um link da navegação: o endereço muda (#/...) e a tela acompanha. */

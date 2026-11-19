@@ -13,7 +13,7 @@ import java.util.Locale;
 /**
  * Saúde dos discos (SMART), lida pelo leitor de sensores com permissão de administrador.
  *
- * <p>Avalia o que o disco informa: vida útil restante (SSDs) e temperatura. O PCCheck não lê setores realocados,
+ * <p>Avalia o que o disco informa: vida útil restante (SSDs) e temperatura. O NEXCORE não lê setores realocados,
  * setores pendentes nem erros de leitura, então "indicadores normais" não garante ausência de falhas. Sem leitura,
  * o alerta diz o motivo e que a saúde física NÃO foi avaliada.
  */
@@ -103,7 +103,7 @@ public class DiskHealthDiagnostic implements Diagnostic {
                 : "A temperatura informada pelo disco está dentro do limite" + (hdd ? " (HDDs não informam vida útil)." : ".");
         return new Alert(id, component, Severity.INFO, AlertKind.NORMAL,
                 "Indicadores do disco normais",
-                evaluated + " O PCCheck não lê setores realocados nem erros de leitura; por isso, isto não garante que "
+                evaluated + " O NEXCORE não lê setores realocados nem erros de leitura; por isso, isto não garante que "
                         + "o disco esteja livre de falhas.",
                 observed, limits, now);
     }

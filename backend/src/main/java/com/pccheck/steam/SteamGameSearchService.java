@@ -17,7 +17,7 @@ public class SteamGameSearchService {
     private final ConcurrentHashMap<String, Cached> cache = new ConcurrentHashMap<>();
 
     public SteamGameSearchService(SteamStoreClient client,
-            @Value("${pccheck.steam.search-cache-seconds:300}") long cacheSeconds) {
+            @Value("${nexcore.steam.search-cache-seconds:300}") long cacheSeconds) {
         this.client = client;
         this.cacheSeconds = Math.max(0, cacheSeconds);
     }

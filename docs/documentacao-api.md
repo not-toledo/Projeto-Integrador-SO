@@ -1,4 +1,4 @@
-# Documentação de APIs — PCCheck
+# Documentação de APIs — NEXCORE
 
 O backend expõe uma API REST local em `http://127.0.0.1:8080`. Todas as rotas começam com `/api`.
 
@@ -38,5 +38,5 @@ O backend expõe uma API REST local em `http://127.0.0.1:8080`. Todas as rotas c
 
 ## Configuração
 
-Os parâmetros ficam em `backend/src/main/resources/application.properties` nos prefixos `pccheck.health.*`,
-`pccheck.monitor.*`, `pccheck.sensors.*` e `pccheck.steam.*`.
+Os parâmetros ficam em `backend/src/main/resources/application.properties` nos prefixos `nexcore.health.*`,
+`nexcore.monitor.*`, `nexcore.sensors.*` e `nexcore.steam.*`.

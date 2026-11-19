@@ -117,7 +117,7 @@ function ProcessTable({ data, now }: { data: ProcessesResponse; now: number }) {
               <tr key={r.key} className={r.self ? 'row-self' : undefined}>
                 <td>
                   {r.name}
-                  {r.self && <span className="chip">PCCheck</span>}
+                  {r.self && <span className="chip">NEXCORE</span>}
                 </td>
                 <td className="num">{r.pids.length > 1 ? `${r.pids.length} processos` : r.pids[0]}</td>
                 <td className="num">
@@ -235,7 +235,7 @@ export function ProcessesPage() {
           </section>
 
           <p className="muted">
-            O PCCheck só lê a lista de processos: não encerra nem altera nenhum.
+            O NEXCORE só lê a lista de processos: não encerra nem altera nenhum.
             {data.osFamily === 'windows'
               ? ' No Windows, o sistema informa todos os processos como "em execução" (o estado detalhado não é exposto), por isso a coluna Estado não aparece. O dono de processos do sistema só é informado com permissão de administrador.'
               : ' Sem permissão de administrador, alguns dados de processos de outros usuários podem não ser informados.'}

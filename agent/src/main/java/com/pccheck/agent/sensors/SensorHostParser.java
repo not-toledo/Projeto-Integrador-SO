@@ -23,13 +23,13 @@ public final class SensorHostParser {
 
     static final String NOT_ELEVATED =
             "A temperatura da CPU e as ventoinhas da placa-mãe exigem permissão de administrador. "
-                    + "Reinicie o PCCheck e confirme o aviso do Windows.";
+                    + "Reinicie o NEXCORE e confirme o aviso do Windows.";
     static final String NO_DRIVER =
             "O driver PawnIO não está instalado; sem ele o Windows não permite ler a temperatura da CPU e as "
-                    + "ventoinhas da placa-mãe. Instale-o uma vez (https://pawnio.eu) e reinicie o PCCheck.";
+                    + "ventoinhas da placa-mãe. Instale-o uma vez (https://pawnio.eu) e reinicie o NEXCORE.";
 
     public static final String DISKS_NOT_ELEVATED =
-            "A saúde dos discos (SMART) exige permissão de administrador. Reinicie o PCCheck e confirme o aviso do "
+            "A saúde dos discos (SMART) exige permissão de administrador. Reinicie o NEXCORE e confirme o aviso do "
                     + "Windows.";
 
     private static final String[] CPU_TEMPERATURE_NAMES = {

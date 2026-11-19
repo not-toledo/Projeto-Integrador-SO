@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
 
-/** Telas do PCCheck. O endereço usa o fragmento (#/live) para o botão Voltar do navegador funcionar sem biblioteca de rotas. */
+/** Telas do NEXCORE. O endereço usa o fragmento (#/live) para o botão Voltar do navegador funcionar sem biblioteca de rotas. */
 export type View = 'home' | 'hardware' | 'health' | 'live' | 'processes' | 'history' | 'games'
 
 /** Telas do menu principal. O Histórico (coleta agendada) continua acessível pelo endereço #/history. */

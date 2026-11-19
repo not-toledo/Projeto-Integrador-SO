@@ -95,7 +95,7 @@ export function PrecheckPanel({ appId }: { appId: number }) {
           )}
           <p className="muted">
             Verificado em {dateTime(current.checkedAt)}. CPU em % do total (todos os núcleos), medida em cerca de 1 s;
-            memória é a soma do conjunto de trabalho de cada aplicativo. O PCCheck não encerra processos. Pré-checagem
+            memória é a soma do conjunto de trabalho de cada aplicativo. O NEXCORE não encerra processos. Pré-checagem
             do estado atual: não garante desempenho.
           </p>
         </>

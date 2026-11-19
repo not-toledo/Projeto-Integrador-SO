@@ -1,5 +1,6 @@
 package com.pccheck.agent.history;
 
+import com.pccheck.agent.Env;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -38,7 +39,7 @@ import java.util.regex.Pattern;
  */
 public final class HistoryStore {
 
-    public static final String ENV_DATA_DIR = "PCCHECK_DATA_DIR";
+    public static final String ENV_DATA_DIR = "NEXCORE_DATA_DIR";
     public static final int DEFAULT_RETENTION_DAYS = 7;
     private static final Pattern FILE_NAME = Pattern.compile("coletas-(\\d{4}-\\d{2}-\\d{2})\\.jsonl");
 
@@ -50,20 +51,60 @@ public final class HistoryStore {
         this.zone = zone;
     }
 
-    /** Diretório de dados padrão: {@value #ENV_DATA_DIR}; senão %LOCALAPPDATA%\PCCheck (Windows) ou XDG (Linux). */
+    /** Diretório de dados padrão: {@value #ENV_DATA_DIR}; senão %LOCALAPPDATA%\NEXCORE (Windows) ou XDG (Linux). */
     public static Path defaultDataDir(Map<String, String> env, String osName, String userHome) {
-        String explicit = env.get(ENV_DATA_DIR);
+        String explicit = Env.get(env, ENV_DATA_DIR);
         if (explicit != null && !explicit.isBlank()) {
             return Path.of(explicit.trim());
         }
+        return userDataDir(env, osName, userHome, "NEXCORE", "nexcore");
+    }
+
+    /**
+     * Pasta usada quando o produto se chamava PCCheck ({@code %LOCALAPPDATA%\PCCheck} ou {@code ~/.local/state/pccheck});
+     * null quando a pasta foi definida por variável de ambiente (nesse caso não há migração).
+     */
+    public static Path legacyDataDir(Map<String, String> env, String osName, String userHome) {
+        String explicit = Env.get(env, ENV_DATA_DIR);
+        return explicit != null && !explicit.isBlank() ? null : userDataDir(env, osName, userHome, "PCCheck", "pccheck");
+    }
+
+    private static Path userDataDir(Map<String, String> env, String osName, String userHome, String windowsName,
+                                    String linuxName) {
         if (osName != null && osName.toLowerCase(Locale.ROOT).startsWith("windows")) {
             String local = env.get("LOCALAPPDATA");
             return (local == null || local.isBlank() ? Path.of(userHome, "AppData", "Local") : Path.of(local))
-                    .resolve("PCCheck");
+                    .resolve(windowsName);
         }
         String state = env.get("XDG_STATE_HOME");
         return (state == null || state.isBlank() ? Path.of(userHome, ".local", "state") : Path.of(state))
-                .resolve("pccheck");
+                .resolve(linuxName);
+    }
+
+    /**
+     * Copia (sem mover nem apagar) as coletas da pasta antiga para a nova, uma única vez: só quando a pasta nova
+     * ainda não tem a subpasta de coletas e a antiga tem. Retorna quantos arquivos foram copiados.
+     */
+    public static int migrateLegacy(Path dataDir, Path legacyDir) throws IOException {
+        if (legacyDir == null || legacyDir.equals(dataDir)) {
+            return 0;
+        }
+        Path target = dataDir.resolve("coletas");
+        Path source = legacyDir.resolve("coletas");
+        if (Files.exists(target) || !Files.isDirectory(source)) {
+            return 0;
+        }
+        createPrivateDirectories(target);
+        int copied = 0;
+        try (var files = Files.list(source)) {
+            for (Path file : files.toList()) {
+                if (Files.isRegularFile(file) && FILE_NAME.matcher(file.getFileName().toString()).matches()) {
+                    Files.copy(file, target.resolve(file.getFileName().toString()));
+                    copied++;
+                }
+            }
+        }
+        return copied;
     }
 
     public Path directory() {

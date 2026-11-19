@@ -16,7 +16,7 @@ import java.util.concurrent.Executor;
  * <ul>
  *   <li>Se o usuário recusar a elevação, o leitor roda sem ela: GPU continua com leitura; CPU e ventoinhas
  *       da placa-mãe ficam "Sem leitura" com a explicação.</li>
- *   <li>Comunicação por pipe nomeado local com nome aleatório, somente leitura para o PCCheck. Nenhuma porta
+ *   <li>Comunicação por pipe nomeado local com nome aleatório, somente leitura para o NEXCORE. Nenhuma porta
  *       de rede é aberta.</li>
  *   <li>O leitor termina sozinho quando o backend termina. Se ele cair, é reiniciado (até {@value #MAX_RESTARTS} vezes).</li>
  *   <li>Uma leitura recente (menos de 1 s) é reaproveitada: Live Monitor e Health Check não consultam duas vezes.</li>
@@ -24,8 +24,8 @@ import java.util.concurrent.Executor;
  */
 public final class SensorHostClient implements SensorSource, AutoCloseable {
 
-    public static final String EXE_NAME = "PCCheck.SensorHost.exe";
-    static final String PIPE_PREFIX = "pccheck-sensors-";
+    public static final String EXE_NAME = "NEXCORE.SensorHost.exe";
+    static final String PIPE_PREFIX = "nexcore-sensors-";
     static final long READ_TIMEOUT_MS = 3000;
     static final long CACHE_MS = 1000;
     static final int MAX_RESTARTS = 3;
@@ -100,11 +100,11 @@ public final class SensorHostClient implements SensorSource, AutoCloseable {
         Path exe = locate(configuredPath);
         if (exe == null) {
             return SensorSource.unavailable("O leitor de sensores (" + EXE_NAME + ") não foi encontrado. "
-                    + "Compile-o com scripts\\build-sensor-host.bat ou ajuste pccheck.sensors.host-path.");
+                    + "Compile-o com scripts\\build-sensor-host.bat ou ajuste nexcore.sensors.host-path.");
         }
         WindowsSensorHost windows = new WindowsSensorHost();
         SensorHostClient client = new SensorHostClient(exe, elevate, windows, windows, task -> {
-            Thread thread = new Thread(task, "pccheck-sensor-host-launch");
+            Thread thread = new Thread(task, "nexcore-sensor-host-launch");
             thread.setDaemon(true);
             thread.start();
         });
@@ -222,7 +222,7 @@ public final class SensorHostClient implements SensorSource, AutoCloseable {
         process = null;
         if (restarts >= MAX_RESTARTS) {
             state = State.FAILED;
-            problem = "O leitor de sensores foi encerrado várias vezes e não será reiniciado. Reinicie o PCCheck.";
+            problem = "O leitor de sensores foi encerrado várias vezes e não será reiniciado. Reinicie o NEXCORE.";
             return new SensorsUnavailableException(problem);
         }
         restarts++;

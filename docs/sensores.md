@@ -1,10 +1,10 @@
-# GPU e sensores: leitor de sensores do PCCheck
+# GPU e sensores: leitor de sensores do NEXCORE
 
 O OSHI identifica bem o hardware, mas no Windows não fornece temperatura da CPU, ventoinhas nem telemetria da GPU.
 Esses dados só podem ser lidos com um driver de kernel e permissão de administrador: é uma restrição do Windows, não
 do Java nem do OSHI. Programas como HWiNFO, HWMonitor e Core Temp trazem o próprio driver pelo mesmo motivo.
 
-Por isso o PCCheck tem um **leitor de sensores interno** (`sensor-host/`): um executável pequeno (~3 MB) que usa a
+Por isso o NEXCORE tem um **leitor de sensores interno** (`sensor-host/`): um executável pequeno (~3 MB) que usa a
 biblioteca [LibreHardwareMonitorLib](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) (licença MPL-2.0).
 O backend inicia, controla e encerra esse leitor sozinho. **O usuário não instala nem abre nenhum outro programa.**
 
@@ -21,11 +21,11 @@ O backend inicia, controla e encerra esse leitor sozinho. **O usuário não inst
 
 ## Como funciona
 
-1. Ao subir, o backend inicia `sensor-host/dist/PCCheck.SensorHost.exe` e o Windows mostra o aviso de administrador
+1. Ao subir, o backend inicia `sensor-host/dist/NEXCORE.SensorHost.exe` e o Windows mostra o aviso de administrador
    (UAC). Aceite para ter temperatura da CPU e ventoinhas.
 2. Se o aviso for recusado, o leitor roda sem elevação: a GPU continua com leitura e CPU/ventoinhas aparecem como
    "Sem leitura" com a explicação. Para tentar de novo, reinicie o backend.
-3. A comunicação é por um **pipe nomeado local** com nome aleatório, somente leitura para o PCCheck. Nenhuma porta de
+3. A comunicação é por um **pipe nomeado local** com nome aleatório, somente leitura para o NEXCORE. Nenhuma porta de
    rede é aberta.
 4. O leitor termina sozinho quando o backend termina (inclusive se for fechado à força). Se ele cair, o backend o
    reinicia (até 3 vezes).
@@ -35,7 +35,7 @@ O backend inicia, controla e encerra esse leitor sozinho. **O usuário não inst
 - **Para executar:** Windows 10 (1903+) ou 11 com .NET Framework 4.8, que já vem no sistema.
 - **Driver PawnIO** (para CPU e ventoinhas da placa-mãe): driver assinado usado pela LibreHardwareMonitorLib no lugar
   do antigo WinRing0, que o Windows Defender bloqueia por ser vulnerável. Instalação única pelo site
-  <https://pawnio.eu> (modo silencioso: `PawnIOSetup.exe -install -silent`). Um instalador do PCCheck deve incluí-lo.
+  <https://pawnio.eu> (modo silencioso: `PawnIOSetup.exe -install -silent`). Um instalador do NEXCORE deve incluí-lo.
 - **Para compilar o leitor:** .NET SDK 8 ou superior. `scripts\run-backend.bat` compila na primeira execução; para
   compilar manualmente use `scripts\build-sensor-host.bat`.
 
@@ -45,9 +45,9 @@ Em `backend/src/main/resources/application.properties`:
 
 | Chave | Padrão | Função |
 |---|---|---|
-| `pccheck.sensors.enabled` | `true` | Liga/desliga a leitura de sensores. |
-| `pccheck.sensors.elevate` | `true` | Pede administrador ao iniciar. Com `false`, só os dados que não exigem elevação. |
-| `pccheck.sensors.host-path` | (vazio) | Caminho do `PCCheck.SensorHost.exe`. Vazio: procura em `sensor-host/dist/`. |
+| `nexcore.sensors.enabled` | `true` | Liga/desliga a leitura de sensores. |
+| `nexcore.sensors.elevate` | `true` | Pede administrador ao iniciar. Com `false`, só os dados que não exigem elevação. |
+| `nexcore.sensors.host-path` | (vazio) | Caminho do `NEXCORE.SensorHost.exe`. Vazio: procura em `sensor-host/dist/`. |
 
 ## Quando não há leitura
 

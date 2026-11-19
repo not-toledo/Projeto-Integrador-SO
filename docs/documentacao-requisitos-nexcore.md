@@ -1,6 +1,6 @@
-# DOCUMENTAÇÃO DE REQUISITOS — PCCheck
+# DOCUMENTAÇÃO DE REQUISITOS — NEXCORE
 
-**Projeto:** PCCheck — Identificação, Diagnóstico e Monitoramento de Hardware  
+**Projeto:** NEXCORE — Identificação, Diagnóstico e Monitoramento de Hardware  
 **Versão:** 1.0.0  
 **Disciplina:** Projeto Integrador de Sistemas Operacionais  
 **Plataformas:** Windows e Linux  
@@ -10,7 +10,7 @@
 
 ## 1. Introdução
 
-O PCCheck é uma aplicação local desenvolvida para identificar componentes de hardware, realizar diagnósticos básicos e monitorar o desempenho do computador em tempo real.
+O NEXCORE é uma aplicação local desenvolvida para identificar componentes de hardware, realizar diagnósticos básicos e monitorar o desempenho do computador em tempo real.
 
 O sistema coleta informações diretamente do computador onde está sendo executado, utilizando ferramentas e bibliotecas de acesso ao hardware, apresentando os resultados por meio de uma interface gráfica intuitiva.
 
@@ -211,7 +211,7 @@ O projeto será considerado funcional quando:
 
 ## 9. Considerações finais
 
-A documentação estabelece os requisitos funcionais e não funcionais da versão 1.0.0 do PCCheck, servindo como referência para desenvolvimento, testes, manutenção e avaliação acadêmica.
+A documentação estabelece os requisitos funcionais e não funcionais da versão 1.0.0 do NEXCORE, servindo como referência para desenvolvimento, testes, manutenção e avaliação acadêmica.
 
 O projeto prioriza a coleta de informações reais, a segurança da execução local, a confiabilidade dos diagnósticos e a apresentação compreensível dos dados de hardware.
 

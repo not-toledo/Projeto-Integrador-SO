@@ -7,7 +7,7 @@ import java.util.List;
  * Estado do sistema num instante. Campo nulo = não lido (o motivo fica no campo de erro correspondente).
  *
  * @param systemCpuPercent uso total da CPU no intervalo medido
- * @param processes        grupos de processos (sem o próprio PCCheck nem o processo ocioso do sistema)
+ * @param processes        grupos de processos (sem o próprio NEXCORE nem o processo ocioso do sistema)
  * @param onBattery        true só quando uma bateria informa que está descarregando
  */
 public record SystemState(Long totalRamBytes, Long availableRamBytes, Double systemCpuPercent,

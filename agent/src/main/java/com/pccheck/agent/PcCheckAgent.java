@@ -8,7 +8,7 @@ import java.time.ZoneId;
 import oshi.SystemInfo;
 
 /**
- * Ponto de entrada do agente local do PCCheck.
+ * Ponto de entrada do agente local do NEXCORE.
  *
  * Sem argumentos: coleta SO, CPU, memoria, GPU, placa-mae e armazenamento (via OSHI) e imprime o resultado.
  * --registrar-coleta: grava uma coleta no historico (usado pela tarefa agendada; ver scripts/agendar-coleta).
@@ -16,7 +16,7 @@ import oshi.SystemInfo;
  */
 public final class PcCheckAgent {
 
-    public static final String VERSION = "1.0.0";
+    public static final String VERSION = "4.0.0";
 
     private PcCheckAgent() {
     }
@@ -35,13 +35,13 @@ public final class PcCheckAgent {
                 }
                 default -> {
                     System.err.println("Opcao desconhecida: " + args[0]);
-                    System.err.println("Uso: java -jar pccheck-agent.jar [--registrar-coleta | --onde]");
+                    System.err.println("Uso: java -jar nexcore-agent.jar [--registrar-coleta | --onde]");
                     System.exit(2);
                     return;
                 }
             }
         }
-        System.out.println("PCCheck Agent v" + VERSION);
+        System.out.println("NEXCORE Agent v" + VERSION);
         System.out.println("Java: " + System.getProperty("java.version")
                 + " (" + System.getProperty("java.vendor") + ")");
 

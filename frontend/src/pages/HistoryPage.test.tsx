@@ -18,7 +18,7 @@ function record(at: string, overrides: Partial<HistoryRecord> = {}): HistoryReco
 
 function response(overrides: Partial<HistoryResponse> = {}): HistoryResponse {
   return {
-    directory: 'C:\\Users\\u\\AppData\\Local\\PCCheck\\coletas', days: 7, count: 2,
+    directory: 'C:\\Users\\u\\AppData\\Local\\NEXCORE\\coletas', days: 7, count: 2,
     lastCollectedAt: '2026-11-17T12:15:00Z',
     scheduler: { state: 'INSTALLED', details: 'Próxima execução: 17/11/2026 12:30:00 · Estado: Pronto' },
     records: [record('2026-11-17T12:00:00Z'), record('2026-11-17T12:15:00Z')],

@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Resposta de {@code GET /api/history}.
  *
- * @param directory      pasta lida (configurável por PCCHECK_DATA_DIR ou pccheck.history.data-dir)
+ * @param directory      pasta lida (configurável por NEXCORE_DATA_DIR ou nexcore.history.data-dir)
  * @param days           período consultado
  * @param count          quantidade de coletas no período
  * @param lastCollectedAt última coleta do período, ou null

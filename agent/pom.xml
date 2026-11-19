@@ -6,12 +6,12 @@
 
   <parent>
     <groupId>com.pccheck</groupId>
-    <artifactId>pccheck-parent</artifactId>
-    <version>1.0.0</version>
+    <artifactId>nexcore-parent</artifactId>
+    <version>4.0.0</version>
   </parent>
 
-  <artifactId>pccheck-agent</artifactId>
-  <name>PCCheck Agent</name>
+  <artifactId>nexcore-agent</artifactId>
+  <name>NEXCORE Agent</name>
 
   <properties>
     <oshi.version>6.6.5</oshi.version>

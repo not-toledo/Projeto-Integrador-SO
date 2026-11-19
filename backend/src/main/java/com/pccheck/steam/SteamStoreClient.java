@@ -29,10 +29,10 @@ public class SteamStoreClient {
     @Autowired
     public SteamStoreClient(
             ObjectMapper mapper,
-            @Value("${pccheck.steam.country:br}") String country,
-            @Value("${pccheck.steam.language:brazilian}") String language,
-            @Value("${pccheck.steam.connect-timeout-ms:5000}") long connectTimeout,
-            @Value("${pccheck.steam.read-timeout-ms:8000}") long readTimeout) {
+            @Value("${nexcore.steam.country:br}") String country,
+            @Value("${nexcore.steam.language:brazilian}") String language,
+            @Value("${nexcore.steam.connect-timeout-ms:5000}") long connectTimeout,
+            @Value("${nexcore.steam.read-timeout-ms:8000}") long readTimeout) {
 
         this(
                 mapper,
@@ -93,7 +93,7 @@ public class SteamStoreClient {
             HttpRequest request = HttpRequest.newBuilder(URI.create(url))
                     .timeout(readTimeout)
                     .header("Accept", "application/json")
-                    .header("User-Agent", "PCCheck/1.1")
+                    .header("User-Agent", "NEXCORE/1.1")
                     .GET()
                     .build();
 

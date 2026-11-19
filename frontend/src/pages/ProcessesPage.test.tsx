@@ -54,7 +54,7 @@ describe('ProcessesPage', () => {
     render(<ProcessesPage />)
     const table = await screen.findByLabelText('Lista de processos')
     expect(within(table).getByText('2 processos')).toBeTruthy()
-    expect(within(table).getByText('PCCheck')).toBeTruthy()
+    expect(within(table).getByText('NEXCORE')).toBeTruthy()
 
     fireEvent.click(within(table).getByLabelText('Agrupar por nome'))
     expect(within(table).queryByText('2 processos')).toBeNull()
