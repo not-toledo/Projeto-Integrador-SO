@@ -6,7 +6,7 @@ import com.pccheck.agent.sensors.SensorSource;
 import com.pccheck.agent.sensors.SensorsUnavailableException;
 
 /**
- * Saúde dos discos (SMART) lida pelo leitor de sensores do PCCheck. A leitura do SMART exige administrador; sem
+ * Saúde dos discos (SMART) lida pelo leitor de sensores do NEXCORE. A leitura do SMART exige administrador; sem
  * ela, ou sem o leitor (Linux), o resultado é "não disponível" com o motivo, nunca um disco presumido saudável.
  */
 public class DiskHealthCollector implements Collector<DiskHealthInfo> {

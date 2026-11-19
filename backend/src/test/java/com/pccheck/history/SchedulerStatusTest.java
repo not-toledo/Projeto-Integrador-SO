@@ -17,11 +17,11 @@ class SchedulerStatusTest {
         List<List<String>> calls = new ArrayList<>();
         SchedulerStatus s = SchedulerStatus.query("Windows 10", cmd -> {
             calls.add(cmd);
-            return new Result(0, "\"\\PCCheck\\Coleta\",\"18/11/2026 10:15:00\",\"Pronto\"\r\n");
+            return new Result(0, "\"\\NEXCORE\\Coleta\",\"18/11/2026 10:15:00\",\"Pronto\"\r\n");
         });
         assertEquals("INSTALLED", s.state());
         assertEquals("Próxima execução: 18/11/2026 10:15:00 · Estado: Pronto", s.details());
-        assertEquals(List.of("schtasks", "/Query", "/TN", "PCCheck\\Coleta", "/FO", "CSV", "/NH"), calls.get(0));
+        assertEquals(List.of("schtasks", "/Query", "/TN", "NEXCORE\\Coleta", "/FO", "CSV", "/NH"), calls.get(0));
     }
 
     @Test
@@ -34,7 +34,7 @@ class SchedulerStatusTest {
 
     @Test
     void linuxComLinhaMarcadaNoCrontab() {
-        String crontab = "0 3 * * * /usr/bin/backup\n*/15 * * * * java -jar /home/u/pccheck-agent.jar --registrar-coleta "
+        String crontab = "0 3 * * * /usr/bin/backup\n*/15 * * * * java -jar /home/u/nexcore-agent.jar --registrar-coleta "
                 + SchedulerStatus.CRON_MARKER + "\n";
         SchedulerStatus s = SchedulerStatus.query("Linux", cmd -> new Result(0, crontab));
         assertEquals("INSTALLED", s.state());

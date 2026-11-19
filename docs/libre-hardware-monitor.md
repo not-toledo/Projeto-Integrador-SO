@@ -2,7 +2,7 @@
 
 O OSHI não fornece utilização da GPU, memória de vídeo em uso nem leitura confiável de temperatura e ventoinhas no
 Windows (a integração dele com monitores de hardware só consulta o **Open Hardware Monitor** antigo, não o
-LibreHardwareMonitor). Por isso o PCCheck lê esses dados do servidor web local do
+LibreHardwareMonitor). Por isso o NEXCORE lê esses dados do servidor web local do
 [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor).
 
 ## O que passa a aparecer
@@ -20,7 +20,7 @@ LibreHardwareMonitor). Por isso o PCCheck lê esses dados do servidor web local 
    Sem administrador, a maioria dos sensores da CPU e da placa-mãe não é lida.
 3. No menu: **Options → Remote Web Server → Run**. A porta padrão é **8085**.
 4. Confira no navegador: `http://127.0.0.1:8085/data.json` deve mostrar um JSON. Se o programa pedir usuário e
-   senha, deixe a autenticação do servidor desativada (o PCCheck não envia credenciais).
+   senha, deixe a autenticação do servidor desativada (o NEXCORE não envia credenciais).
 5. Mantenha o LibreHardwareMonitor aberto (opcional: *Options → Start Minimized* e *Run On Windows Startup*).
 6. Reinicie o backend. Em poucos segundos a aba Live Monitor mostra GPU e sensores.
 
@@ -29,11 +29,11 @@ LibreHardwareMonitor). Por isso o PCCheck lê esses dados do servidor web local 
 Em `backend/src/main/resources/application.properties`:
 
 ```
-pccheck.lhm.url=http://127.0.0.1:8085/data.json
+nexcore.lhm.url=http://127.0.0.1:8085/data.json
 ```
 
 - Mudou a porta no LibreHardwareMonitor? Ajuste aqui.
-- Somente `localhost`/`127.0.0.1` são aceitos (o PCCheck não consulta outras máquinas).
+- Somente `localhost`/`127.0.0.1` são aceitos (o NEXCORE não consulta outras máquinas).
 - Em branco, a integração fica desativada e GPU/sensores voltam a "Sem leitura".
 
 ## Quando não há leitura

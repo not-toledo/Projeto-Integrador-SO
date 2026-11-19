@@ -1,4 +1,4 @@
-# Diagramas — PCCheck
+# Diagramas — NEXCORE
 
 Os diagramas usam Mermaid, renderizado pelo GitHub. Cada diagrama tem descrição em texto para leitores que não podem
 vê-lo.

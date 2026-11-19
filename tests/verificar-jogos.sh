@@ -3,7 +3,7 @@
 #   tests/verificar-jogos.sh [appId]    (padrao: o primeiro jogo instalado encontrado)
 # Funciona sem Steam instalada: confere que a resposta diz que a Steam nao foi encontrada.
 set -uo pipefail
-BASE="${PCCHECK_API:-http://127.0.0.1:8080/api/games}"
+BASE="${NEXCORE_API:-http://127.0.0.1:8080/api/games}"
 
 if ! INSTALLED="$(curl -sS --max-time 30 "$BASE/installed")"; then
   echo "FALHA: nao foi possivel acessar $BASE/installed (o backend esta em execucao?)"

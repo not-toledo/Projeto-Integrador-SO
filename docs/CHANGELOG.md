@@ -1,5 +1,17 @@
 # Histórico de versões
 
+## V4.0.0 — NEXCORE (nova identidade)
+- O produto passou a se chamar **NEXCORE** (antes: PCCheck). Renomeados: interface (título, logotipo, textos), `/api/ping` (`"app":"NEXCORE"`), mensagens dos scripts, documentação, artefatos Maven (`nexcore-parent`, `nexcore-agent`, `nexcore-backend`) e npm (`nexcore-frontend`), leitor de sensores (`NEXCORE.SensorHost.exe`, nome que aparece no aviso do Windows), tarefa agendada (`NEXCORE\Coleta`), pipe (`nexcore-sensors-*`) e chaves de configuração (`nexcore.*`).
+- Mantidos de propósito (internos, sem efeito para o usuário): o pacote Java `com.pccheck` e nomes de classes como `PcCheckAgent`. As entradas antigas deste histórico continuam com o nome da época.
+- Compatibilidade: variáveis `PCCHECK_DATA_DIR`, `PCCHECK_RETENCAO_DIAS` e `PCCHECK_STEAM_DIR` continuam valendo quando a versão `NEXCORE_*` não está definida. Na primeira execução, as coletas de `%LOCALAPPDATA%\PCCheck` (ou `~/.local/state/pccheck`) são **copiadas** para a pasta do NEXCORE, sem apagar a antiga. `agendar-coleta remover` também remove a tarefa antiga `PCCheck\Coleta`.
+- Logotipo oficial em `branding/nexcore-logo.png`; `branding/gerar-recursos.ps1` gera ícone (`nexcore.ico`, 16 a 256 px), PNGs, favicon e imagens do instalador, recortando só a margem preta para o símbolo ficar legível em tamanhos pequenos.
+- Versão 4.0.0 em todos os módulos.
+- Testes: variáveis antigas e migração das coletas (`HistoryStoreTest`).
+- **Versão instalável para Windows** (`installer/`): `NEXCORE.exe` gerado pelo `jpackage` com Java 21 reduzido (`jlink`), interface embutida no backend (perfil Maven `distribuicao`) e leitor de sensores; o usuário não precisa de Java, Node.js nem ferramentas de desenvolvimento.
+- `NexcoreLauncher`: instância única, porta 47820 (a de desenvolvimento continua 8080), configuração do usuário em `%LOCALAPPDATA%\NEXCORE\config\nexcore.properties` (nunca sobrescrita), logs em arquivo, navegador padrão, ícone na bandeja (Abrir, pasta de dados, Sair) e janela de erro.
+- Instalador Inno Setup (`NEXCORE-Setup-4.0.0.exe`, 68,5 MB): modo escuro com o logotipo, "para todos" (Program Files, admin) ou "só para mim", requisitos (Windows 10 1903+, 64 bits, espaço, .NET 4.8), atalhos, registro em Aplicativos instalados, PawnIO opcional pelo instalador oficial (SHA-256 e assinatura conferidos), atualização no lugar preservando dados e desinstalador que pergunta antes de apagar dados. `installer/build.ps1` gera tudo e o `.sha256`.
+- Validado nesta máquina com PATH só do Windows (sem Java/Node): instalação, abertura pelo atalho, todos os módulos (inventário, monitor com sensores, saúde, processos, jogos com a Steam), segunda abertura sem duplicar, atualização com o NEXCORE aberto preservando a configuração e desinstalação (remove programa, atalhos e registro; mantém dados e PawnIO).
+
 ## V3.2 — Quem é melhor, sem precisar interpretar números
 - Novo estado `NEAR_REQUIRED` ("Próximo do exigido"): benchmark com confiança alta e 85% a 99% do exigido. Antes ia para "Revisão manual"; agora diz que o desempenho é parecido e que o jogo deve rodar com pouca folga, e a classificação geral fica "Compatibilidade limitada" em vez de "Dados insuficientes". Com o desempenho por núcleo também abaixo de 85%, continua revisão manual.
 - Toda comparação por benchmark começa com uma frase direta: "Seu processador rende 94% do exigido (Intel Core i5-8400): 6% a menos", "é 62% mais rápido" ou "praticamente iguais" (diferença < 3%). Os motivos da classificação geral mostram só essa frase.

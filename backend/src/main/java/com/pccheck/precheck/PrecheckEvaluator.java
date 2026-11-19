@@ -185,10 +185,10 @@ public final class PrecheckEvaluator {
             case "BALANCED", "HIGH_PERFORMANCE" -> new Item("power", label, "OK", plan.name(),
                     "Plano padrão do Windows adequado para jogos.");
             case "LINUX_GOVERNOR" -> new Item("power", "Governador da CPU", "INFO", plan.name(),
-                    "Política de frequência da CPU informada pelo kernel (cpufreq). O PCCheck não avalia o governador: "
+                    "Política de frequência da CPU informada pelo kernel (cpufreq). O NEXCORE não avalia o governador: "
                             + "o efeito depende do driver (ex.: \"powersave\" no intel_pstate ainda acelera sob carga).");
             default -> new Item("power", label, "INFO", plan.name(),
-                    "Plano personalizado ou do fabricante; o PCCheck não avalia os ajustes dele.");
+                    "Plano personalizado ou do fabricante; o NEXCORE não avalia os ajustes dele.");
         };
     }
 

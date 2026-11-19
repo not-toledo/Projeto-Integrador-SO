@@ -95,7 +95,7 @@ class HistoryStoreTest {
             store.append(record(day + "T12:00:00Z", 1.0));
         }
         Path alheio = store.directory().resolve("anotacoes.txt");
-        Files.writeString(alheio, "não é do PCCheck");
+        Files.writeString(alheio, "não é do NEXCORE");
         Path parecido = store.directory().resolve("coletas-backup.jsonl");
         Files.writeString(parecido, "{}");
 
@@ -114,12 +114,40 @@ class HistoryStoreTest {
     void pastaPadraoSegueVariavelDeAmbienteESistema() {
         assertEquals(Path.of("D:/dados"), HistoryStore.defaultDataDir(
                 Map.of(HistoryStore.ENV_DATA_DIR, "D:/dados", "LOCALAPPDATA", "C:/x"), "Windows 10", "C:/Users/u"));
-        assertEquals(Path.of("C:/Users/u/AppData/Local/PCCheck"),
+        assertEquals(Path.of("C:/Users/u/AppData/Local/NEXCORE"),
                 HistoryStore.defaultDataDir(Map.of("LOCALAPPDATA", "C:/Users/u/AppData/Local"), "Windows 11", "C:/Users/u"));
-        assertEquals(Path.of("/home/u/.local/state/pccheck"),
+        assertEquals(Path.of("/home/u/.local/state/nexcore"),
                 HistoryStore.defaultDataDir(Map.of(), "Linux", "/home/u"));
-        assertEquals(Path.of("/xdg/state/pccheck"),
+        assertEquals(Path.of("/xdg/state/nexcore"),
                 HistoryStore.defaultDataDir(Map.of("XDG_STATE_HOME", "/xdg/state"), "Linux", "/home/u"));
+    }
+
+    @Test
+    void variaveisComONomeAntigoContinuamValendo() {
+        assertEquals(Path.of("D:/antigo"), HistoryStore.defaultDataDir(Map.of("PCCHECK_DATA_DIR", "D:/antigo"), "Windows 10", "C:/u"));
+        assertEquals(Path.of("D:/novo"), HistoryStore.defaultDataDir(
+                Map.of("NEXCORE_DATA_DIR", "D:/novo", "PCCHECK_DATA_DIR", "D:/antigo"), "Windows 10", "C:/u"));
+        assertEquals(15, ScheduledCollection.retentionDays(Map.of("PCCHECK_RETENCAO_DIAS", "15")));
+        assertEquals(Path.of("C:/l/PCCheck"), HistoryStore.legacyDataDir(Map.of("LOCALAPPDATA", "C:/l"), "Windows 11", "C:/u"));
+        assertNull(HistoryStore.legacyDataDir(Map.of("NEXCORE_DATA_DIR", "D:/x"), "Windows 11", "C:/u"));
+    }
+
+    @Test
+    void migracaoCopiaAsColetasAntigasUmaVezSemApagar() throws Exception {
+        Path antiga = temp.resolve("PCCheck");
+        Path nova = temp.resolve("NEXCORE");
+        Files.createDirectories(antiga.resolve("coletas"));
+        Files.writeString(antiga.resolve("coletas/coletas-2026-11-17.jsonl"), "{}\n");
+        Files.writeString(antiga.resolve("coletas/outro.txt"), "nao e coleta");
+
+        assertEquals(1, HistoryStore.migrateLegacy(nova, antiga));
+        assertTrue(Files.exists(nova.resolve("coletas/coletas-2026-11-17.jsonl")));
+        assertTrue(Files.exists(antiga.resolve("coletas/coletas-2026-11-17.jsonl")), "a pasta antiga fica intacta");
+        // Na segunda vez a pasta nova já existe: nada é copiado nem sobrescrito.
+        Files.writeString(nova.resolve("coletas/coletas-2026-11-17.jsonl"), "novo");
+        assertEquals(0, HistoryStore.migrateLegacy(nova, antiga));
+        assertEquals("novo", Files.readString(nova.resolve("coletas/coletas-2026-11-17.jsonl")));
+        assertEquals(0, HistoryStore.migrateLegacy(nova, null));
     }
 
     @Test
@@ -137,7 +165,7 @@ class HistoryStoreTest {
         }
         Path existente = Files.createDirectory(temp.resolve("compartilhada"));
         Files.setPosixFilePermissions(existente, PosixFilePermissions.fromString("rwxr-xr-x"));
-        HistoryStore store = new HistoryStore(existente.resolve("pccheck"), UTC);
+        HistoryStore store = new HistoryStore(existente.resolve("nexcore"), UTC);
         Path file = store.append(record("2026-11-17T10:00:00Z", 1.0));
 
         assertEquals("rwx------", PosixFilePermissions.toString(Files.getPosixFilePermissions(store.directory())));

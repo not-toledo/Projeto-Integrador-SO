@@ -12,9 +12,9 @@
   </parent>
 
   <groupId>com.pccheck</groupId>
-  <artifactId>pccheck-backend</artifactId>
-  <version>1.0.0</version>
-  <name>PCCheck Backend</name>
+  <artifactId>nexcore-backend</artifactId>
+  <version>4.0.0</version>
+  <name>NEXCORE Backend</name>
 
   <properties>
     <java.version>21</java.version>
@@ -24,7 +24,7 @@
     <!-- Coletores do agente (mesmo processo). Instale antes: mvn -pl agent install -->
     <dependency>
       <groupId>com.pccheck</groupId>
-      <artifactId>pccheck-agent</artifactId>
+      <artifactId>nexcore-agent</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -46,4 +46,35 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <!--
+      Versao distribuida (installer/build.ps1): a interface ja compilada (frontend/dist) entra no jar como recurso
+      estatico e o ponto de entrada passa a ser o NexcoreLauncher (bandeja, navegador, instancia unica).
+      Sem este perfil nada muda: run-backend continua iniciando PcCheckBackendApplication e o Vite serve a interface.
+    -->
+    <profile>
+      <id>distribuicao</id>
+      <build>
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+          </resource>
+          <resource>
+            <directory>../frontend/dist</directory>
+            <targetPath>static</targetPath>
+          </resource>
+        </resources>
+        <plugins>
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+              <mainClass>com.pccheck.launcher.NexcoreLauncher</mainClass>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

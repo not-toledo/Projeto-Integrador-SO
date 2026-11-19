@@ -1,7 +1,7 @@
 package com.pccheck.diagnostic;
 
 /**
- * Limites da saúde dos discos, configuráveis em application.properties ({@code pccheck.health.disk.*}).
+ * Limites da saúde dos discos, configuráveis em application.properties ({@code nexcore.health.disk.*}).
  *
  * <p>Origem dos valores padrão (conservadores; consulte a ficha técnica do seu disco):
  * <ul>

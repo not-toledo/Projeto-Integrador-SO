@@ -1,4 +1,4 @@
-# Processo de desenvolvimento e execução — PCCheck
+# Processo de desenvolvimento e execução — NEXCORE
 
 ## Ambiente
 
@@ -14,8 +14,11 @@ No Windows, os scripts `tests/*.sh` exigem um shell Bash e `curl`: use o **Git B
 
 ## Versionamento
 
-- A versão **1.0.0** aparece em todos os módulos: POMs (raiz, agente e backend), `PcCheckAgent.VERSION`, `/api/ping`,
-  scripts, `frontend/package.json` e `package-lock.json`. Ao mudar a versão, atualize todos esses pontos.
+- A versão **4.0.0** aparece em todos os módulos: POMs (raiz, agente e backend), `PcCheckAgent.VERSION`, `/api/ping`,
+  scripts, `frontend/package.json`, `package-lock.json` e o leitor de sensores (`NEXCORE.SensorHost.csproj` e
+  `app.manifest`). Ao mudar a versão, atualize todos esses pontos.
+- Identidade visual: o logotipo oficial é `branding/nexcore-logo.png`; ícones, favicon e imagens do instalador são
+  gerados por `branding/gerar-recursos.ps1` (só redimensiona, sem alterar o desenho).
 - Cada versão tem entrada em [CHANGELOG.md](CHANGELOG.md), com o que mudou e as pendências conhecidas.
 
 ## Branches, commits e Pull Requests
@@ -72,7 +75,7 @@ os valores com o Gerenciador de Tarefas e o Gerenciador de Dispositivos (Windows
 ## Integração contínua e deploy
 
 - **CI:** não há pipeline configurada neste projeto. Os testes são executados localmente.
-- **Deploy:** não há. O PCCheck é executado na máquina do usuário e não publica nada na internet.
+- **Deploy:** não há. O NEXCORE é executado na máquina do usuário e não publica nada na internet.
 
 ## Solução de problemas
 
@@ -81,7 +84,7 @@ Problemas reais encontrados ao executar o projeto do zero no Windows:
 | Sintoma | Causa e solução |
 |---|---|
 | `mvn` (ou `java`) não é reconhecido | O Maven/JDK não está no `PATH` do terminal. Feche e abra o terminal depois de instalar. Para a sessão atual: `$env:Path += ";C:\Tools\apache-maven-3.9.9\bin"` (ajuste o caminho). |
-| `Could not find artifact com.pccheck:pccheck-parent:pom` | O pom pai não está no repositório Maven local. Use `scripts/run-backend` ou rode `mvn -N install` e `mvn -pl agent install`. |
+| `Could not find artifact com.pccheck:nexcore-parent:pom` | O pom pai não está no repositório Maven local. Use `scripts/run-backend` ou rode `mvn -N install` e `mvn -pl agent install`. |
 | `Port 8080 was already in use` | Já há um backend rodando. Encerre o processo: `netstat -ano \| findstr :8080` e depois `taskkill /PID <número> /F`. |
 | `npm error Missing script: "dev"` | O comando foi executado fora da pasta `frontend`. Entre nela com `cd frontend`. |
 | `npm test` falha ao iniciar | Node.js abaixo de 22.22.2. Atualize o Node.js. |

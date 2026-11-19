@@ -15,7 +15,7 @@ export function SiteFooter() {
           <a href={REPOSITORY_URL} target="_blank" rel="noreferrer">GitHub</a>
         </nav>
         <p className="footer-about">
-          PCCheck · Projeto Integrador de Sistemas Operacionais
+          NEXCORE · Projeto Integrador de Sistemas Operacionais
         </p>
         <p className="footer-credits">
           Dados: OSHI · LibreHardwareMonitor · Steam · Blender Open Data (CC0) · Fonte Silkscreen (OFL)

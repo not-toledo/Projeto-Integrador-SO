@@ -1,7 +1,7 @@
 import { bounds, project, solid, type IsoItem } from './iso'
 import { IsoScene } from './IsoScene'
 
-/** Camadas reais do PCCheck, de cima (o que o usuário vê) para baixo (de onde vêm os dados). */
+/** Camadas reais do NEXCORE, de cima (o que o usuário vê) para baixo (de onde vêm os dados). */
 const LAYERS: { name: string; detail: string }[] = [
   { name: 'Interface', detail: 'React · este navegador' },
   { name: 'API local', detail: 'Spring Boot · 127.0.0.1:8080' },

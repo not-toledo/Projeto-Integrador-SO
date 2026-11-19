@@ -26,7 +26,7 @@ public class HistoryService {
     private final String osName;
 
     @Autowired
-    public HistoryService(@Value("${pccheck.history.data-dir:}") String dataDir) {
+    public HistoryService(@Value("${nexcore.history.data-dir:}") String dataDir) {
         this(dataDir == null || dataDir.isBlank() ? ScheduledCollection.dataDir() : Path.of(dataDir.trim()),
                 Clock.systemDefaultZone(), System.getProperty("os.name"));
     }

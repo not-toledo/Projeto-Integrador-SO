@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * Processos em execução (GET /api/processes), lidos pelo OSHI em duas leituras com {@code sampleMillis} de intervalo.
- * Somente leitura: o PCCheck não encerra nem altera processos.
+ * Somente leitura: o NEXCORE não encerra nem altera processos.
  *
  * @param processCount quantidade informada pelo SO (null se não informou)
  * @param threadCount  threads somadas de todos os processos, informada pelo SO (null se não informou)
@@ -29,7 +29,7 @@ public record ProcessesDto(Instant collectedAt, long sampleMillis, int logicalPr
      * @param priority    prioridade como o SO informa (Windows: prioridade base, 8 = normal; Linux: valor do kernel)
      * @param user        dono do processo; null quando o SO não informa (comum sem permissão de administrador)
      * @param startTime   início do processo; null quando o SO não informa
-     * @param self        o próprio backend do PCCheck
+     * @param self        o próprio backend do NEXCORE
      */
     public record ProcessInfo(int pid, int parentPid, String name, String user, String state, int priority,
                               int threads, Double cpuPercent, long memoryBytes, long virtualBytes, Instant startTime,

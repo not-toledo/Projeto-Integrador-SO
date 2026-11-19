@@ -8,7 +8,7 @@ import java.util.Locale;
 
 /**
  * Consulta o agendador do sistema operacional para saber se a coleta agendada está instalada.
- * Windows: {@code schtasks /Query /TN PCCheck\Coleta /FO CSV /NH}; Linux: {@code crontab -l}, procurando a linha
+ * Windows: {@code schtasks /Query /TN NEXCORE\Coleta /FO CSV /NH}; Linux: {@code crontab -l}, procurando a linha
  * marcada pelo script {@code scripts/agendar-coleta.sh}. Os comandos são fixos (nada vem do usuário) e têm tempo
  * limite.
  *
@@ -17,8 +17,8 @@ import java.util.Locale;
  */
 public record SchedulerStatus(String state, String details) {
 
-    public static final String TASK_NAME = "PCCheck\\Coleta";
-    public static final String CRON_MARKER = "# PCCheck: coleta agendada";
+    public static final String TASK_NAME = "NEXCORE\\Coleta";
+    public static final String CRON_MARKER = "# NEXCORE: coleta agendada";
     public static SchedulerStatus query(String osName) {
         return query(osName, CommandRunner.system());
     }
@@ -49,7 +49,7 @@ public record SchedulerStatus(String state, String details) {
         }
     }
 
-    /** "\"\\PCCheck\\Coleta\",\"18/11/2026 10:15:00\",\"Pronto\"" → "Próxima execução: 18/11/2026 10:15:00 · Pronto". */
+    /** "\"\\NEXCORE\\Coleta\",\"18/11/2026 10:15:00\",\"Pronto\"" → "Próxima execução: 18/11/2026 10:15:00 · Pronto". */
     static String fromCsv(String output) {
         for (String line : output.split("\\R")) {
             String[] cols = line.trim().split("\",\"");

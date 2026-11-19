@@ -61,7 +61,7 @@ class SensorHostClientTest {
     }
 
     private static SensorHostClient client(FakeLauncher launcher, SensorHostClient.PipeReader pipe, Executor executor) {
-        return new SensorHostClient(Path.of("PCCheck.SensorHost.exe"), true, launcher, pipe, executor);
+        return new SensorHostClient(Path.of("NEXCORE.SensorHost.exe"), true, launcher, pipe, executor);
     }
 
     @Test

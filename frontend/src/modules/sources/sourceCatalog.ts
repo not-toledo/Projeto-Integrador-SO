@@ -1,4 +1,4 @@
-// De onde vem cada dado exibido pelo PCCheck, no Windows e no Linux.
+// De onde vem cada dado exibido pelo NEXCORE, no Windows e no Linux.
 //
 // As fontes foram conferidas no código do OSHI 6.6.5 (a biblioteca de coleta do agente), no leitor de sensores
 // (sensor-host) e no próprio agente. "OSHI" é só o intermediário: a origem é sempre uma interface do sistema
@@ -17,7 +17,7 @@ export type SourceSection =
   | 'os' | 'cpu' | 'memory' | 'gpu' | 'motherboard' | 'storage'
   | 'live-cpu' | 'live-memory' | 'live-gpu' | 'live-sensors' | 'live-disks'
 
-const SENSOR_HOST = 'Leitor de sensores do PCCheck (sensor-host, LibreHardwareMonitorLib)'
+const SENSOR_HOST = 'Leitor de sensores do NEXCORE (sensor-host, LibreHardwareMonitorLib)'
 
 const MEMORY_COMMON: DataSource[] = [
   { field: 'Total', windows: 'API GetPerformanceInfo (Psapi): PhysicalTotal', linux: '/proc/meminfo: MemTotal' },

@@ -2,7 +2,7 @@ package com.pccheck.diagnostic;
 
 /**
  * Limites da análise de pressão de memória, configuráveis em application.properties
- * ({@code pccheck.health.memory-pressure.*}).
+ * ({@code nexcore.health.memory-pressure.*}).
  *
  * <p>Valores padrão definidos pelo projeto (heurísticas conservadoras, não limites oficiais do Windows ou do
  * Linux): aviso com memória comprometida a partir de 90% do limite, e paginação considerada sustentada quando a

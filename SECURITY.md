@@ -1,6 +1,6 @@
 # Política de segurança
 
-O PCCheck é uma aplicação local. O backend escuta somente em `127.0.0.1` e não oferece controle remoto. O leitor de
+O NEXCORE é uma aplicação local. O backend escuta somente em `127.0.0.1` e não oferece controle remoto. O leitor de
 sensores (`sensor-host`) é o único componente que roda como administrador: ele não abre portas de rede, só escreve
 leituras de sensores em um pipe nomeado local com nome aleatório e termina junto com o backend.
 

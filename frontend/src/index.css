@@ -687,10 +687,10 @@ dd {
 
 /* Marca: um "pixel" com canto aberto, como um chip visto de cima. */
 .logo-mark {
-  width: 14px;
-  height: 14px;
-  background: var(--text);
-  box-shadow: 4px 4px 0 -1px var(--bg), 4px 4px 0 0 var(--accent);
+  display: block;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
 }
 
 .site-nav {
@@ -1557,11 +1557,11 @@ dd {
 }
 
 .logo:hover .logo-mark {
-  background: var(--accent);
+  border-color: var(--accent);
 }
 
 .logo-mark {
-  transition: background var(--ease);
+  transition: border-color var(--ease);
 }
 
 /* ==== Ajustes pedidos na revisão (V3.0) ==== */

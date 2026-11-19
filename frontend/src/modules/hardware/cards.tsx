@@ -133,7 +133,7 @@ export function GpuCard({ result, platform }: CardProps<'gpu'>) {
             </div>
           ))}
           <p className="muted">
-            A utilização e a temperatura da GPU aparecem na aba Live Monitor (via leitor de sensores do PCCheck). A VRAM
+            A utilização e a temperatura da GPU aparecem na aba Live Monitor (via leitor de sensores do NEXCORE). A VRAM
             informada aqui não distingue memória dedicada de compartilhada.
           </p>
         </>

@@ -1,0 +1,40 @@
+NEXCORE - componentes de terceiros incluidos nesta instalacao
+=============================================================
+
+O NEXCORE e um Projeto Integrador de Sistemas Operacionais. Codigo-fonte:
+https://github.com/not-toledo/Projeto-Integrador-SO
+
+Componentes distribuidos junto com o NEXCORE:
+
+- Java Runtime (pasta runtime): Microsoft Build of OpenJDK 21, reduzido com jlink.
+  Licenca: GNU GPL v2 com Classpath Exception. https://learn.microsoft.com/java/openjdk/
+
+- Spring Boot e Spring Framework (dentro de app\nexcore-backend-*.jar).
+  Licenca: Apache License 2.0. https://spring.io/projects/spring-boot
+
+- OSHI - leitura de informacoes do sistema operacional e do hardware.
+  Licenca: MIT. https://github.com/oshi/oshi
+
+- JNA - acesso a bibliotecas nativas do sistema.
+  Licenca: Apache License 2.0 ou LGPL 2.1 (a escolha). https://github.com/java-native-access/jna
+
+- LibreHardwareMonitorLib (pasta sensor-host) - leitura de sensores.
+  Licenca: Mozilla Public License 2.0. https://github.com/LibreHardwareMonitor/LibreHardwareMonitor
+  As demais bibliotecas da pasta sensor-host sao dependencias distribuidas com a LibreHardwareMonitorLib;
+  as licencas de cada uma estao nos respectivos projetos.
+
+- React (interface). Licenca: MIT. https://react.dev
+
+- Fonte Silkscreen (titulos da interface). Licenca: SIL Open Font License 1.1.
+  https://github.com/googlefonts/silkscreen
+
+Opcional, somente se escolhido durante a instalacao:
+
+- PawnIO - driver usado pela LibreHardwareMonitorLib para ler a temperatura da CPU e as ventoinhas.
+  Instalado pelo instalador oficial do PawnIO, com os termos dele. Codigo-fonte do driver: GNU GPL v2.
+  https://pawnio.eu  -  https://github.com/namazso/PawnIO
+  O PawnIO nao e removido ao desinstalar o NEXCORE (outros programas tambem o usam); para remove-lo, use
+  "Aplicativos instalados" do Windows.
+
+Dados do usuario: %LOCALAPPDATA%\NEXCORE (configuracao, logs e historico). Ao desinstalar, o NEXCORE pergunta
+se deve remove-los.

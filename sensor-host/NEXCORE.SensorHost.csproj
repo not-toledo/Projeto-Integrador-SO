@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    Leitor de sensores do PCCheck. Processo auxiliar iniciado e encerrado pelo backend Java; o usuário não o
+    Leitor de sensores do NEXCORE. Processo auxiliar iniciado e encerrado pelo backend Java; o usuário não o
     executa. Usa a biblioteca LibreHardwareMonitorLib (MPL-2.0) para temperatura da CPU, ventoinhas e GPU.
 
     .NET Framework 4.8: já vem instalado no Windows 10 (1903+) e 11, então não exige instalar runtime.
@@ -12,12 +12,12 @@
     <TargetFramework>net48</TargetFramework>
     <LangVersion>latest</LangVersion>
     <PlatformTarget>x64</PlatformTarget>
-    <AssemblyName>PCCheck.SensorHost</AssemblyName>
-    <RootNamespace>PCCheck.SensorHost</RootNamespace>
+    <AssemblyName>NEXCORE.SensorHost</AssemblyName>
+    <RootNamespace>NEXCORE.SensorHost</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <Version>1.0.0</Version>
+    <Version>4.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

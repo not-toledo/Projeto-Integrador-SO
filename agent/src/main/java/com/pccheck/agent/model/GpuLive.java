@@ -1,7 +1,7 @@
 package com.pccheck.agent.model;
 
 /**
- * Telemetria de GPU em tempo real, lida pelo leitor de sensores do PCCheck (o OSHI não fornece estes dados).
+ * Telemetria de GPU em tempo real, lida pelo leitor de sensores do NEXCORE (o OSHI não fornece estes dados).
  * Campo nulo = sem leitura (nunca estimado).
  *
  * @param utilizationPercent uso do núcleo da GPU, de 0 a 100

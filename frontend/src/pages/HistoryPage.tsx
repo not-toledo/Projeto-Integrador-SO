@@ -27,7 +27,7 @@ function SchedulerBanner({ scheduler }: { scheduler: SchedulerStatus }) {
   if (scheduler.state === 'NOT_INSTALLED') {
     return (
       <div className="banner game-warning" role="status">
-        <strong>Coleta agendada não instalada.</strong> Para registrar o histórico mesmo com o PCCheck fechado, execute
+        <strong>Coleta agendada não instalada.</strong> Para registrar o histórico mesmo com o NEXCORE fechado, execute
         na raiz do projeto <code>scripts\agendar-coleta.bat instalar</code> (Windows) ou{' '}
         <code>scripts/agendar-coleta.sh instalar</code> (Linux).
       </div>
@@ -65,7 +65,7 @@ export function HistoryPage() {
         }
       >
         <p className="muted">
-          Coletas feitas pela tarefa agendada do sistema operacional, inclusive com o PCCheck fechado.
+          Coletas feitas pela tarefa agendada do sistema operacional, inclusive com o NEXCORE fechado.
         </p>
       </PageHeader>
 

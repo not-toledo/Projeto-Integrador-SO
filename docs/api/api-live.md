@@ -1,7 +1,7 @@
 # API do Live Monitor (Módulo C — coleta periódica)
 
-O backend coleta métricas em **segundo plano**, a cada `pccheck.monitor.interval-ms` (padrão 2000 ms), e guarda as
-últimas `pccheck.monitor.history-size` amostras (padrão 300) **somente em memória**; ao reiniciar o backend, o histórico
+O backend coleta métricas em **segundo plano**, a cada `nexcore.monitor.interval-ms` (padrão 2000 ms), e guarda as
+últimas `nexcore.monitor.history-size` amostras (padrão 300) **somente em memória**; ao reiniciar o backend, o histórico
 é perdido. As requisições HTTP apenas leem esse histórico (não disparam coleta). O backend escuta somente em `127.0.0.1`.
 
 | Endpoint | Descrição |
@@ -53,14 +53,14 @@ A falha de um grupo (por exemplo, sensores) não afeta os demais.
 ## Configuração (`application.properties`)
 
 ```
-pccheck.monitor.interval-ms=2000
-pccheck.monitor.history-size=300
-pccheck.sensors.enabled=true
-pccheck.sensors.elevate=true
-pccheck.sensors.host-path=
+nexcore.monitor.interval-ms=2000
+nexcore.monitor.history-size=300
+nexcore.sensors.enabled=true
+nexcore.sensors.elevate=true
+nexcore.sensors.host-path=
 ```
 
-`pccheck.sensors.*` controla o leitor de sensores interno (ver [sensores.md](../sensores.md)): ligar/desligar, pedir permissão de administrador ao iniciar e o caminho do executável (vazio procura em `sensor-host/dist/`).
+`nexcore.sensors.*` controla o leitor de sensores interno (ver [sensores.md](../sensores.md)): ligar/desligar, pedir permissão de administrador ao iniciar e o caminho do executável (vazio procura em `sensor-host/dist/`).
 
 Intervalo mínimo de 500 ms; histórico entre 10 e 3600 amostras. Valores fora da faixa impedem o backend de iniciar, com
 mensagem explicativa. Aumentar o intervalo reduz o consumo de CPU.

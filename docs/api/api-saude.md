@@ -48,19 +48,19 @@ Os valores padrão são **limites genéricos e conservadores definidos pelo proj
 fabricante do seu processador ou disco. Ajuste-os em `backend/src/main/resources/application.properties`:
 
 ```
-pccheck.health.cpu-temp-warning-c=80
-pccheck.health.cpu-temp-critical-c=95
-pccheck.health.disk-free-warning-percent=15
-pccheck.health.disk-free-critical-percent=5
-pccheck.health.ram-used-warning-percent=85
-pccheck.health.memory-pressure.commit-warning-percent=90
-pccheck.health.memory-pressure.page-out-warning-bytes-per-sec=1048576
-pccheck.health.memory-pressure.window-samples=30
-pccheck.health.memory-pressure.min-samples=10
-pccheck.health.disk.life-warning-percent=20
-pccheck.health.disk.life-critical-percent=5
-pccheck.health.disk.hdd-temp-warning-c=55
-pccheck.health.disk.ssd-temp-warning-c=70
+nexcore.health.cpu-temp-warning-c=80
+nexcore.health.cpu-temp-critical-c=95
+nexcore.health.disk-free-warning-percent=15
+nexcore.health.disk-free-critical-percent=5
+nexcore.health.ram-used-warning-percent=85
+nexcore.health.memory-pressure.commit-warning-percent=90
+nexcore.health.memory-pressure.page-out-warning-bytes-per-sec=1048576
+nexcore.health.memory-pressure.window-samples=30
+nexcore.health.memory-pressure.min-samples=10
+nexcore.health.disk.life-warning-percent=20
+nexcore.health.disk.life-critical-percent=5
+nexcore.health.disk.hdd-temp-warning-c=55
+nexcore.health.disk.ssd-temp-warning-c=70
 ```
 
 Limites incoerentes (por exemplo, crítico menor que atenção) impedem o backend de iniciar, com mensagem explicando o erro.

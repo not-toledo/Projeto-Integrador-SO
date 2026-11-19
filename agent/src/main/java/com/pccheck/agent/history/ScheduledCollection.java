@@ -1,6 +1,8 @@
 package com.pccheck.agent.history;
 
+import com.pccheck.agent.Env;
 import com.pccheck.agent.collector.SystemCollector;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -16,14 +18,14 @@ import oshi.SystemInfo;
  */
 public final class ScheduledCollection {
 
-    public static final String ENV_RETENTION_DAYS = "PCCHECK_RETENCAO_DIAS";
+    public static final String ENV_RETENTION_DAYS = "NEXCORE_RETENCAO_DIAS";
 
     private ScheduledCollection() {
     }
 
     /** Dias de retenção: {@value #ENV_RETENTION_DAYS} se for um inteiro de 1 a 365; senão o padrão. */
     public static int retentionDays(Map<String, String> env) {
-        String value = env.get(ENV_RETENTION_DAYS);
+        String value = Env.get(env, ENV_RETENTION_DAYS);
         if (value == null || value.isBlank()) return HistoryStore.DEFAULT_RETENTION_DAYS;
         try {
             int days = Integer.parseInt(value.trim());
@@ -33,9 +35,18 @@ public final class ScheduledCollection {
         }
     }
 
+    /** Pasta de dados; na primeira vez, copia as coletas da pasta do nome antigo (PCCheck), se houver. */
     public static Path dataDir() {
-        return HistoryStore.defaultDataDir(System.getenv(), System.getProperty("os.name"),
-                System.getProperty("user.home"));
+        Map<String, String> env = System.getenv();
+        String os = System.getProperty("os.name");
+        String home = System.getProperty("user.home");
+        Path dir = HistoryStore.defaultDataDir(env, os, home);
+        try {
+            HistoryStore.migrateLegacy(dir, HistoryStore.legacyDataDir(env, os, home));
+        } catch (IOException | RuntimeException e) {
+            // A migração é uma conveniência: sem ela, a pasta antiga continua intacta e nada é perdido.
+        }
+        return dir;
     }
 
     /** Executa a coleta agendada. Retorna o código de saída do processo. */

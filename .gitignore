@@ -10,3 +10,6 @@ dist/
 # Leitor de sensores (.NET): saidas de compilacao
 sensor-host/bin/
 sensor-host/obj/
+
+# Empacotamento e instalador (installer/build.ps1)
+build/

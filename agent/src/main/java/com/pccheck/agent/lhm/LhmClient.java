@@ -14,7 +14,7 @@ import java.util.Set;
 /**
  * Lê o {@code data.json} do servidor web do LibreHardwareMonitor (Options → Remote Web Server → Run).
  *
- * <p>Segurança: só aceita endereços locais (localhost, 127.0.0.1 ou ::1); o PCCheck não consulta
+ * <p>Segurança: só aceita endereços locais (localhost, 127.0.0.1 ou ::1); o NEXCORE não consulta
  * máquinas remotas. Uma leitura recente (menos de 1 s) é reaproveitada, para que Live Monitor e
  * Health Check não consultem o programa duas vezes seguidas.
  */
@@ -46,7 +46,7 @@ public final class LhmClient implements LhmSource {
         if (url == null || url.isBlank()) {
             return () -> {
                 throw new LhmUnavailableException(
-                        "A integração com o LibreHardwareMonitor está desativada (pccheck.lhm.url vazio).");
+                        "A integração com o LibreHardwareMonitor está desativada (nexcore.lhm.url vazio).");
             };
         }
         return new LhmClient(url);

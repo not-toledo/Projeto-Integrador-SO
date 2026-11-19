@@ -126,7 +126,7 @@ public class SystemProbe {
 
     /**
      * Agrupa por nome (sem diferenciar maiúsculas no Windows) e converte a carga em % do total da CPU (dividindo
-     * pelos processadores lógicos). Exclui o processo ocioso (PID 0) e o próprio PCCheck.
+     * pelos processadores lógicos). Exclui o processo ocioso (PID 0) e o próprio NEXCORE.
      */
     static List<ProcessGroup> group(List<ProcessLoad> loads, int logicalProcessors, long selfPid, boolean windows) {
         int cpus = Math.max(1, logicalProcessors);

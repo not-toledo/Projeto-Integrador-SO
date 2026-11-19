@@ -89,7 +89,7 @@ export function LiveMonitorPage() {
 
       <p className="muted">
         Os gráficos mostram somente leituras reais do computador local; métricas sem leitura aparecem como lacunas ou como
-        &quot;Sem leitura&quot;. GPU e sensores vêm do leitor de sensores do PCCheck, iniciado junto com o backend. O histórico fica apenas na memória (últimas {MAX_POINTS} amostras).
+        &quot;Sem leitura&quot;. GPU e sensores vêm do leitor de sensores do NEXCORE, iniciado junto com o backend. O histórico fica apenas na memória (últimas {MAX_POINTS} amostras).
       </p>
     </main>
   )

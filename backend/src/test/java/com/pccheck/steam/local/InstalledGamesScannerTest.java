@@ -166,7 +166,7 @@ class InstalledGamesScannerTest {
         InstalledGamesDto dto = new InstalledGamesService(() -> null, () -> null, true).installed();
         assertFalse(dto.steamFound());
         assertTrue(dto.games().isEmpty());
-        assertTrue(dto.problems().get(0).contains("PCCHECK_STEAM_DIR"));
+        assertTrue(dto.problems().get(0).contains("NEXCORE_STEAM_DIR"));
     }
 
     private static String esc(Path p) {

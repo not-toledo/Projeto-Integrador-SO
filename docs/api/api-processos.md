@@ -50,7 +50,7 @@ Lista os processos em execução, como o sistema operacional os informa, com o u
 | `cpuPercent` | % da CPU inteira no intervalo (0 a 100); `null` sem medição. |
 | `user` | `null` quando o SO não informa o dono. |
 | `startTime` | `null` quando o SO não informa o início. |
-| `self` | `true` no processo do próprio backend do PCCheck. |
+| `self` | `true` no processo do próprio backend do NEXCORE. |
 | `error` | Motivo quando a leitura falhou; a lista vem vazia e a interface mantém a última leitura boa. |
 | `osFamily` | `windows` ou `linux`: define a escala de prioridade e se o estado tem significado. |
 
